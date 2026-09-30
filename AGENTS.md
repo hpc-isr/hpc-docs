@@ -1,0 +1,3 @@
+# Repository instructions
+
+Before work here, read the shared [`hpc-isr repository operations guidance`](https://github.com/hpc-isr/.github/blob/main/governance/REPOSITORY_OPERATIONS.md), this repository's documentation, and the current [`hpc-isr repository inventory`](https://github.com/hpc-isr/hpc-internal-orchestration/blob/main/inventory/repositories.yaml). For repository or inventory tasks, audit all repositories listed there and report any unavailable checks. Keep technical documentation aligned with the authoritative implementation and operational owners; mark unverified guidance clearly.
