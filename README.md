@@ -8,3 +8,4 @@ supports a setting.
 ## Guides
 
 - [Submitting a batch job with Slurm](docs/slurm/batch-jobs.md)
+- [Group-aware access and priority model](docs/slurm/access-priority.md)
