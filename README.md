@@ -16,5 +16,6 @@ Maintained by the HPC Documentation Maintainers. Group names and administrator a
 
 ## Guides
 
+- [Shared ISR Slurm baseline](docs/slurm/verified-baseline.md)
 - [Submitting a batch job with Slurm](docs/slurm/batch-jobs.md)
 - [Group-aware access and priority model](docs/slurm/access-priority.md)
