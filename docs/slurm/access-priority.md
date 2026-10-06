@@ -8,6 +8,24 @@ any particular cluster has implemented or approved it. Resource administrators
 must confirm local eligibility and scheduling settings before users rely on
 them.
 
+## Shared ISR pool purpose and eligibility
+
+- **Purpose:** Provide computational resources for Deep Learning projects by
+  researchers at ISR-Lisboa/LARSyS.
+- **Eligible groups:** VisLab, DSOR, LaSEEB, IRSg, and SIPg, as listed in the
+  [research-group directory](../../README.md#research-group-sysadmins). Eligibility
+  for this shared ISR pool is limited to researchers affiliated with these five
+  groups.
+- **Priority intent:** Scheduling priority depends on researcher role. The
+  stakeholder identified senior researchers, junior researchers, postdoctoral
+  researchers, PhD students, Master's students, and Bachelor's students as user
+  roles. Their priority ordering and Slurm implementation have not yet been
+  specified.
+- **Status and provenance:** This purpose and eligibility scope were confirmed
+  by Francisco Maria Calisto on 2026-10-06. They record stakeholder intent;
+  they do not verify deployed account eligibility, priority settings, or
+  approval by every resource administrator.
+
 ## Generic rules
 
 - Determine access eligibility separately from scheduling priority.
@@ -26,8 +44,9 @@ them.
 
 - The exact ordering and scheduling implementation for researcher roles are
   not defined here.
-- Resource administrators must confirm which groups participate in each shared
-  pool and which group-owned resources permit cross-group access.
+- Resource administrators must verify that the five-group eligibility scope
+  has been implemented on the shared ISR pool and confirm which group-owned
+  resources permit cross-group access.
 - Quotas, fair-share weights, limits, and any exceptions require separate
   decisions by the responsible administrators.
 - Scheduler integration for a separate server cluster requires an explicit
