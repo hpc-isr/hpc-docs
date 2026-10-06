@@ -26,6 +26,22 @@ them.
   they do not verify deployed account eligibility, priority settings, or
   approval by every resource administrator.
 
+## Proposed supplemental eligibility for SysAdmin review
+
+On 2026-10-07, Francisco Maria Calisto raised including technical and
+administrative staff, as well as visiting collaborators, while expressing
+uncertainty. The following safeguards are a proposal for review, not an
+approved policy:
+
+- Technical or administrative staff may receive compute access when it is
+  needed for research support or HPC operations. Administrative system
+  privileges remain separate from ordinary compute access.
+- A visiting collaborator must have a named sponsor in one of the five groups,
+  a documented purpose, and an access end date. Access remains subject to the
+  resource owner's approval and applicable data restrictions.
+- Neither category receives elevated job priority or broader data access by
+  default. Any exception requires approval from the relevant resource owner.
+
 ## Generic rules
 
 - Determine access eligibility separately from scheduling priority.
@@ -44,6 +60,9 @@ them.
 
 - The exact ordering and scheduling implementation for researcher roles are
   not defined here.
+- The five group SysAdmins have not yet confirmed whether technical or
+  administrative staff and visiting collaborators should be eligible, or
+  whether the proposed safeguards are sufficient.
 - Resource administrators must verify that the five-group eligibility scope
   has been implemented on the shared ISR pool and confirm which group-owned
   resources permit cross-group access.
