@@ -3,7 +3,7 @@
 ## Record status
 
 - **Status:** Dated operational observations, not a live health check or approved change plan.
-- **Scope:** Shared ISR SLURM cluster `hpc-isr` on `hpc01`, `hpc02`, and `hpc03`.
+- **Scope:** Shared ISR Slurm cluster `hpc-isr` on `hpc01`, `hpc02`, and `hpc03`.
 - **Record owner:** HPC Documentation Maintainers.
 - **Operational owner:** The named owner for the shared cluster configuration has not been confirmed in the available evidence. Use the [research group SysAdmin directory](../../README.md#research-group-sysadmins) to coordinate verification.
 - **Recorded:** 2026-10-06.
@@ -29,7 +29,7 @@ This baseline summarizes administrator-provided terminal observations from 2026-
 
 The [group-aware access and priority model](access-priority.md) records stakeholder intent, not deployed enforcement. The 2026-10-02 `normal` partition snapshot does not verify the intended group or role priorities. Account associations, QoS values, fair-share weights, and priority mappings remain to be confirmed by the responsible administrators.
 
-The general [batch-job guide](batch-jobs.md) describes the `sbatch` and `srun` workflow and explicitly requires site-specific settings to be confirmed. The [SLURM testing cases repository](https://github.com/hpc-isr/slurm-testing-cases) contains a distributed-GPU example, but no successful test run is documented in this baseline. Its README names `configure_venv_dist_gpu.sh`, while the checked-out repository contains `setup_distributed-gpu.sh`; the example also requests `--account=default`, which has not been verified for this cluster. Review those details before using the example.
+The general [batch-job guide](batch-jobs.md) describes the `sbatch` and `srun` workflow and explicitly requires site-specific settings to be confirmed. The [Slurm testing cases repository](https://github.com/hpc-isr/slurm-testing-cases) contains a distributed-GPU example, but no successful test run is documented in this baseline. Its README names `configure_venv_dist_gpu.sh`, while the checked-out repository contains `setup_distributed-gpu.sh`; the example also requests `--account=default`, which has not been verified for this cluster. Review those details before using the example.
 
 ## Open verification items
 
@@ -44,5 +44,5 @@ The general [batch-job guide](batch-jobs.md) describes the `sbatch` and `srun` w
 
 - Administrator-provided terminal observations dated 2026-10-02 and 2026-10-06, as summarized in the HPC setup discussion. Command families included `scontrol`, `systemctl`, `sinfo`, and `nvidia-smi`. Exact capture times are unavailable for some outputs.
 - [Submitting a batch job with Slurm](batch-jobs.md) and [Group-aware access and priority model](access-priority.md) in this repository.
-- [SLURM testing cases](https://github.com/hpc-isr/slurm-testing-cases), for the example script and setup instructions only, not as proof of a successful run.
+- [Slurm testing cases](https://github.com/hpc-isr/slurm-testing-cases), for the example script and setup instructions only, not as proof of a successful run.
 - SIPg-specific architecture and operational decisions remain in the separate [SIPg research-computing repository](https://github.com/sipg-isr/sipg-cluster-architecture). This shared-cluster record does not copy SIPg-specific configuration.
