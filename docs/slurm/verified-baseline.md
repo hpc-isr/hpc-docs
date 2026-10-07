@@ -29,7 +29,7 @@ This baseline summarizes administrator-provided terminal observations from 2026-
 
 The [group-aware access and priority model](access-priority.md) records stakeholder intent, not deployed enforcement. The 2026-10-02 `normal` partition snapshot does not verify the intended group or role priorities. Account associations, QoS values, fair-share weights, and priority mappings remain to be confirmed by the responsible administrators.
 
-The general [batch-job guide](batch-jobs.md) describes the `sbatch` and `srun` workflow and explicitly requires site-specific settings to be confirmed. The [Slurm testing cases repository](https://github.com/hpc-isr/slurm-testing-cases) contains a distributed-GPU example, but no successful test run is documented in this baseline. Its README names `configure_venv_dist_gpu.sh`, while the checked-out repository contains `setup_distributed-gpu.sh`; the example also requests `--account=default`, which has not been verified for this cluster. Review those details before using the example.
+The general [batch-job guide](batch-jobs.md) describes the `sbatch` and `srun` workflow and explicitly requires site-specific settings to be confirmed. The [Slurm testing use-case catalog](https://github.com/hpc-isr/slurm-testing-cases/tree/main/use-cases) contains single-node and three-node GPU procedures. Their scripts and instructions are examples, not evidence of a successful test run. The account requirements, current node membership, resource requests, CUDA-enabled PyTorch environment, and GPU request syntax must be confirmed before execution. The repository does not include a generic PyTorch installer because the approved CUDA-compatible build has not been established.
 
 ## Open verification items
 

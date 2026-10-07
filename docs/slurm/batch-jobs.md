@@ -131,6 +131,14 @@ data and privacy rules.
 
 ## Further reading
 
+For complete, case-specific Slurm examples, including prerequisites, job
+scripts, submission commands, monitoring, acceptance checks, and known
+limitations, see the [Slurm testing use-case catalog](https://github.com/hpc-isr/slurm-testing-cases/tree/main/use-cases).
+The catalog is the source for executable test cases; this guide remains the
+source for the general user workflow. Check the case's validation status and
+confirm current account, partition, resource, and software settings before
+submission.
+
 - [Slurm `sbatch`](https://slurm.schedmd.com/sbatch.html)
 - [Slurm `srun`](https://slurm.schedmd.com/srun.html)
 - [Slurm generic resources and GPUs](https://slurm.schedmd.com/gres.html)
