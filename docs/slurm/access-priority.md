@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 # Group-aware access and priority model
 
 ## Status

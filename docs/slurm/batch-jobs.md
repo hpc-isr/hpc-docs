@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 # Submitting a batch job with Slurm
 
 This guide explains a general workflow for preparing, submitting, and checking

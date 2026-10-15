@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 # Shared ISR Slurm Baseline
 
 ## Record status
