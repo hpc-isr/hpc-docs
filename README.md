@@ -14,6 +14,16 @@ Maintained by the HPC Documentation Maintainers. Group names and administrator a
 | 4 | [IRSg](https://github.com/IRS-group) | Afonso Certo | [`certafonso`](https://github.com/certafonso) | [afonso.certo@tecnico.ulisboa.pt](mailto:afonso.certo@tecnico.ulisboa.pt) |
 | 5 | [SIPg](https://github.com/sipg-isr) | Francisco Calisto | [`FMCalisto`](https://github.com/FMCalisto) | [francisco.calisto@tecnico.ulisboa.pt](mailto:francisco.calisto@tecnico.ulisboa.pt) |
 
+## Main Node Machine
+
+To access our main node machine, please follow the steps:
+
+```
+
+ssh <username>@hpc01.isr.tecnico.ulisboa.pt
+
+```
+
 ## Guides
 
 - [Shared ISR Slurm baseline](docs/slurm/verified-baseline.md)
