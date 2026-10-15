@@ -1,0 +1,78 @@
+---
+config:
+  theme: base
+  htmlLabels: false
+  flowchart:
+    htmlLabels: false
+    useMaxWidth: false
+    curve: basis
+    nodeSpacing: 40
+    rankSpacing: 55
+    padding: 14
+  themeVariables:
+    fontFamily: "Inter, Segoe UI, Helvetica Neue, Arial, sans-serif"
+    fontSize: 15px
+    primaryColor: "#ffffff"
+    primaryBorderColor: "#94a3b8"
+    primaryTextColor: "#1e293b"
+    lineColor: "#64748b"
+    clusterBkg: "#f8fafc"
+    clusterBorder: "#cbd5e1"
+    edgeLabelBackground: "#ffffff"
+    titleColor: "#334155"
+---
+flowchart LR
+    subgraph DISKS["Block devices · same on every node"]
+        direction TB
+        VDA[("`**vda** 80 GB
+root disk`")]
+        VDB[("`**vdb** ~780 GB
+CEPH volume, persistent`")]
+        VDC[("`**vdc** ~780 GB
+CEPH volume, persistent`")]
+        NV0[("`**nvme0n1** 3.5 TB
+local NVMe, ephemeral`")]
+        NV1[("`**nvme1n1** 3.5 TB
+local NVMe, ephemeral`")]
+    end
+
+    ROOT("`**/** ext4
+OS + packages only`")
+
+    subgraph CHOICE["Chosen by each group"]
+        direction TB
+        LAYOUT("`**Storage layout**
+LVM, filesystems, RAID`")
+        MOUNTS("`**/home · /scratch · /srv**
+node-local, not the cluster's /home`")
+        SVC("`**Group services**
+Docker, VPNs, network shares…`")
+    end
+
+    COMMON("`**Common to every group node**
+sssd: logins for the group only
+firewalld + fail2ban
+NVIDIA driver · 1 × L40S
+ubuntu local admin + group admins via sudo
+no SLURM · no MooseFS`")
+
+    LDAP("`**Authentik LDAP outpost**
+on hpc01 · LDAPS :636`")
+
+    VDA --> ROOT
+    VDB & VDC & NV0 & NV1 -.-> LAYOUT
+    LAYOUT --> MOUNTS
+    COMMON -->|"LDAPS"| LDAP
+
+    classDef group fill:#e3f4e8,stroke:#2e8b57,stroke-width:1.5px,color:#123d25
+    classDef store fill:#fff1d6,stroke:#c47f12,stroke-width:1.5px,color:#4a2f05
+    classDef shared fill:#e0ecfb,stroke:#2f6fbf,stroke-width:1.5px,color:#0f2a4d
+    classDef mount fill:#ffffff,stroke:#94a3b8,stroke-width:1px,color:#1e293b
+    classDef idle fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px,stroke-dasharray:4 3,color:#64748b
+    class VDA,VDB,VDC,NV0,NV1 store
+    class ROOT mount
+    class LAYOUT,MOUNTS,SVC idle
+    class COMMON group
+    class LDAP shared
+    style DISKS fill:#fffaf0,stroke:#e8c27a
+    style CHOICE fill:#f8fafc,stroke:#cbd5e1,stroke-dasharray:6 4
