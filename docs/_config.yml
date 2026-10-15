@@ -1,0 +1,72 @@
+# Jekyll configuration for publishing this knowledge base with GitHub Pages.
+# This file lives in docs/, so in the repository's Settings → Pages choose
+# "Deploy from a branch", branch main, folder /docs.
+#
+# The pages are plain Markdown with relative links (e.g. user-guide/02-ssh-login.md).
+# The plugins below turn those into working site links, use README.md as each
+# folder's index page, and take each page's title from its first heading,
+# so no page needs front matter.
+
+title: ISR HPC Knowledge Base
+description: >-
+  User and admin documentation for the HPC cluster of the
+  Institute for Systems and Robotics (ISR).
+lang: en
+
+# GitHub Pages fills these in from the repository. Set them only for a local
+# build (`bundle exec jekyll serve`), e.g. baseurl: "/<repository-name>".
+# baseurl: ""
+# url: ""
+# For a local build also export PAGES_REPO_NWO=<owner>/<repository>.
+
+theme: jekyll-theme-primer
+
+plugins:
+  - jekyll-relative-links       # links to .md files become links to the rendered pages
+  - jekyll-readme-index         # README.md is the index of its folder
+  - jekyll-optional-front-matter
+  - jekyll-titles-from-headings # page title = first "# Heading"
+  - jekyll-default-layout
+  - jekyll-seo-tag
+
+relative_links:
+  enabled: true
+  collections: false
+
+optional_front_matter:
+  remove_originals: true      # don't also publish the raw .md files
+
+readme_index:
+  enabled: true
+  remove_originals: true
+  with_frontmatter: true
+
+titles_from_headings:
+  enabled: true
+  strip_title: false
+  collections: false
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  auto_ids: true
+  auto_id_stripping: true       # heading anchors match GitHub's (#suggested-isrconf-changes-per-node)
+  gfm_quirks: [paragraph_end]
+  syntax_highlighter: rouge
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+# Diagram sources (.mmd), images and the example script are copied as static files.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .bundle
+  - .jekyll-cache
+  - .sass-cache
+  - "*.bak"
