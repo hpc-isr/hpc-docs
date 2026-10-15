@@ -1,3 +1,9 @@
+---
+title: "SSH login"
+parent: "User Guide"
+nav_order: 2
+---
+
 # SSH login
 
 [← User Guide](README.md) · [Home](../README.md)

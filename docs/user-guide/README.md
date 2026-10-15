@@ -1,3 +1,10 @@
+---
+title: "User Guide"
+nav_order: 2
+has_children: true
+has_toc: false
+---
+
 # User Guide
 
 [← Home](../README.md)

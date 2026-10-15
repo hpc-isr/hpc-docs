@@ -1,3 +1,10 @@
+---
+title: "Docker"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 4
+---
+
 # Docker
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

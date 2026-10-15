@@ -1,3 +1,9 @@
+---
+title: "Storage"
+parent: "User Guide"
+nav_order: 3
+---
+
 # Storage
 
 [← User Guide](README.md) · [Home](../README.md)

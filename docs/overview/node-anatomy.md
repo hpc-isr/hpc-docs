@@ -1,3 +1,9 @@
+---
+title: "Inside a node"
+parent: "Overview"
+nav_order: 3
+---
+
 # Inside a node
 
 [← Overview](README.md) · [Home](../README.md)

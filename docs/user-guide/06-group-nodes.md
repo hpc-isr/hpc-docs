@@ -1,3 +1,9 @@
+---
+title: "Group nodes"
+parent: "User Guide"
+nav_order: 6
+---
+
 # Group nodes
 
 [← User Guide](README.md) · [Home](../README.md)

@@ -1,3 +1,9 @@
+---
+title: "Cluster at a glance"
+parent: "Overview"
+nav_order: 1
+---
+
 # Cluster at a glance
 
 [← Overview](README.md) · [Home](../README.md)

@@ -1,3 +1,9 @@
+---
+title: "Getting an account"
+parent: "User Guide"
+nav_order: 1
+---
+
 # Getting an account
 
 [← User Guide](README.md) · [Home](../README.md)

@@ -1,3 +1,10 @@
+---
+title: "Security operations"
+parent: "Procedures"
+grand_parent: "Admin Guide"
+nav_order: 6
+---
+
 # Security operations
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

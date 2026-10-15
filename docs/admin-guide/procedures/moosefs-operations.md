@@ -1,3 +1,10 @@
+---
+title: "MooseFS operations"
+parent: "Procedures"
+grand_parent: "Admin Guide"
+nav_order: 5
+---
+
 # MooseFS operations
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

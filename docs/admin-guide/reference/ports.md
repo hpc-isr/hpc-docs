@@ -1,3 +1,10 @@
+---
+title: "Ports"
+parent: "Reference"
+grand_parent: "Admin Guide"
+nav_order: 2
+---
+
 # Ports
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

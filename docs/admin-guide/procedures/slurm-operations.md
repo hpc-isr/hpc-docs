@@ -1,3 +1,10 @@
+---
+title: "SLURM operations"
+parent: "Procedures"
+grand_parent: "Admin Guide"
+nav_order: 4
+---
+
 # SLURM operations
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

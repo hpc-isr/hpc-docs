@@ -1,3 +1,10 @@
+---
+title: "Group nodes"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 2
+---
+
 # Group nodes
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

@@ -1,3 +1,10 @@
+---
+title: "Open questions"
+parent: "Reference"
+grand_parent: "Admin Guide"
+nav_order: 3
+---
+
 # Open questions and review notes
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

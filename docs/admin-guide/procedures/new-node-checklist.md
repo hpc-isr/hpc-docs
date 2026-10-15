@@ -1,3 +1,10 @@
+---
+title: "New node checklist"
+parent: "Procedures"
+grand_parent: "Admin Guide"
+nav_order: 3
+---
+
 # New node checklist
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

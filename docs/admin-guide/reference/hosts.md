@@ -1,3 +1,10 @@
+---
+title: "Hosts and IPs"
+parent: "Reference"
+grand_parent: "Admin Guide"
+nav_order: 1
+---
+
 # Hosts and IPs
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

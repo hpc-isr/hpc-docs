@@ -1,3 +1,10 @@
+---
+title: "LDAP/SSSD on a node"
+parent: "Procedures"
+grand_parent: "Admin Guide"
+nav_order: 2
+---
+
 # Configure LDAP/SSSD on a node
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

@@ -1,3 +1,10 @@
+---
+title: "Traefik"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 5
+---
+
 # Traefik (reverse proxy)
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

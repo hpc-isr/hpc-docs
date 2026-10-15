@@ -1,3 +1,10 @@
+---
+title: "Security"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 9
+---
+
 # Security: firewalld, fail2ban, SSH
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

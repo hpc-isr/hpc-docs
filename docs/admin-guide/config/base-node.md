@@ -1,3 +1,10 @@
+---
+title: "Base node"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 1
+---
+
 # Base node configuration
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

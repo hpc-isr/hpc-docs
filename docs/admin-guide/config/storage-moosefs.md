@@ -1,3 +1,10 @@
+---
+title: "MooseFS"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 3
+---
+
 # MooseFS (shared filesystem)
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

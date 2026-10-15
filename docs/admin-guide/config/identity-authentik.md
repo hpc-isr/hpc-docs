@@ -1,3 +1,10 @@
+---
+title: "Authentik"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 6
+---
+
 # Authentik (identity provider, SSO, LDAP)
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

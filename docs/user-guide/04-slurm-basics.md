@@ -1,3 +1,9 @@
+---
+title: "SLURM basics"
+parent: "User Guide"
+nav_order: 4
+---
+
 # SLURM basics
 
 [← User Guide](README.md) · [Home](../README.md)

@@ -1,3 +1,10 @@
+---
+title: "Info-gathering commands"
+parent: "Reference"
+grand_parent: "Admin Guide"
+nav_order: 4
+---
+
 <!-- {% raw %} -->
 # Info-gathering commands
 

@@ -1,3 +1,9 @@
+---
+title: "SLURM job examples"
+parent: "User Guide"
+nav_order: 5
+---
+
 # SLURM job script examples
 
 [← User Guide](README.md) · [Home](../README.md)

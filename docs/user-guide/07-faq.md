@@ -1,3 +1,9 @@
+---
+title: "FAQ & troubleshooting"
+parent: "User Guide"
+nav_order: 8
+---
+
 # FAQ & troubleshooting
 
 [← User Guide](README.md) · [Home](../README.md)

@@ -1,3 +1,10 @@
+---
+title: "Authentik maintenance"
+parent: "Procedures"
+grand_parent: "Admin Guide"
+nav_order: 7
+---
+
 # Authentik maintenance
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

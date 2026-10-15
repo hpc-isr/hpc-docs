@@ -1,3 +1,10 @@
+---
+title: "Users & groups"
+parent: "Procedures"
+grand_parent: "Admin Guide"
+nav_order: 1
+---
+
 # Users & groups
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

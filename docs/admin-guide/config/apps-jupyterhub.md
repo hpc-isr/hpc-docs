@@ -1,3 +1,10 @@
+---
+title: "JupyterHub (reference)"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 10
+---
+
 # JupyterHub
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

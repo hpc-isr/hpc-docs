@@ -5,7 +5,7 @@
 # The pages are plain Markdown with relative links (e.g. user-guide/02-ssh-login.md).
 # The plugins below turn those into working site links, use README.md as each
 # folder's index page, and take each page's title from its first heading,
-# so no page needs front matter.
+# Each page's front matter (title, parent, nav_order) places it in the sidebar.
 
 title: ISR HPC Knowledge Base
 description: >-
@@ -19,9 +19,12 @@ lang: en
 # url: ""
 # For a local build also export PAGES_REPO_NWO=<owner>/<repository>.
 
-theme: jekyll-theme-primer
+# Just the Docs: sidebar navigation and search. Loaded with jekyll-remote-theme,
+# which GitHub Pages supports, so no custom build is needed.
+remote_theme: just-the-docs/just-the-docs@v0.10.1
 
 plugins:
+  - jekyll-remote-theme
   - jekyll-relative-links       # links to .md files become links to the rendered pages
   - jekyll-readme-index         # README.md is the index of its folder
   - jekyll-optional-front-matter
@@ -70,3 +73,13 @@ exclude:
   - .jekyll-cache
   - .sass-cache
   - "*.bak"
+
+# ---- Just the Docs settings ----
+search_enabled: true
+heading_anchors: true
+back_to_top: true
+back_to_top_text: "Back to top"
+color_scheme: light
+nav_sort: case_sensitive
+footer_content: "ISR HPC Knowledge Base"
+gh_edit_link: false            # no "Edit this page" / "Improve this page" link

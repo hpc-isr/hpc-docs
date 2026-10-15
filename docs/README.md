@@ -1,3 +1,8 @@
+---
+title: "Home"
+nav_order: 1
+---
+
 # ISR HPC Knowledge Base
 
 Documentation for the HPC infrastructure of the **Institute for Systems and Robotics (ISR)**: eight Ubuntu 24.04 VMs, each with a 56-core Xeon 6730P, 440 GB RAM and one NVIDIA L40S GPU.

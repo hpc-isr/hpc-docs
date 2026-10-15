@@ -1,3 +1,10 @@
+---
+title: "SLURM"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 8
+---
+
 # SLURM (scheduler for hpc01–hpc03)
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

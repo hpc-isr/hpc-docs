@@ -1,3 +1,10 @@
+---
+title: "SSSD"
+parent: "Configuration"
+grand_parent: "Admin Guide"
+nav_order: 7
+---
+
 # SSSD (Linux logins for Authentik/LDAP users)
 
 [← Admin Guide](../README.md) · [Home](../../README.md)

@@ -1,3 +1,9 @@
+---
+title: "Isaac Sim"
+parent: "User Guide"
+nav_order: 7
+---
+
 # Isaac Sim
 
 [← User Guide](README.md) · [Home](../README.md)
