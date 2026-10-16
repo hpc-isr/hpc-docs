@@ -15,7 +15,7 @@ Each research group has a designated admin who is the first point of contact for
 | Group | Admin |
 |---|---|
 | DSOR | David Cabecinhas |
-| IRSg | John Lewis |
+| IRSg | Afonso Certo |
 | SIPg | Francisco Calisto |
 | VisLab | Plinio Moreno |
 | LaSEEB | Athanasios Vourvopoulos |
