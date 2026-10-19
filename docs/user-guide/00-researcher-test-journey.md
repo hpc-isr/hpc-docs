@@ -42,7 +42,7 @@ Keep output and error files in a user-owned directory outside the Git checkout. 
 
 ## Report feedback
 
-The [structured researcher test feedback form](https://github.com/hpc-isr/slurm-testing-cases/issues/new?template=researcher-test-feedback.yml) becomes available after the feedback-form change is merged to the private test repository. It requires access to that repository and permission to open issues. Until the form is available to you, use your group's approved SysAdmin support route in the [contact directory](../overview/contacts.md). Do not post passwords, tokens, private keys, raw logs, personal account details, or research data in a public issue. Share job identifiers or raw output only through an administrator-approved private support channel.
+The [structured researcher test feedback form](https://github.com/hpc-isr/slurm-testing-cases/issues/new?template=researcher-test-feedback.yml) is available in the private test repository to users with repository access and permission to open issues. If you cannot access the form, use your group's approved SysAdmin support route in the [contact directory](../overview/contacts.md). Do not post passwords, tokens, private keys, raw logs, personal account details, or research data in a public issue. Share job identifiers or raw output only through an administrator-approved private support channel.
 
 ## Completion checklist
 
