@@ -104,7 +104,7 @@ On the shared cluster, long work should go through SLURM instead (see [SLURM bas
 1. Install the **Remote - SSH** extension.
 2. `Ctrl+Shift+P` → **Remote-SSH: Connect to Host…** → pick `isr-hpc` from your `~/.ssh/config`.
 
-> Please don't run heavy computations in a VS Code terminal on `hpc01` outside SLURM; it competes with other users' jobs.
+> Outside a SLURM job, everything you run on `hpc01` (VS Code server included) shares 4 cores and 16 GB, and the GPU is not available. Run heavy work through SLURM ([SLURM basics](04-slurm-basics.md)).
 
 ## Port forwarding (e.g. Jupyter, TensorBoard)
 

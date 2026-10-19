@@ -12,6 +12,12 @@ The shared nodes `hpc01`, `hpc02`, `hpc03` are managed by **SLURM**: you describ
 
 **Rule of thumb:** on `hpc01`–`hpc03`, anything heavier than editing files or compiling goes through `srun` or `sbatch`.
 
+This is enforced:
+
+- On `hpc01`, everything you run outside a job (SSH shells, VS Code, `tmux`) shares **4 cores and 16 GB** in total. Going over 16 GB kills your largest process. The **GPU is not accessible** outside a job, so `nvidia-smi` fails there; use it inside `srun --gres=gpu:1`.
+- You can only `ssh` to `hpc02` or `hpc03` while you have a job running on that node. The SSH session then lives inside that job and sees only its cores, memory and GPU.
+- `crontab` and `at` are disabled. For scheduled work, submit a job with `sbatch --begin=<time>`.
+
 ## What's available
 
 | Partition | Nodes | Per node | Default | Time limit |
@@ -42,6 +48,13 @@ exit         # release the resources when done
 ```
 
 The resources are held until you `exit`, even if you are idle. Please exit when you're done.
+
+To open extra terminals (or VS Code) on a node where your job runs, SSH to it from `hpc01` while the job is running:
+
+```bash
+salloc -w hpc02 --gres=gpu:1 --cpus-per-task=8 --mem=64G --time=02:00:00   # keep this terminal open
+ssh hpc02        # from another hpc01 terminal: this shell is part of the job
+```
 
 ## Batch job: submit and walk away
 
