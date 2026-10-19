@@ -6,15 +6,9 @@ General documentation for users of hpc-isr computing resources. Site-specific po
 
 The organization profile is the authoritative directory for research-group SysAdmins and contact links: [HPC@ISR-Lisboa/LARSyS organization directory](https://github.com/hpc-isr/.github/blob/main/profile/README.md).
 
-## Main Node Machine
+## Start here
 
-To access our main node machine, please follow the steps:
-
-```
-
-ssh <username>@hpc01.isr.tecnico.ulisboa.pt
-
-```
+For account access, SSH, storage, and job submission, start with the [ISR HPC Knowledge Base](docs/README.md). New researchers should begin with [Getting an account](docs/user-guide/01-getting-an-account.md) and continue through the [User Guide](docs/user-guide/README.md). Your group administrator must confirm your exact HPC login and provision the appropriate service access before you submit jobs.
 
 ## Guides
 
