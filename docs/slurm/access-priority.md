@@ -6,7 +6,7 @@ nav_exclude: true
 
 ## Current status
 
-This page describes the five-level policy reported as SysAdmin-approved and applied on the shared hpc-isr staging cluster on 2026-10-19. It is user guidance, not a live readback, production configuration, or promise of a job start time. The [dated baseline](verified-baseline.md) records evidence and limits.
+This page describes the five-level QoS configuration observed on the shared hpc-isr staging cluster on 2026-10-19. It does not establish that the policy has received all required approvals, that any tier is enabled for a particular account, or that the configuration is in production. It is user guidance, not a live readback or promise of a job start time. The [dated baseline](verified-baseline.md) records evidence and limits.
 
 ## Who can submit
 

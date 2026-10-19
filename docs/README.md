@@ -12,6 +12,7 @@ User-facing documentation for the HPC services of the **Institute for Systems an
 | Task | Page |
 |---|---|
 | Get an account, reset my password | [Getting an account](user-guide/01-getting-an-account.md) |
+| Prepare for a controlled researcher test | [Researcher test journey](user-guide/00-researcher-test-journey.md) |
 | Log in with SSH, set up keys, copy files | [SSH login](user-guide/02-ssh-login.md) |
 | Know where to keep my data | [Storage](user-guide/03-storage.md) |
 | Run jobs on the shared cluster | [SLURM basics](user-guide/04-slurm-basics.md) · [Job script examples](user-guide/05-slurm-job-examples.md) |
