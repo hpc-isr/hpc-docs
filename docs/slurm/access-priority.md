@@ -16,7 +16,7 @@ New users start at low QoS. Role, seniority, group, or job title does not automa
 
 ## QoS levels
 
-| QoS | Relative priority | Maximum wall time | GPUs per user within this QoS | Concurrent jobs per user within this QoS |
+| QoS | Relative priority | Configured maximum wall time | Configured GPUs per user within this QoS | Configured concurrent jobs per user within this QoS |
 |---|---:|---:|---:|---:|
 | very_low | 0 | 4 hours | 1 | 1 |
 | low | 10 | 12 hours | 1 | 1 |
@@ -25,6 +25,8 @@ New users start at low QoS. Role, seniority, group, or job title does not automa
 | very_high | 40 | 48 hours | 2 | 1 |
 
 All group accounts and user associations default to low. A request does not change access by itself.
+
+These are configured staging QoS values, not verified enforcement limits. Staging reported `AccountingStorageEnforce=none`, and a same-user low-QoS overlap was observed despite the configured one-job value. Do not rely on these caps to reject excess jobs or GPU requests; administrators must resolve and validate enforcement before treating them as safeguards. See the [dated baseline](verified-baseline.md).
 
 - very_low is a documented lower-than-baseline choice.
 - low is the standard default for all users.
@@ -42,6 +44,14 @@ The shared partition is named normal. Confirm your account, QoS, time limit, mem
 
 ## Request a change
 
-Contact your affiliated group's SysAdmin through the approved support route. Include your HPC login, affiliated account, requested tier, workload resource needs, deadline, and why low is insufficient. Administrators verify affiliation and current scheduler conditions, record approval, and apply approved changes through the controlled process.
+Every user may ask their affiliated group's SysAdmin to review a higher QoS. A request is not an approval and does not change your association. Include:
 
-Do not assume a higher QoS is active until an administrator confirms it. Production settings may differ from this staging policy.
+- your exact HPC login and the affiliated account you plan to charge;
+- the tier requested and why your current tier is insufficient;
+- the workload type and approximate CPU, memory, GPU, wall-time, and concurrency needs;
+- the relevant deadline or project milestone;
+- a preferred review or end date for the request.
+
+Do not send passwords, tokens, private keys, or sensitive research data with the request. Administrators verify the account affiliation, resource need, current queue/fair-share conditions, and impact on other users. They may ask for more detail or retain the current tier. Medium requires recorded approval for the affected association. High and very_high are dated grants with a maximum duration of 90 days under the recorded staging policy. Do not interpret a higher QoS as a guaranteed start time or a larger wall-time/concurrency allowance beyond the table above.
+
+Use the group contact listed in [Who's who](../overview/contacts.md). Do not submit until an administrator confirms the requested QoS is active for your account. Production settings may differ from this dated staging policy.

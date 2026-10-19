@@ -16,7 +16,7 @@ User-facing documentation for the HPC services of the **Institute for Systems an
 | Know where to keep my data | [Storage](user-guide/03-storage.md) |
 | Run jobs on the shared cluster | [SLURM basics](user-guide/04-slurm-basics.md) · [Job script examples](user-guide/05-slurm-job-examples.md) |
 | Use my group's dedicated node | [Group nodes](user-guide/06-group-nodes.md) |
-| Run NVIDIA Isaac Sim and stream it to my laptop | [Isaac Sim](user-guide/08-isaac-sim.md) |
+| Check approved Isaac Sim access and connection instructions | [Isaac Sim](user-guide/08-isaac-sim.md) |
 | Something isn't working | [FAQ & troubleshooting](user-guide/07-faq.md) |
 
 ## Conventions used in these pages
