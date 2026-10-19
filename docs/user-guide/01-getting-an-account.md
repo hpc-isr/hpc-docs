@@ -8,7 +8,7 @@ nav_order: 1
 
 [← User Guide](README.md) · [Home](../README.md)
 
-One account gives you access to every ISR HPC service: SSH on the nodes, SLURM, and web apps such as the wiki. Accounts live in **Authentik**, ISR's single sign-on at <https://sso.isr.tecnico.ulisboa.pt>.
+Accounts are managed in **Authentik**, ISR's single sign-on at <https://sso.isr.tecnico.ulisboa.pt>. Creating an identity account does not by itself authorize access to every node, group system, partition, Slurm account, or web application. Your group's admin must confirm your exact HPC POSIX login and provision the services you are eligible to use.
 
 ## 1. Ask for an invitation
 
