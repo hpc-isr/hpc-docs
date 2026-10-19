@@ -10,27 +10,9 @@ nav_order: 4
 
 Each research group has a designated admin who is the first point of contact for accounts, access and problems on that group's resources.
 
-## Group nodes (one dedicated VM per group)
+Research-group SysAdmin names and organizational contact links are maintained in the [HPC@ISR-Lisboa/LARSyS organization directory](https://github.com/hpc-isr/.github/blob/main/profile/README.md). Contact your affiliated group's administrator through the approved support route.
 
-| Group | Admin |
-|---|---|
-| DSOR | David Cabecinhas |
-| IRSg | Afonso Certo |
-| SIPg | Francisco Calisto |
-| VisLab | Plinio Moreno |
-| LaSEEB | Athanasios Vourvopoulos |
-
-## Shared SLURM cluster (`hpc01`–`hpc03`)
-
-| Group | Admin |
-|---|---|
-| DSOR | David Cabecinhas |
-| IRSg | Afonso Certo |
-| SIPg | Francisco Calisto |
-| VisLab | Plinio Moreno |
-| LaSEEB | Athanasios Vourvopoulos |
-
-Contact admins by **email**. Addresses are listed on ISR's website.
+The shared SLURM cluster and separately administered group nodes are different services. Do not infer access to a group node from shared-cluster access, or vice versa.
 
 ## Who to ask
 

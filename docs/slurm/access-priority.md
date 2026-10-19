@@ -2,84 +2,56 @@
 nav_exclude: true
 ---
 
-# Group-aware access and priority model
+# Group-aware access and priority
 
-## Status
+## Current status
 
-Working policy model based on stakeholder-provided requirements, recorded
-2026-10-06. This document describes a generic model; it does not confirm that
-any particular cluster has implemented or approved it. Resource administrators
-must confirm local eligibility and scheduling settings before users rely on
-them.
+This page describes the five-level policy reported as SysAdmin-approved and applied on the shared hpc-isr staging cluster on 2026-10-19. It is user guidance, not a live readback, production configuration, or promise of a job start time. The [dated baseline](verified-baseline.md) records evidence and limits.
 
-## Shared ISR pool purpose and eligibility
+## Who can submit
 
-- **Purpose:** Provide computational resources for Deep Learning projects by
-  researchers at ISR-Lisboa/LARSyS.
-- **Eligible groups:** VisLab, DSOR, LaSEEB, IRSg, and SIPg, as listed in the
-  [research-group directory](../../README.md#research-group-sysadmins). Eligibility
-  for this shared ISR pool is limited to researchers affiliated with these five
-  groups.
-- **Priority intent:** Scheduling priority depends on researcher role. The
-  stakeholder identified senior researchers, junior researchers, postdoctoral
-  researchers, PhD students, Master's students, and Bachelor's students as user
-  roles. Their priority ordering and Slurm implementation have not yet been
-  specified.
-- **Status and provenance:** This purpose and eligibility scope were confirmed
-  by Francisco Maria Calisto on 2026-10-06. They record stakeholder intent;
-  they do not verify deployed account eligibility, priority settings, or
-  approval by every resource administrator.
+The shared pool serves eligible researchers affiliated with VisLab, DSOR, LaSEEB, IRSg, and SIPg. Administrators provision access and Slurm account associations. A user with multiple verified affiliations has a separate association for each group and selects the corresponding account for each job. Usage is charged to that group association and is not combined into one cross-group balance.
 
-## Proposed supplemental eligibility for SysAdmin review
+New users start at low QoS. Role, seniority, group, or job title does not automatically grant a higher tier. Ask the relevant group SysAdmin to review a higher-priority request.
 
-On 2026-10-07, Francisco Maria Calisto raised including technical and
-administrative staff, as well as visiting collaborators, while expressing
-uncertainty. The following safeguards are a proposal for review, not an
-approved policy:
+## QoS levels
 
-- Technical or administrative staff may receive compute access when it is
-  needed for research support or HPC operations. Administrative system
-  privileges remain separate from ordinary compute access.
-- A visiting collaborator must have a named sponsor in one of the five groups,
-  a documented purpose, and an access end date. Access remains subject to the
-  resource owner's approval and applicable data restrictions.
-- Neither category receives elevated job priority or broader data access by
-  default. Any exception requires approval from the relevant resource owner.
+| QoS | Relative priority | Configured maximum wall time | Configured GPUs per user within this QoS | Configured concurrent jobs per user within this QoS |
+|---|---:|---:|---:|---:|
+| very_low | 0 | 4 hours | 1 | 1 |
+| low | 10 | 12 hours | 1 | 1 |
+| medium | 20 | 24 hours | 1 | 2 |
+| high | 30 | 48 hours | 2 | 1 |
+| very_high | 40 | 48 hours | 2 | 1 |
 
-## Generic rules
+All group accounts and user associations default to low. A request does not change access by itself.
 
-- Determine access eligibility separately from scheduling priority.
-- A shared research-computing pool may grant access to eligible researchers
-  across its participating groups. Its administrators define role-based
-  priorities for that pool.
-- On a group-owned HPC resource, researchers affiliated with the owning group
-  receive higher priority than eligible users from other groups.
-- Cross-group access is conditional on the resource-owning group enabling it.
-  When enabled, visiting groups receive lower priority than the owning group.
-- A separate group server cluster may be restricted to that group's researchers.
-  Do not infer access to it from eligibility for a shared HPC pool, and do not
-  assume that it is managed by the scheduler.
+These are configured staging QoS values, not verified enforcement limits. Staging reported `AccountingStorageEnforce=none`, and a same-user low-QoS overlap was observed despite the configured one-job value. Do not rely on these caps to reject excess jobs or GPU requests; administrators must resolve and validate enforcement before treating them as safeguards. See the [dated baseline](verified-baseline.md).
 
-## Unresolved policy details
+- very_low is a documented lower-than-baseline choice.
+- low is the standard default for all users.
+- medium requires a recorded request and SysAdmin approval for the affected association.
+- high and very_high require approved, dated temporary grants limited to 90 days.
+- very_high requires a documented reason why high is insufficient.
 
-- The exact ordering and scheduling implementation for researcher roles are
-  not defined here.
-- The five group SysAdmins have not yet confirmed whether technical or
-  administrative staff and visiting collaborators should be eligible, or
-  whether the proposed safeguards are sufficient.
-- Resource administrators must verify that the five-group eligibility scope
-  has been implemented on the shared ISR pool and confirm which group-owned
-  resources permit cross-group access.
-- Quotas, fair-share weights, limits, and any exceptions require separate
-  decisions by the responsible administrators.
-- Scheduler integration for a separate server cluster requires an explicit
-  feasibility and ownership decision.
+The GPU and concurrent-job limits apply within each QoS association. They do not establish a cumulative limit across multiple QoS levels or group affiliations. Ask administrators how limits apply before submitting work that uses multiple accounts or tiers.
 
-## Provenance and follow-up
+## How priority affects jobs
 
-The access distinctions above summarize stakeholder-provided requirements in
-the HPC@ISR-Lisboa/LARSyS planning discussion on 2026-10-06. They are not
-evidence of deployed configuration. Before publication as site policy, the
-responsible shared-pool and group-resource administrators should confirm the
-eligible groups, priority rules, and exceptions. Record any approved
-site-specific configuration in its owning architecture or operations source.
+The staging scheduler considers QoS along with job age and fair-share. A higher QoS can improve scheduling preference relative to other eligible jobs. It does not reserve a GPU, guarantee a start time, preempt a running job, or remove partition and resource constraints. Jobs can wait when requested resources are busy or unavailable.
+
+The shared partition is named normal. Confirm your account, QoS, time limit, memory request, GPU syntax, and software environment with administrators before submitting. See the general [batch-job guide](batch-jobs.md).
+
+## Request a change
+
+Every user may ask their affiliated group's SysAdmin to review a higher QoS. A request is not an approval and does not change your association. Include:
+
+- your exact HPC login and the affiliated account you plan to charge;
+- the tier requested and why your current tier is insufficient;
+- the workload type and approximate CPU, memory, GPU, wall-time, and concurrency needs;
+- the relevant deadline or project milestone;
+- a preferred review or end date for the request.
+
+Do not send passwords, tokens, private keys, or sensitive research data with the request. Administrators verify the account affiliation, resource need, current queue/fair-share conditions, and impact on other users. They may ask for more detail or retain the current tier. Medium requires recorded approval for the affected association. High and very_high are dated grants with a maximum duration of 90 days under the recorded staging policy. Do not interpret a higher QoS as a guaranteed start time or a larger wall-time/concurrency allowance beyond the table above.
+
+Use the group contact listed in [Who's who](../overview/contacts.md). Do not submit until an administrator confirms the requested QoS is active for your account. Production settings may differ from this dated staging policy.

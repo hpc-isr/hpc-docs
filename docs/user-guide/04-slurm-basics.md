@@ -8,125 +8,62 @@ nav_order: 4
 
 [← User Guide](README.md) · [Home](../README.md)
 
-The shared nodes `hpc01`, `hpc02`, `hpc03` are managed by **SLURM**: you describe what you need (cores, memory, GPU, time) and SLURM runs your work when those resources are free. This keeps the three shared GPUs fair for everyone.
+## Before you submit
 
-**Rule of thumb:** on `hpc01`–`hpc03`, anything heavier than editing files or compiling goes through `srun` or `sbatch`.
+The shared cluster configuration and resource availability can change. The facts in this guide are dated observations from operator readbacks on 2026-10-18 and 2026-10-19, not a live check or a production guarantee. Ask your group SysAdmin to confirm your POSIX login, affiliated account, partition, allowed QoS, software environment, storage paths, and current resource limits before a larger run.
 
-This is enforced:
+The staging readbacks described a Slurm cluster named hpc-isr, with a normal partition containing hpc01, hpc02, and hpc03. Each node was reported with 56 CPUs, approximately 443 GB configured memory, and one NVIDIA L40S GPU. These values are point-in-time configuration evidence; the scheduler is authoritative for current node state.
 
-- On `hpc01`, everything you run outside a job (SSH shells, VS Code, `tmux`) shares **4 cores and 16 GB** in total. Going over 16 GB kills your largest process. The **GPU is not accessible** outside a job, so `nvidia-smi` fails there; use it inside `srun --gres=gpu:1`.
-- You can only `ssh` to `hpc02` or `hpc03` while you have a job running on that node. The SSH session then lives inside that job and sees only its cores, memory and GPU.
-- `crontab` and `at` are disabled. For scheduled work, submit a job with `sbatch --begin=<time>`.
+The five QoS names and their dated limits are listed in [Group-aware access and priority](../slurm/access-priority.md). New associations default to low in the recorded staging policy. A higher QoS is not available until an administrator confirms it is allowed for your association. QoS affects scheduling preference; it does not reserve resources or guarantee a start time.
 
-## What's available
+## Check the current queue and nodes
 
-| Partition | Nodes | Per node | Default | Time limit |
-|---|---|---|---|---|
-| `normal` | `hpc01`, `hpc02`, `hpc03` | 56 cores, ~433 GiB RAM (443195 MB), 1 × L40S | Yes | None |
+    sinfo -N -h -o '%N|%T|%c|%m|%G'
+    squeue -u "$USER" -o '%i|%a|%q|%T|%M|%R'
 
-There is one partition and no time limit. GPUs are configured as untyped GRES, so request them with `--gres=gpu:1` (not `gpu:l40s:1`).
+A pending job is not necessarily rejected. Read the pending reason, wait for the agreed observation period, and ask your group SysAdmin if the reason is unclear. Do not repeatedly resubmit the same job.
 
-```bash
-sinfo                       # partitions and node states
-sinfo -N -o "%N %c %m %G %T" # per node: cores, memory (MB), GPUs, state
-squeue                      # everyone's jobs
-squeue -u $USER             # your jobs
-```
+## Submit a short CPU job
 
-Node states: `idle` (free), `mix` (partly used), `alloc` (full), `drain`/`down` (unavailable).
+For a first test, use the short, one-CPU example in [SLURM job examples](05-slurm-job-examples.md). Replace the account placeholder with the group account assigned to you. Keep the resource request within the QoS and account limits confirmed for your association.
 
-## Interactive job: a shell on a compute node
+    export SLURM_ACCOUNT="<account-assigned-by-your-admin>"
+    mkdir -p "$HOME/slurm-logs"
+    sbatch --parsable --partition=normal --account="$SLURM_ACCOUNT" --qos=low \
+      --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
+      --output="$HOME/slurm-logs/cpu-%j.out" \
+      --wrap='id -un; hostname; date -Is'
 
-```bash
-# 4 cores, 16 GB RAM, 1 hour, no GPU
-srun --cpus-per-task=4 --mem=16G --time=01:00:00 --pty bash
+Use --qos=low only if your administrator has confirmed that it is allowed. If the site or your association uses a different approved default, follow that instruction rather than guessing.
 
-# With the GPU
-srun --gres=gpu:1 --cpus-per-task=8 --mem=64G --time=02:00:00 --pty bash
-nvidia-smi   # check you see the L40S
-exit         # release the resources when done
-```
+## Requesting a GPU or an interactive session
 
-The resources are held until you `exit`, even if you are idle. Please exit when you're done.
+A one-GPU smoke-test procedure and its prerequisites are in [SLURM job examples](05-slurm-job-examples.md). The dated staging readback showed that a one-GPU batch smoke job could see the allocated GPU. This did not validate a research framework, a training workload, or a multi-node GPU job.
 
-To open extra terminals (or VS Code) on a node where your job runs, SSH to it from `hpc01` while the job is running:
+A successful one-shot srun command was recorded, but a successful interactive PTY shell was not. Coordinate a short interactive-shell test with your group SysAdmin; exit promptly and verify that the allocation is released. Do not leave an allocation running while idle.
 
-```bash
-salloc -w hpc02 --gres=gpu:1 --cpus-per-task=8 --mem=64G --time=02:00:00   # keep this terminal open
-ssh hpc02        # from another hpc01 terminal: this shell is part of the job
-```
+Use the account and QoS explicitly when instructed by the administrator. Do not request another user's account, a higher QoS, or more resources as a diagnostic probe.
 
-## Batch job: submit and walk away
+## Monitor and cancel your own job
 
-Create `myjob.sh`:
+Use the job ID returned by sbatch:
 
-```bash
-#!/bin/bash
-#SBATCH --job-name=myjob
-#SBATCH --output=%x-%j.out        # %x = job name, %j = job id
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
-#SBATCH --time=01:00:00
+    squeue --jobs="<job-id>" -o '%i|%u|%a|%q|%T|%M|%l|%R'
+    scontrol show job "<job-id>"
+    sacct -X -j "<job-id>" --noheader \
+      --format=JobIDRaw,User,Account,Partition,QOS,State,ExitCode,Elapsed,AllocTRES
 
-echo "Running on $(hostname)"
-python3 ~/code/analysis.py
-```
+SlurmDBD accounting and a completed test job were observed on staging on 2026-10-19. This does not guarantee current service availability or retention. Compare the readback with your submission and output files. A completed state alone does not confirm that your application produced the expected result.
 
-Submit and follow it:
+Before cancellation, verify that the job ID belongs to you:
 
-```bash
-sbatch myjob.sh                 # prints: Submitted batch job 1234
-squeue -u $USER                 # PD = pending, R = running
-tail -f myjob-1234.out          # watch output
-scancel 1234                    # cancel if needed
-```
+    squeue --jobs="<job-id>" -o '%i|%u|%T|%R'
+    scancel "<job-id>"
 
-More scripts (GPU, arrays, pipelines): [Job script examples](05-slurm-job-examples.md).
+Cancel only the specific job you verified. Do not use broad cancellation commands.
 
-## Requesting resources
+## Limits and enforcement
 
-| Option | Meaning | Example |
-|---|---|---|
-| `--cpus-per-task=N` | CPU cores for your program | `--cpus-per-task=8` |
-| `--mem=SIZE` | RAM per node | `--mem=64G` |
-| `--gres=gpu:1` | One GPU (each node has one L40S) | `--gres=gpu:1` |
-| `--time=HH:MM:SS` | Maximum run time; job is killed after | `--time=12:00:00` |
-| `--nodelist=NODE` | Force a specific node | `--nodelist=hpc02` |
-| `--job-name=NAME` | Name shown in `squeue` | `--job-name=train` |
-| `--output=FILE` | Where stdout goes | `--output=logs/%x-%j.out` |
+The staging readback reported AccountingStorageEnforce=none. It also included a same-user low-QoS overlap despite a configured one-job-per-user limit. Therefore, the recorded configured limits must not be treated as proven enforcement or as a safety barrier. Do not increase a request because you expect a limit to reject it. The enforcement behavior and the staging concurrency anomaly remain operational issues for SysAdmins.
 
-**Always set `--mem` and `--time`.** There is no default memory limit: a job that omits `--mem` reserves the **whole node's memory**, blocking everyone else on that node. Jobs are confined to what they asked for: exceeding `--mem` kills the job (`OUT_OF_MEMORY`), and exceeding `--time` kills it too. Asking for much more than needed makes your job (and everyone else's) wait longer.
-
-Each node has only **one GPU**, so at most three GPU jobs run at once on the shared cluster. A multi-GPU job must span nodes; ask an admin first.
-
-## Inspecting jobs
-
-```bash
-scontrol show job <jobid>       # full details of a pending/running job
-squeue -u $USER --start         # estimated start times
-```
-
-SLURM accounting is **not enabled yet** (it is being set up), so `sacct` shows nothing for now. A finished job stays visible in `scontrol show job <jobid>` for about 5 minutes; after that, your job's output file is the record.
-
-## Why is my job pending?
-
-`squeue -u $USER` shows a reason in the last column:
-
-| Reason | Meaning |
-|---|---|
-| `Resources` | Waiting for enough free cores/memory/GPU |
-| `Priority` | Other jobs are ahead of yours |
-| `ReqNodeNotAvail` | Requested node is down or reserved |
-| `QOSMaxGRESPerUser` or similar | You hit a per-user limit |
-
-## Etiquette
-
-- Don't hold an interactive GPU session while idle.
-- Test with a short `--time` before submitting long runs.
-- Put large temporary data in `/scratch` (see [Storage](03-storage.md)).
-
-## Related pages
-
-- [Shared ISR Slurm baseline](../slurm/verified-baseline.md): recorded configuration of the shared cluster.
-- [Submitting a batch job with Slurm](../slurm/batch-jobs.md): a general step-by-step batch workflow.
-- [Group-aware access and priority model](../slurm/access-priority.md): who can use the shared pool and how priority works.
+For precise request guidance and the dated QoS values, see [Group-aware access and priority](../slurm/access-priority.md). For examples and case-specific validation status, use the public examples on this site and follow any case-specific instructions from your SysAdmin.

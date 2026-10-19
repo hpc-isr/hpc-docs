@@ -12,49 +12,34 @@ nav_order: 2
 
 | You want to… | Connect to |
 |---|---|
-| Run jobs on the shared GPU cluster | `hpc01.isr.tecnico.ulisboa.pt` (the login node) |
+| Run jobs on the shared GPU cluster | `hpc01.isr.tecnico.ulisboa.pt` (login node) |
 | Use your group's dedicated node | `hpc-<group>.isr.tecnico.ulisboa.pt` (see [Group nodes](06-group-nodes.md)) |
 
-On the shared cluster you log in **only to `hpc01`** and reach `hpc02`/`hpc03` through SLURM ([SLURM basics](04-slurm-basics.md)). Don't SSH to `hpc02` or `hpc03`.
+On the shared cluster, log in to the documented login node and submit work through SLURM. Do not use compute nodes as interactive login destinations.
 
-Your username and password are your Authentik (SSO) credentials.
+Your institutional username and password are used for account authentication.
 
-## First login
+## First login and host identity
 
 ```bash
 ssh <username>@hpc01.isr.tecnico.ulisboa.pt
 ```
 
-The first time, SSH asks you to confirm the host fingerprint. Type `yes`.
+Before accepting a first-time or changed host-key prompt, compare the presented fingerprint with the current value distributed through an approved administrator channel. If you cannot verify it, stop and contact the administrators; do not accept the prompt just to continue. A changed fingerprint can have legitimate causes, but must be confirmed before connecting.
 
-Too many failed password attempts will get your IP **temporarily banned** (fail2ban). If that happens, wait and try again, or ask an admin to unban you.
+Repeated failed attempts may trigger temporary protection. If login is blocked, wait or contact the administrators rather than repeatedly retrying.
 
 ## Set up an SSH key (recommended)
 
-Keys are safer than passwords and save typing. Do this **on your own laptop**, not on the cluster.
+Keys reduce password entry. Create them on your own device and protect the private key with a passphrase. Share only the public key with the cluster administrators using the approved enrollment process. Never copy a private key to a cluster host or repository.
 
 ```bash
-# Create a key (press Enter to accept the default path; choose a passphrase)
 ssh-keygen -t ed25519 -C "<username>@isr-hpc"
-
-# Copy the public key to the cluster (asks for your password one last time)
-ssh-copy-id <username>@hpc01.isr.tecnico.ulisboa.pt
-
-# Test: should log in without asking for your account password
-ssh <username>@hpc01.isr.tecnico.ulisboa.pt
-```
-
-Because `/home` is shared across `hpc01`–`hpc03`, the key is also there inside your SLURM jobs.
-
-Windows: run the same commands in PowerShell (OpenSSH is built in). If `ssh-copy-id` is missing, use:
-
-```powershell
-type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh <username>@hpc01.isr.tecnico.ulisboa.pt "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 ```
 
 ## Short names with `~/.ssh/config`
 
-On your laptop, add this to `~/.ssh/config`:
+On your device, you may define a short alias after confirming the official login hostname:
 
 ```sshconfig
 Host isr-hpc
@@ -62,56 +47,12 @@ Host isr-hpc
     User <username>
     IdentityFile ~/.ssh/id_ed25519
     ServerAliveInterval 60
-
-Host isr-group
-    HostName hpc-<group>.isr.tecnico.ulisboa.pt
-    User <username>
-    IdentityFile ~/.ssh/id_ed25519
 ```
-
-Now `ssh isr-hpc` is enough.
 
 ## Copy files
 
-```bash
-# Laptop → cluster
-scp data.tar.gz isr-hpc:~/
-rsync -avP ./dataset/ isr-hpc:~/dataset/
+Use `scp` or `rsync` to transfer data to and from your home directory. For large transfers, `rsync` can resume interrupted transfers. Keep data within the applicable institutional data-handling rules.
 
-# Cluster → laptop
-scp isr-hpc:~/results/out.csv .
-rsync -avP isr-hpc:~/results/ ./results/
-```
+## Interactive sessions
 
-`rsync -avP` resumes interrupted transfers and shows progress. Prefer it for anything large.
-
-## Keep sessions alive with `tmux`
-
-If your laptop disconnects, anything running in your shell dies. Run long interactive work inside `tmux`:
-
-```bash
-tmux new -s work      # start a session
-# ... work ...
-# detach: press Ctrl-b then d
-tmux attach -t work   # reattach later, even from another computer
-tmux ls               # list sessions
-```
-
-On the shared cluster, long work should go through SLURM instead (see [SLURM basics](04-slurm-basics.md)).
-
-## VS Code Remote-SSH
-
-1. Install the **Remote - SSH** extension.
-2. `Ctrl+Shift+P` → **Remote-SSH: Connect to Host…** → pick `isr-hpc` from your `~/.ssh/config`.
-
-> Outside a SLURM job, everything you run on `hpc01` (VS Code server included) shares 4 cores and 16 GB, and the GPU is not available. Run heavy work through SLURM ([SLURM basics](04-slurm-basics.md)).
-
-## Port forwarding (e.g. Jupyter, TensorBoard)
-
-```bash
-# Your job runs on hpc02 and serves on port 8888: forward through hpc01
-ssh -L 8888:hpc02:8888 isr-hpc
-# then open http://localhost:8888 on your laptop
-```
-
-This only forwards a port through `hpc01`; you don't log in to `hpc02`. It works because the shared nodes accept all traffic from each other. For a group node, forward to `localhost` on that node directly (`ssh -L 8888:localhost:8888 <username>@hpc-<group>.isr.tecnico.ulisboa.pt`).
+Use SLURM for compute work and `tmux` for long-lived interactive sessions. Do not run heavy computations on the login node outside an allocated job.

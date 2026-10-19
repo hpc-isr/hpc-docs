@@ -4,119 +4,113 @@ parent: "User Guide"
 nav_order: 5
 ---
 
-# SLURM job script examples
+# SLURM job examples
 
 [← User Guide](README.md) · [Home](../README.md)
 
-Copy a script into a file, adjust the `#SBATCH` lines and the command, then `sbatch file.sh`. Basics are in [SLURM basics](04-slurm-basics.md).
+These are small starting examples, not a promise that a particular account, QoS, software package, or filesystem is available. Ask your group SysAdmin for your assigned account and currently permitted QoS. Keep the examples short and use paths confirmed for your account. Create the log directory before submitting:
 
-Create a log folder once: `mkdir -p ~/logs`
+    export SLURM_ACCOUNT="<account-assigned-by-your-admin>"
+    mkdir -p "$HOME/slurm-logs"
 
-## 1. Single-core job
+Use --qos=low only after confirming that it is permitted for your association. Request a higher tier only after the administrator confirms the change is active; see [Group-aware access and priority](../slurm/access-priority.md).
 
-```bash
-#!/bin/bash
-#SBATCH --job-name=hello
-#SBATCH --output=%x-%j.out
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=2G
-#SBATCH --time=00:05:00
+## 1. Short CPU smoke job
 
-hostname
-date
-id
-```
+    sbatch --account="$SLURM_ACCOUNT" --partition=normal --qos=low \
+      --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
+      --output="$HOME/slurm-logs/cpu-%j.out" \
+      --error="$HOME/slurm-logs/cpu-%j.err" \
+      --wrap='id -un; hostname; date -Is; echo "CPU smoke test passed."'
 
-## 2. Multi-threaded job (OpenMP, NumPy, PyTorch on CPU)
+Expected: Slurm returns a job ID. After the job completes, inspect the output and accounting record using the commands in [SLURM basics](04-slurm-basics.md). A pending job is not a failure; do not resubmit it repeatedly.
 
-```bash
-#!/bin/bash
-#SBATCH --job-name=threads
-#SBATCH --output=logs/%x-%j.out
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=32G
-#SBATCH --time=02:00:00
+## 2. CPU program with a user-owned environment
 
-# Make libraries use exactly the cores SLURM gave you
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK
+The path and software setup below are examples. Confirm that the environment path is visible from compute nodes and that the required packages can be installed under site policy. Do not assume that another person's virtual environment exists.
 
-source ~/envs/myproj/bin/activate
-python ~/code/compute.py
-```
+    cd "$HOME/slurm-logs"
+    cat > "$HOME/slurm-logs/cpu-program.sbatch" <<'SBATCH'
+    #!/bin/bash
+    #SBATCH --job-name=cpu-program
+    #SBATCH --nodes=1
+    #SBATCH --ntasks=1
+    #SBATCH --cpus-per-task=1
+    #SBATCH --mem=2G
+    #SBATCH --time=00:05:00
+    #SBATCH --output=cpu-program-%j.out
+    #SBATCH --error=cpu-program-%j.err
 
-## 3. GPU training job
+    source "$HOME/envs/my-project/bin/activate"
+    python "$HOME/code/my-project/run.py" \
+      --input "/path/confirmed/by/your/admin/input" \
+      --output "/path/confirmed/by/your/admin/results/$SLURM_JOB_ID"
+    SBATCH
 
-```bash
-#!/bin/bash
-#SBATCH --job-name=train
-#SBATCH --output=logs/%x-%j.out
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=96G
-#SBATCH --time=24:00:00
+    sbatch --account="$SLURM_ACCOUNT" --partition=normal --qos=low \
+      "$HOME/slurm-logs/cpu-program.sbatch"
 
-echo "Node: $(hostname)  GPU(s): $CUDA_VISIBLE_DEVICES"
-nvidia-smi
+Replace the environment, script, and data paths with locations that your administrator has confirmed. The example changes to the existing log directory before submission so the relative `#SBATCH` output paths resolve there. Ensure the output directory exists and the job can write to it.
 
-source ~/envs/myproj/bin/activate
-python ~/code/train.py --epochs 50 --workers $SLURM_CPUS_PER_TASK
-```
+## 3. One-GPU visibility smoke job
 
-Check from Python that the GPU is visible:
+The dated 2026-10-19 staging record reports that a one-GPU smoke job completed and saw an NVIDIA L40S. It does not validate PyTorch, CUDA compatibility for a particular application, or multi-node communication.
 
-```bash
-python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
-```
+    sbatch --account="$SLURM_ACCOUNT" --partition=normal --qos=low \
+      --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --gres=gpu:1 \
+      --time=00:05:00 \
+      --output="$HOME/slurm-logs/gpu-%j.out" \
+      --error="$HOME/slurm-logs/gpu-%j.err" \
+      --wrap='hostname; printf "CUDA_VISIBLE_DEVICES=%s\n" "$CUDA_VISIBLE_DEVICES"; nvidia-smi --query-gpu=index,name --format=csv,noheader'
 
-## 4. Job array: same script, many inputs
+A higher QoS or larger GPU allocation must be confirmed for your association before use. Do not use this smoke test to benchmark performance or load the GPU.
 
-Runs 10 tasks, `SLURM_ARRAY_TASK_ID` = 0…9. `%4` limits it to 4 at a time.
+## 4. Small job array
 
-```bash
-#!/bin/bash
-#SBATCH --job-name=sweep
-#SBATCH --output=logs/%x-%A_%a.out   # %A = array id, %a = task id
-#SBATCH --array=0-9%4
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=8G
-#SBATCH --time=01:00:00
+This example creates two short tasks and asks Slurm to run at most one array element at a time. That array throttle does not prove that other per-user limits are enforced.
 
-SEEDS=(1 2 3 4 5 6 7 8 9 10)
-SEED=${SEEDS[$SLURM_ARRAY_TASK_ID]}
+    sbatch --account="$SLURM_ACCOUNT" --partition=normal --qos=low \
+      --array=0-1%1 --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=1G \
+      --time=00:02:00 \
+      --output="$HOME/slurm-logs/array-%A_%a.out" \
+      --wrap='echo "array task $SLURM_ARRAY_TASK_ID on $(hostname)"'
 
-source ~/envs/myproj/bin/activate
-python ~/code/experiment.py --seed "$SEED"
-```
+Expected: two task records and distinct output files. Do not scale the array without confirming current site limits and capacity.
 
-Cancel one task: `scancel <arrayid>_3`. Cancel all: `scancel <arrayid>`.
+## 5. Job dependency
 
-## 5. Pipeline: run B after A succeeds
+The second job becomes eligible after the first succeeds. This does not guarantee when either job starts.
 
-```bash
-jid=$(sbatch --parsable preprocess.sh)
-sbatch --dependency=afterok:$jid train.sh
-```
+    producer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --partition=normal --qos=low \
+      --time=00:02:00 --output="$HOME/slurm-logs/producer-%j.out" \
+      --wrap='echo producer; sleep 2')
+    printf 'producer job: %s\n' "$producer"
 
-## 6. Interactive GPU session with Jupyter
+    consumer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --partition=normal --qos=low \
+      --dependency="afterok:$producer" --time=00:02:00 \
+      --output="$HOME/slurm-logs/consumer-%j.out" --wrap='echo consumer')
+    printf 'consumer job: %s\n' "$consumer"
 
-```bash
-# On hpc01: get a GPU node
-srun --gres=gpu:1 --cpus-per-task=8 --mem=64G --time=04:00:00 --pty bash
+Inspect both jobs with squeue and sacct. Cancel only an exact job ID that you have verified belongs to you.
 
-# On the compute node it lands on (note the hostname!)
-hostname
-source ~/envs/myproj/bin/activate
-jupyter lab --no-browser --ip=0.0.0.0 --port=8888
-```
+## 6. Interactive shell procedure
 
-Then on your laptop forward the port (replace `hpc02` with the hostname printed above) as described in [SSH login → Port forwarding](02-ssh-login.md#port-forwarding-eg-jupyter-tensorboard).
+A successful one-shot srun command was observed on staging; successful interactive PTY input and shell exit were not. Coordinate this procedure with your group SysAdmin before trying it. Use a short allocation and exit promptly:
 
-## 7. Email when the job ends
+    srun --partition=normal --account="$SLURM_ACCOUNT" --qos=low \
+      --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
+      --pty bash -l
 
-```bash
-#SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=<you>@tecnico.ulisboa.pt
-```
+Inside the allocated shell, run hostname, then type exit. If the prompt does not accept input, stop and ask the administrator; do not leave the allocation running or repeatedly resubmit.
 
-> **TODO:** Only works if a mail relay is configured on `hpc01` (`MailProg` in `slurm.conf`). Confirm.
+## Monitor and get help
+
+    squeue -u "$USER" -o '%i|%a|%q|%T|%M|%R'
+    sacct -X -j "<job-id>" --noheader \
+      --format=JobIDRaw,User,Account,Partition,QOS,State,ExitCode,Elapsed,AllocTRES
+
+For a problem report, include the job ID, the command or example used, approximate submit time, observed state or sanitized error, and what output you expected. Send this through the support route for your group from [Who's who](../overview/contacts.md). Do not include passwords, tokens, private keys, private research data, or unredacted logs in a public issue or message. See [FAQ and troubleshooting](07-faq.md).
+
+## Not covered by these examples
+
+The multi-node GPU/NCCL procedure and successful interactive PTY acceptance have not been demonstrated in the recorded staging evidence. Do not submit the multi-node case without specific SysAdmin coordination and confirmation of software, network, account, QoS, and test-window readiness.

@@ -2,75 +2,11 @@
 title: "Security operations"
 parent: "Procedures"
 grand_parent: "Admin Guide"
-nav_order: 6
+nav_order: 3
 ---
 
 # Security operations
 
-[← Admin Guide](../README.md) · [Home](../../README.md)
+Host firewall, SSH, intrusion-prevention, account access, logging, and recovery procedures are restricted operational information. Administrators should use the current automation and protected runbooks, verify both active and persistent state, and capture a protected rollback record before a change.
 
-Configuration background: [Security](../config/security.md).
-
-## fail2ban
-
-```bash
-sudo fail2ban-client status                  # list jails
-sudo fail2ban-client status sshd             # banned IPs for SSH
-
-# Unban an IP (e.g. a user who mistyped their password)
-sudo fail2ban-client set sshd unbanip <ip>
-
-# Ban manually
-sudo fail2ban-client set sshd banip <ip>
-
-# Logs
-sudo tail -n 50 /var/log/fail2ban.log
-```
-
-A user can find their public IP with `curl ifconfig.me`.
-
-Bans are per node; if a user is locked out everywhere, unban on each node:
-
-```bash
-for n in hpc01 hpc02 hpc03; do ssh ubuntu@$n "sudo fail2ban-client set sshd unbanip <ip>"; done
-```
-
-## firewalld
-
-```bash
-sudo firewall-cmd --state
-sudo firewall-cmd --get-active-zones
-sudo firewall-cmd --list-all
-
-# Open a port permanently
-sudo firewall-cmd --permanent --add-port=<port>/tcp
-sudo firewall-cmd --reload
-
-# Close it
-sudo firewall-cmd --permanent --remove-port=<port>/tcp
-sudo firewall-cmd --reload
-
-# Allow a port only from the private network
-sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="<private-subnet-cidr>" port port="<port>" protocol="tcp" accept'
-sudo firewall-cmd --reload
-```
-
-Expected open ports per node: [Ports](../reference/ports.md).
-
-## Failed login review
-
-```bash
-sudo journalctl -u ssh --since "24 hours ago" | grep -E 'Failed|Invalid' | tail -n 50
-sudo lastb | head -n 20       # failed logins
-last | head -n 20             # successful logins
-```
-
-## Remove temporary root SSH access
-
-After any rollout that needed root SSH:
-
-```bash
-sudo cat /root/.ssh/authorized_keys      # review
-sudo truncate -s 0 /root/.ssh/authorized_keys
-sudo sshd -T | grep permitrootlogin      # should be "no" or "prohibit-password"
-```
+Do not apply historical firewall snippets blindly. Check IPv4 and IPv6 behavior, source scope, established service dependencies, and the management path before changing rules. Keep at least one verified administrative recovery path. Do not publish access lists, host keys, logs containing identifiers, private addresses, or privileged command sequences.

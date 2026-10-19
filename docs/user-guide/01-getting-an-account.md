@@ -18,7 +18,7 @@ Ask your group's admin (see [Who's who](../overview/contacts.md)) for an invitat
 
 You will receive an email with a link. Opening it lets you choose:
 
-- **Username**: this is what you will type for `ssh <username>@…`. Use lowercase letters and digits only; it cannot easily be changed later.
+- **Username**: this is what you will type for `ssh <username>@…`. Use the identifier accepted or assigned by Authentik and keep its exact spelling. Do not assume that the login contains only lowercase letters and digits; some existing POSIX logins include an email-style identifier. If the login shown by Authentik differs from the POSIX login given by your group administrator, ask them which exact name to use for SSH.
 - **Password**
 - **Name**
 - **Email**: must be a **real, working address**. It is the only way to recover a forgotten password.
