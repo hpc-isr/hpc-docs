@@ -30,4 +30,3 @@ ssh <username>@hpc01.isr.tecnico.ulisboa.pt
 - [Shared ISR Slurm baseline](docs/slurm/verified-baseline.md)
 - [Submitting a batch job with Slurm](docs/slurm/batch-jobs.md)
 - [Group-aware access and priority model](docs/slurm/access-priority.md)
-- [Slurm use-case catalog](https://github.com/hpc-isr/slurm-testing-cases/tree/main/use-cases) for case-specific scripts, prerequisites, submission, and monitoring steps.

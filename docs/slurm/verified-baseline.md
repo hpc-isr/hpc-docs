@@ -6,47 +6,43 @@ nav_exclude: true
 
 ## Record status
 
-- **Status:** Dated operational observations, not a live health check or approved change plan.
-- **Scope:** Shared ISR Slurm cluster `hpc-isr` on `hpc01`, `hpc02`, and `hpc03`.
-- **Record owner:** HPC Documentation Maintainers.
-- **Operational owner:** The named owner for the shared cluster configuration has not been confirmed in the available evidence. Use the [research group SysAdmin directory](../../README.md#research-group-sysadmins) to coordinate verification.
-- **Recorded:** 2026-10-06.
-- **Next review:** Recheck before relying on these values for configuration or user guidance. The stated target is to test all clusters by 2026-10-31; record refreshed results after those tests.
+- **Status:** Dated staging observations, not a live health check or production deployment record.
+- **Scope:** Shared cluster hpc-isr on hpc01, hpc02, and hpc03.
+- **Recorded:** 2026-10-19.
+- **Operational owner:** The named owner for shared cluster configuration is not confirmed.
+- **Evidence:** Operator-provided terminal readbacks in the HPC planning discussion dated 2026-10-18 and 2026-10-19. The hosts were not queried while preparing this page.
 
-This baseline summarizes administrator-provided terminal observations from 2026-10-02 and 2026-10-06. They are point-in-time snapshots. The underlying raw terminal outputs are not stored here. No passwords, credentials, user account names, private addresses, or personal paths are included.
+The cluster was designated as staging by its operator. These are point-in-time results, not a change approval or production configuration.
 
-## Observed configuration and service state
+## Observed staging configuration
 
-| Area | Observation | Evidence date and source |
+| Area | Observation | Evidence and limits |
 |---|---|---|
-| Cluster identity and version | `ClusterName=hpc-isr`; Slurm `23.11.4` was reported. | `scontrol show config` and `scontrol --version`, 2026-10-02; cluster name also appeared in the 2026-10-06 configuration output. |
-| Controller service | `slurmctld` and `slurmd` were active on `hpc01`. This confirms service state on that host, but the configured `SlurmctldHost` value was not captured. | `systemctl is-active` and `systemctl show slurmd slurmctld`, 2026-10-06. Earlier controller inspection was recorded on 2026-10-02. |
-| Node services | `slurmd` and Munge were active on `hpc01`, `hpc02`, and `hpc03` in the 2026-10-02 inspection. | Administrator terminal checks using `systemctl is-active`. |
-| Partition snapshot | `normal` was the default partition and included `hpc01`, `hpc02`, and `hpc03`. All three were idle in that snapshot, with 56 CPUs and approximately 443 GB configured memory per node. The inspection reported no partition time limit, no oversubscription, and unrestricted group/account fields. These observations do not establish user eligibility or role priority. | `scontrol` partition/node inspection, 2026-10-02. |
-| Scheduling and resource selection | Backfill scheduling; `SelectType=select/cons_tres`; `SelectTypeParameters=CR_CORE_MEMORY`. | `scontrol show config`, 2026-10-02. The resource-selection values were also present in the 2026-10-06 output. |
-| Authentication | `AuthType=auth/munge`; Munge was active on the three nodes in the 2026-10-02 service checks. | `scontrol show config` and `systemctl is-active`, 2026-10-02; authentication value repeated in the 2026-10-06 output. |
-| Accounting | `AccountingStorageType=(null)` appeared in the 2026-10-06 configuration output. `slurmdbd` was inactive in the 2026-10-02 inspection. No successful accounting-backed account or QoS management was verified. | `scontrol show config`, 2026-10-06; `systemctl is-active slurmdbd`, 2026-10-02. |
-| GPU resources | `GresTypes=gpu`. The 2026-10-02 inspection reported one NVIDIA L40S GPU per node, 46,068 MiB per GPU, and driver `595.71.05`. CUDA `13.2` was reported on `hpc02`; equivalent CUDA output for every node was not captured. | `scontrol show config` and `nvidia-smi`, 2026-10-02; GRES setting repeated in the 2026-10-06 output. |
-| Cgroups | An earlier inspection described cgroup process/task handling, but the exact plugin settings and resource limits are not preserved in the available evidence. | Summary of administrator inspection, 2026-10-02; exact configuration values unknown. |
+| Slurm build | Slurm 23.11.4; cluster name hpc-isr. | Operator readbacks, 2026-10-18/19. |
+| Controller and services | hpc01 runs slurmctld and slurmdbd and also participates as a compute node. Later readbacks reported controller, SlurmDBD, and Munge active. | No controller failover test is recorded. |
+| Compute and partition | The normal partition includes all three nodes. A 2026-10-19 snapshot showed them idle, each with 56 CPUs, approximately 443 GB configured memory, and one NVIDIA L40S GPU. | Point-in-time capacity, not a guarantee. |
+| Scheduling and selection | Backfill scheduling, consumable CPU/memory/GRES selection, and task affinity/cgroup controls. Multifactor priority uses fair-share, age, and QoS. | Exact live values remain in restricted operational records. |
+| Authentication | Munge authenticates Slurm daemons. User identity resolution depends on institutional identity and SSSD/NSS integration. | All compute nodes must resolve the same user IDs and groups. |
+| Accounting | SlurmDBD-backed accounting is enabled on staging. A completed test job appeared in accounting. | This does not establish every authorization or resource limit. |
+| Storage | Shared user storage and node-local scratch are described in the [storage guide](../user-guide/03-storage.md). | This review did not obtain fresh filesystem inventories for all nodes. Confirm current mounts and free space with administrators. |
+| GPU test | A one-GPU staging smoke job exposed an NVIDIA L40S to the job. | Not acceptance of a PyTorch application or distributed GPU workload. |
 
-## Policy and job-launch status
+## Staging QoS policy
 
-The [group-aware access and priority model](access-priority.md) records stakeholder intent, not deployed enforcement. The 2026-10-02 `normal` partition snapshot does not verify the intended group or role priorities. Account associations, QoS values, fair-share weights, and priority mappings remain to be confirmed by the responsible administrators.
+The controller reported five QoS levels. Each user and group association defaults to low. The complete user-facing policy and limits are in [Group-aware access and priority](access-priority.md). QoS affects scheduling preference; it does not reserve resources or promise a start time.
 
-The general [batch-job guide](batch-jobs.md) describes the `sbatch` and `srun` workflow and explicitly requires site-specific settings to be confirmed. The [Slurm testing use-case catalog](https://github.com/hpc-isr/slurm-testing-cases/tree/main/use-cases) contains single-node and three-node GPU procedures. Their scripts and instructions are examples, not evidence of a successful test run. The account requirements, current node membership, resource requests, CUDA-enabled PyTorch environment, and GPU request syntax must be confirmed before execution. The repository does not include a generic PyTorch installer because the approved CUDA-compatible build has not been established.
+A low-QoS CPU job and a one-GPU smoke job completed and were visible in accounting. Two same-user low-QoS concurrency observations differed: an earlier pair serialized, while a later pair overlapped despite the reported one-job limit. Do not rely on that configured job-count value as an enforced safety cap. These checks do not establish fair-share outcomes, cross-account limits, temporary-grant expiry, or rejection of every unauthorized request. Staging readbacks and workload observations do not establish strict association, QoS, or concurrency-limit enforcement. Do not describe those controls as fully validated until positive and negative staging tests pass.
 
-## Open verification items
+## Database and backup status
 
-- Confirm the configured controller host, current compute-node membership, and node-to-partition mapping.
-- Recheck the installed Slurm version and all service states before planning a configuration change.
-- Confirm the accounting design and how accounts, QoS, and role/group priorities are implemented. Do not infer these from partition visibility.
-- Capture the exact cgroup plugin and limits, GPU configuration on each node, and the supported single-node and distributed job-launch paths.
-- Run and record an approved small pilot before treating the distributed-GPU example or user access as validated.
-- Confirm the operational owner, maintenance window, security boundaries, recovery procedure, and change-approval process; these were not established by the evidence summarized here.
+Staging accounting uses a database service separate from the controller. A mutual-TLS connection was verified from the SlurmDBD host. A later manual encrypted backup was restored into an isolated validation schema; the 12 table definitions and source/restored row counts matched.
 
-## Sources
+The sender timer was intentionally disabled in the latest recorded state, and a manual backup succeeded. The receiver retention timer was reported active. This is a tested manual backup and restore path, not a daily backup guarantee, alerting service, or disaster-recovery objective. Host-specific endpoints, network details, certificate identities, filesystem paths, and privileged recovery instructions belong in restricted administrator documentation.
 
-- Administrator-provided terminal observations dated 2026-10-02 and 2026-10-06, as summarized in the HPC setup discussion. Command families included `scontrol`, `systemctl`, `sinfo`, and `nvidia-smi`. Exact capture times are unavailable for some outputs.
-- [Submitting a batch job with Slurm](batch-jobs.md) and [Group-aware access and priority model](access-priority.md) in this repository.
-- [Slurm testing cases](https://github.com/hpc-isr/slurm-testing-cases), for the example script and setup instructions only, not as proof of a successful run.
-- SIPg-specific architecture and operational decisions remain in the separate [SIPg research-computing repository](https://github.com/sipg-isr/sipg-cluster-architecture). This shared-cluster record does not copy SIPg-specific configuration.
+## Sources and review
+
+- Operator-provided Slurm configuration, service, node, QoS, association, accounting, TLS, and backup/restore readbacks, 2026-10-18 and 2026-10-19.
+- [Batch job guide](batch-jobs.md) for the general submission workflow.
+- [Group-aware access and priority](access-priority.md) for user-facing QoS policy.
+- Executable workload cases and their acceptance evidence are maintained separately in an access-controlled repository; their availability depends on repository access.
+- Detailed host, storage, network, certificate, deployment, and recovery material belongs in access-controlled administrator documentation.
