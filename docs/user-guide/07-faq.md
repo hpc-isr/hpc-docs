@@ -35,9 +35,22 @@ For OUT_OF_MEMORY, TIMEOUT, or an application error, review the requested resour
 
 Check that the job was submitted with a GPU request allowed for your association and inspect the job's allocated resources. A GPU visible to nvidia-smi does not prove that your Python environment contains a compatible CUDA framework. Ask your administrator which software environment is supported; do not install system packages or change node configuration.
 
-## I do not know where to put data or software
+## Where should I put job data?
 
-See [Storage](03-storage.md). Ask your group SysAdmin to confirm the persistent path, cross-node visibility, backup policy, and supported environment setup for your workload. Do not assume that a path, package, container, quota, or backup service is available.
+Use the scratch path your group SysAdmin assigned for temporary job inputs and outputs. Confirm whether it is shared across your allocated nodes and how long it is retained. Copy results you need to keep to approved persistent project storage before the job ends. See [Storage](03-storage.md). Do not assume a path, quota, backup service, or shared filesystem.
+
+## How do I check my SLURM credits or usage?
+
+No per-user credit balance or credit conversion is documented in the verified cluster evidence. `sacct` can show recorded job resource usage, but it does not show credits remaining:
+
+    sacct -X -u "$USER" -S "$(date -d '30 days ago' +%F)" \
+      --format=JobIDRaw,Account,Partition,QOS,State,Elapsed,AllocCPUS,AllocTRES
+
+If your group uses a separate credit or budget system, ask its SysAdmin which report and conversion rule to use. See [Check Recorded Usage](https://github.com/hpc-isr/slurm-testing-cases/blob/main/use-cases/README.md#check-recorded-usage) for field descriptions.
+
+## Can I run Docker?
+
+Do not run Docker on this cluster. The approved alternative software or container method has not been verified in this guide. Ask your group SysAdmin how to provide your dependencies; do not assume another container runtime is available.
 
 ## How do I report a problem?
 
