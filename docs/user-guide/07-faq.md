@@ -46,7 +46,7 @@ No per-user credit balance or credit conversion is documented in the verified cl
     sacct -X -u "$USER" -S "$(date -d '30 days ago' +%F)" \
       --format=JobIDRaw,Account,Partition,QOS,State,Elapsed,AllocCPUS,AllocTRES
 
-If your group uses a separate credit or budget system, ask its SysAdmin which report and conversion rule to use. See [Check Recorded Usage](https://github.com/hpc-isr/slurm-testing-cases/blob/main/use-cases/README.md#check-recorded-usage) for field descriptions.
+This reports job records, not credits remaining. If your group uses a separate credit or budget system, ask its SysAdmin which report and conversion rule to use.
 
 ## Can I run Docker?
 
