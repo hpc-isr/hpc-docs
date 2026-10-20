@@ -9,7 +9,11 @@ nav_order: 1
 
 Account lifecycle is managed through the institution's approved identity process. Linux identity, group-based system access, scheduler account/QoS associations, sudo privileges, and application access are separate authorization decisions. Changes may take time to propagate through directory and node caches.
 
-Apart from the invitation steps below, this public page does not contain identity-provider API instructions, privileged group names, access-control commands, user records, or administrator rosters. Administrators must use the protected identity and HPC operations procedures. Never commit tokens, bind credentials, populated membership manifests, or user-specific access lists.
+Every ISR group admin is responsible for managing their own group's users. Only they should add users to their own `hpc-<group>` group. Users and groups are managed in Authentik. Remember to also add the user to the appropriate Slurm group.
+
+> **TODO:** Describe the Slurm groups better and add the steps to add a user to them.
+
+Never commit tokens, bind credentials, populated membership manifests, or user-specific access lists.
 
 For a user account request, see [Getting an account](../../user-guide/01-getting-an-account.md).
 
