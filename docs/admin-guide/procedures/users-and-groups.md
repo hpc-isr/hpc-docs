@@ -13,8 +13,6 @@ Every ISR group admin is responsible for managing their own group's users. Only 
 
 > **TODO:** Describe the Slurm groups better and add the steps to add a user to them.
 
-Never commit tokens, bind credentials, populated membership manifests, or user-specific access lists.
-
 For a user account request, see [Getting an account](../../user-guide/01-getting-an-account.md).
 
 ## Add a user
