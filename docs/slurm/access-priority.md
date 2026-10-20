@@ -14,6 +14,27 @@ The shared pool serves eligible researchers affiliated with VisLab, DSOR, LaSEEB
 
 New users start at low QoS. Role, seniority, group, or job title does not automatically grant a higher tier. Ask the relevant group SysAdmin to review a higher-priority request.
 
+## Group Accounts and Individual Access
+
+The staging accounting read-back on 2026-10-19 showed a `low` default for each listed group account:
+
+| Group account | Staging default observed on 2026-10-19 |
+|---|---|
+| `vislab` | `low` |
+| `dsor` | `low` |
+| `laseeb` | `low` |
+| `irsg` | `low` |
+| `sipg` | `low` |
+
+This is a dated staging observation, not a current authorization list. It does not mean that every user in a group can request every QoS. Slurm access is configured on each user's account association; higher QoS access can differ between users and affiliated accounts. Confirm your current eligible QoS with your group SysAdmin before submitting. If the site permits users to query their own association, this read-only command shows the account and QoS recorded for your login:
+
+```bash
+sacctmgr -nP show assoc where cluster=hpc-isr user="$USER" \
+  format=User,Account,QOS,DefaultQOS
+```
+
+If the command is unavailable or returns no row, ask your SysAdmin to check your association. Do not infer access from the group table alone.
+
 ## QoS levels
 
 | QoS | Relative priority | Configured maximum wall time | Configured GPUs per user within this QoS | Configured concurrent jobs per user within this QoS |
