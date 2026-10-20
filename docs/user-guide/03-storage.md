@@ -21,11 +21,13 @@ You can inspect the filesystem that contains a path you already know:
 
 Use df only for paths that your administrator has confirmed. Do not infer that a mount is shared because it has the same path on two nodes.
 
-## Temporary working files
+## Scratch for Job Working Files
 
-Use node-local temporary storage only when an administrator confirms its path and cleanup policy. Such files may not be shared with another allocated node and may disappear after a job. Copy required inputs into the approved working location and copy results back to approved persistent storage before the job exits.
+Use the scratch location assigned by your group SysAdmin for temporary job inputs, intermediate files, and outputs. Confirm the exact path, whether it is shared across the nodes you request, and its cleanup and backup rules. Do not guess the path or assume scratch is persistent, backed up, or visible on every node.
 
-Use explicit paths in job scripts. Do not assume that a job starts in your project directory or that your home directory is mounted on every compute node:
+Copy results you need to keep to the approved persistent project storage before the job exits. If no scratch location has been confirmed for your account, ask your SysAdmin before submitting a workload that depends on it.
+
+Use explicit paths in job scripts. Do not assume that a job starts in your project directory or that your home directory is mounted on every compute node. Substitute the scratch and persistent paths confirmed for your account:
 
     INPUT_DIR="/path/confirmed/by/your/admin/input"
     OUTPUT_DIR="/path/confirmed/by/your/admin/results/$SLURM_JOB_ID"
