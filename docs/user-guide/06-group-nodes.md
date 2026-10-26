@@ -10,11 +10,16 @@ nav_order: 6
 
 Some research groups provide separately administered compute systems for their members. Hardware, software, storage, access controls, and usage rules differ between groups and may change. Ask your group administrator for the current hostname, eligibility, and connection instructions.
 
-## How group nodes differ from the shared cluster
+## Group nodes in the shared cluster
 
-- The shared cluster uses SLURM. A group-managed host may have a different workload process; follow the instructions for that host.
-- Home directories and storage may not be shared between group systems and the shared cluster. Confirm where files persist before relying on them.
-- Use only the system assigned to your group and follow its administrator's resource-sharing rules.
+Group nodes are joining the Slurm cluster one at a time, after each group agrees. Once your group's node has joined:
+
+- you can still SSH in, but the GPU is only usable inside a Slurm job (`salloc --gres=gpu:1 -t 2:00:00` for an interactive shell);
+- your jobs go to your group's node first, at your tier, before the shared nodes;
+- when the node is idle, other groups can use it through the `scavenge` partition, and their jobs are preempted as soon as your group needs it;
+- `/home` and `/opt` are the same as on the shared cluster. Files from the node's old local home stay where they were; your administrator can tell you the path, so you can copy what you need.
+
+Until your group's node has joined, it keeps its own rules: follow the instructions of its administrator. See [SLURM basics](04-slurm-basics.md) for partitions, tiers and preemption.
 
 ## Safe use
 

@@ -4,6 +4,8 @@ nav_exclude: true
 
 # Shared ISR Slurm Baseline
 
+> **Superseded.** This page records the Slurm 23.11 staging setup as observed on 2026-10-19. The cluster was reinstalled with Slurm 26.05 on 2026-10-26, with different partitions, tiers and limits. For current use, see [SLURM basics](../user-guide/04-slurm-basics.md) and [Access and priority](access-priority.md).
+
 ## Record status
 
 - **Status:** Dated staging observations, not a live health check or production deployment record.

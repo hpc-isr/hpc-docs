@@ -15,7 +15,7 @@ Everything a researcher needs to log in and run work on the ISR HPC nodes. Read 
 2. [Getting an account](01-getting-an-account.md): invitation, assigned login, password recovery.
 3. [SSH login](02-ssh-login.md): connecting, SSH keys, `~/.ssh/config`, copying files, VS Code.
 4. [Storage](03-storage.md): confirm approved persistent and temporary storage paths.
-5. [SLURM basics](04-slurm-basics.md): see the cluster, start interactive and batch jobs, request a GPU.
+5. [SLURM basics](04-slurm-basics.md): where jobs run, tiers and limits, GPUs and shards, preemption.
 6. [SLURM job script examples](05-slurm-job-examples.md): copy-paste scripts for CPU, GPU, arrays and pipelines.
 7. [Group nodes](06-group-nodes.md): using your group's dedicated machine.
 8. [FAQ & troubleshooting](07-faq.md)
@@ -26,7 +26,7 @@ Everything a researcher needs to log in and run work on the ISR HPC nodes. Read 
 For the controlled researcher test path, begin with the [Researcher Test Journey](00-researcher-test-journey.md).
 
 1. Confirm your exact HPC login and the authentication method with your group administrator, then follow [SSH login](02-ssh-login.md).
-2. Ask the administrator to confirm your account, partition, allowed QoS, resource limits, storage paths, and software setup.
+2. Check your Slurm account and tier with `sacctmgr show assoc user=$USER format=account,qos%25,defaultqos`, and ask your administrator about storage paths and software setup.
 3. Start with the short [CPU smoke job](05-slurm-job-examples.md#1-short-cpu-smoke-job). The GPU and interactive procedures have separate prerequisites and validation limits.
 4. Monitor and report the job using [SLURM basics](04-slurm-basics.md) and [FAQ & troubleshooting](07-faq.md).
 

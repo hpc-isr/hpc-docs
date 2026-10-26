@@ -2,56 +2,41 @@
 nav_exclude: true
 ---
 
-# Group-aware access and priority
-
-## Current status
-
-This page describes the five-level QoS configuration observed on the shared hpc-isr staging cluster on 2026-10-19. It does not establish that the policy has received all required approvals, that any tier is enabled for a particular account, or that the configuration is in production. It is user guidance, not a live readback or promise of a job start time. The [dated baseline](verified-baseline.md) records evidence and limits.
+# Access and priority
 
 ## Who can submit
 
-The shared pool serves eligible researchers affiliated with VisLab, DSOR, LaSEEB, IRSg, and SIPg. Administrators provision access and Slurm account associations. A user with multiple verified affiliations has a separate association for each group and selects the corresponding account for each job. Usage is charged to that group association and is not combined into one cross-group balance.
+The shared cluster serves researchers affiliated with VisLab, DSOR, LaSEEB, IRSg and SIPg. Each group is a Slurm account. Your Slurm user and account are created automatically from your institutional (Authentik) account within about 10 minutes of being added to your group. A user in more than one group has an association for each, and chooses one with `--account`.
 
-New users start at low QoS. Role, seniority, group, or job title does not automatically grant a higher tier. Ask the relevant group SysAdmin to review a higher-priority request.
+## Tiers
 
-## QoS levels
+Each user has one tier, set by an administrator. It is shown as your QOS:
 
-| QoS | Relative priority | Configured maximum wall time | Configured GPUs per user within this QoS | Configured concurrent jobs per user within this QoS |
-|---|---:|---:|---:|---:|
-| very_low | 0 | 4 hours | 1 | 1 |
-| low | 10 | 12 hours | 1 | 1 |
-| medium | 20 | 24 hours | 1 | 2 |
-| high | 30 | 48 hours | 2 | 1 |
-| very_high | 40 | 48 hours | 2 | 1 |
+    sacctmgr show assoc user=$USER format=account,qos%25,defaultqos
 
-All group accounts and user associations default to low. A request does not change access by itself.
+| Tier | Longest job (own node and `shared`) | On your group's own node | Fair-share weight within the group |
+|---|---|---|---|
+| high | 1 day | Scheduled first; preempts low-tier jobs and scavengers; never preempted | 4 |
+| medium | 3 days | Preempts low-tier jobs and scavengers; never preempted | 2 |
+| low | 7 days | Preempts scavengers; can be preempted by medium and high groupmates | 1 |
 
-These are configured staging QoS values, not verified enforcement limits. Staging reported `AccountingStorageEnforce=none`, and a same-user low-QoS overlap was observed despite the configured one-job value. Do not rely on these caps to reject excess jobs or GPU requests; administrators must resolve and validate enforcement before treating them as safeguards. See the [dated baseline](verified-baseline.md).
+Members of a group who aren't in any tier get low. A user with a higher tier can also submit with a lower one (`--qos=low`), for example for a job longer than the higher tier allows.
 
-- very_low is a documented lower-than-baseline choice.
-- low is the standard default for all users.
-- medium requires a recorded request and SysAdmin approval for the affected association.
-- high and very_high require approved, dated temporary grants limited to 90 days.
-- very_high requires a documented reason why high is insufficient.
+The tier matters mostly on your group's own node. On the `shared` nodes every tier has the same priority and nobody is preempted. Between groups, Slurm's fair-share balances usage: a group that has used less recently goes first.
 
-The GPU and concurrent-job limits apply within each QoS association. They do not establish a cumulative limit across multiple QoS levels or group affiliations. Ask administrators how limits apply before submitting work that uses multiple accounts or tiers.
+## What a tier does not do
 
-## How priority affects jobs
-
-The staging scheduler considers QoS along with job age and fair-share. A higher QoS can improve scheduling preference relative to other eligible jobs. It does not reserve a GPU, guarantee a start time, preempt a running job, or remove partition and resource constraints. Jobs can wait when requested resources are busy or unavailable.
-
-The shared partition is named normal. Confirm your account, QoS, time limit, memory request, GPU syntax, and software environment with administrators before submitting. See the general [batch-job guide](batch-jobs.md).
+A tier doesn't reserve a GPU or guarantee a start time. Jobs still wait when the requested resources are busy. CPUs, memory, GPUs and wall time are enforced: a request over a limit is rejected at submit, with a message saying which one.
 
 ## Request a change
 
-Every user may ask their affiliated group's SysAdmin to review a higher QoS. A request is not an approval and does not change your association. Include:
+Ask your group's SysAdmin. Include:
 
-- your exact HPC login and the affiliated account you plan to charge;
-- the tier requested and why your current tier is insufficient;
-- the workload type and approximate CPU, memory, GPU, wall-time, and concurrency needs;
-- the relevant deadline or project milestone;
-- a preferred review or end date for the request.
+- your HPC login and the group account;
+- the tier you need and why your current one isn't enough;
+- the kind of work and its approximate CPU, memory, GPU and wall-time needs;
+- the deadline, if there is one.
 
-Do not send passwords, tokens, private keys, or sensitive research data with the request. Administrators verify the account affiliation, resource need, current queue/fair-share conditions, and impact on other users. They may ask for more detail or retain the current tier. Medium requires recorded approval for the affected association. High and very_high are dated grants with a maximum duration of 90 days under the recorded staging policy. Do not interpret a higher QoS as a guaranteed start time or a larger wall-time/concurrency allowance beyond the table above.
+Don't send passwords, tokens or private data. A change takes effect within about 10 minutes of the administrator making it, and applies to new jobs only. Use the group contact in [Who's who](../overview/contacts.md).
 
-Use the group contact listed in [Who's who](../overview/contacts.md). Do not submit until an administrator confirms the requested QoS is active for your account. Production settings may differ from this dated staging policy.
+See [SLURM basics](../user-guide/04-slurm-basics.md) for partitions, limits and preemption.
