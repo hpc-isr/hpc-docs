@@ -11,18 +11,17 @@ nav_order: 8
 
 This public page is a high-level overview, not an administrator runbook. It omits privileged deployment commands, internal network and certificate details, and protected configuration. The current as-built administrator record and deployable policy, code, playbooks, and procedures are maintained in separate access-controlled repositories.
 
-## Staging overview
+## Overview
 
-The shared staging cluster is named hpc-isr and reports Slurm 23.11.4.
+The shared cluster is named hpc-isr and runs Slurm 26.05 (SchedMD packages) since 2026-10-26.
 
 | Role | Node |
 |---|---|
-| Controller and SlurmDBD; also compute | hpc01 |
-| Compute | hpc02, hpc03 |
+| Controller and SlurmDBD; interactive GPU shards and preemptible batch work | hpc01 |
+| Compute, `shared` partition | hpc02, hpc03 |
+| Compute, owned by a research group | group nodes, as each group joins |
 
-The normal partition contains all three nodes. Each was reported with one NVIDIA L40S GPU. These are dated staging observations, not an availability or performance guarantee.
-
-Slurm uses consumable CPU, memory, and GPU resources with backfill scheduling. Munge authenticates Slurm daemons. User identities are resolved through institutional identity and SSSD/NSS. SlurmDBD-backed accounting is enabled on staging. The five-level QoS and request process are documented in [Group-aware access and priority](../../slurm/access-priority.md).
+Each node has one NVIDIA L40S GPU. Slurm uses consumable CPU, memory and GPU resources with backfill scheduling, partition-priority preemption on group nodes, and Fair Tree fair-share between groups. Munge authenticates Slurm daemons. User identities come from the institutional directory through SSSD, and Slurm accounts, users and tiers are synced from it automatically. Users see the policy in [SLURM basics](../../user-guide/04-slurm-basics.md) and [Access and priority](../../slurm/access-priority.md).
 
 ## Administrator boundary
 
