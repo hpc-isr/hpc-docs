@@ -12,7 +12,7 @@ For account access, SSH, storage, and job submission, start with the [ISR HPC Kn
 
 ## Guides
 
-- [ISR HPC Knowledge Base](docs/README.md): user guide, admin guide and cluster overview
+- [ISR HPC Knowledge Base](docs/README.md): user guide and cluster overview
 - [Shared ISR Slurm baseline](docs/slurm/verified-baseline.md)
 - [Submitting a batch job with Slurm](docs/slurm/batch-jobs.md)
 - [Group-aware access and priority model](docs/slurm/access-priority.md)

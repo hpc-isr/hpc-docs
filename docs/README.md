@@ -26,4 +26,4 @@ User-facing documentation for the HPC services of the **Institute for Systems an
 - Placeholders look like `<username>` or `<group>`. Replace them, including the angle brackets.
 - Host-specific internal names and address mappings are maintained in restricted operator inventory and are not published here.
 
-The [Admin Guide](admin-guide/README.md) explains the public/private documentation boundary. Host-level configuration, inventories, and administrator procedures are kept in access-controlled operator sources.
+This knowledge base is for users. Host-level configuration, inventories, and administrator procedures are kept in access-controlled operator sources.
