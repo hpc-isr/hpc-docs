@@ -45,7 +45,7 @@ Outside a job, your sessions on `hpc01` share 4 CPU cores and 16 GiB of memory. 
 
 ## Where do I put data or software?
 
-See [Storage](03-storage.md) for your home and `/scratch`, and [Containers with Apptainer](09-apptainer.md) for software stacks. Nothing on the cluster is backed up, so keep a copy of important data elsewhere.
+See [Storage](03-storage.md) for your home, `/scratch` and your group's NAS storage, and [Containers with Apptainer](09-apptainer.md) for software stacks. Nothing on the cluster is backed up, so keep a copy of important data elsewhere.
 
 ## How do I report a problem?
 

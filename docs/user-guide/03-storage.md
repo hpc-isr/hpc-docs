@@ -13,6 +13,7 @@ nav_order: 3
 | `/home/<username>` | Your home, on the cluster's MooseFS filesystem | Yes: the same on `hpc01`–`hpc03` and on group nodes that have joined the cluster | 500 GiB soft, 1000 GiB hard | No |
 | `/opt` | Shared software, on MooseFS | Yes | | No |
 | `/scratch` | Fast local disk on each node (shared nodes, and group nodes that have joined the cluster) | No: each node has its own | Free space on that disk | No |
+| `/storage/anubis-nas/<group>` | Your group's storage on the ISR NAS (DSOR so far) | Yes: mounted on every node | The group's NAS volume | No |
 
 ## Your home
 
@@ -44,6 +45,20 @@ Everything under your home counts, including virtual environments, Apptainer ima
     rm -rf "$WORK"
 
 Copy results back to your home before the job ends, and delete what you leave there. Other users share the same disk.
+
+## Group NAS storage
+
+Some research groups have their own volume on the ISR NAS, mounted on every node at `/storage/anubis-nas/<group>`. So far that is DSOR (`/storage/anubis-nas/dsor`); other groups follow as their NAS is set up.
+
+- Only members of the group can open the directory. New files are group-writable, so everyone in the group can read and change them.
+- It is meant for datasets and results you share within the group. The link to the NAS is slower than the cluster's own storage, so copy what a job reads heavily to `/scratch` first.
+- It is mounted on first access, so the first `ls` can take a few seconds.
+- It is **not backed up**. The NAS survives one failed disk, but not a deleted file. Keep your own copy of anything you can't regenerate.
+
+Check it and the free space:
+
+    ls /storage/anubis-nas/dsor
+    df -h /storage/anubis-nas/dsor
 
 ## Software environments
 
