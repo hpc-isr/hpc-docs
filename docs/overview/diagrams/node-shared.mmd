@@ -1,6 +1,0 @@
-flowchart LR
-    User[User workload] --> Scheduler[Scheduler allocation]
-    Scheduler --> Compute[Compute resources]
-    Compute --> Persistent[Approved persistent storage]
-    Compute --> Temporary[Node-local temporary storage]
-    Admin[Administrator] --> Protected[Restricted inventory and runbooks]

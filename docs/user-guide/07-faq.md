@@ -35,9 +35,17 @@ For OUT_OF_MEMORY, TIMEOUT, or an application error, review the requested resour
 
 Check that the job was submitted with a GPU request allowed for your association and inspect the job's allocated resources. A GPU visible to nvidia-smi does not prove that your Python environment contains a compatible CUDA framework. Ask your administrator which software environment is supported; do not install system packages or change node configuration.
 
-## I do not know where to put data or software
+## `Disk quota exceeded`
 
-See [Storage](03-storage.md). Ask your group SysAdmin to confirm the persistent path, cross-node visibility, backup policy, and supported environment setup for your workload. Do not assume that a path, package, container, quota, or backup service is available.
+Your home is above its quota: 1000 GiB, or 500 GiB for more than 7 days. Check with `mfsgetquota -h "$HOME"` and `du -sh "$HOME"/* | sort -h`, then delete or move data until you are under 500 GiB. The usual culprits are old results, checkpoints, and caches such as `~/.cache/pip` and `~/.apptainer/cache`. See [Storage](03-storage.md#quota). If you need more space, ask your group's admin.
+
+## My session on `hpc01` was killed, or is slow
+
+Outside a job, your sessions on `hpc01` share 4 CPU cores and 16 GiB of memory. Run heavy work in a job. See [SSH login](02-ssh-login.md#limits-outside-slurm).
+
+## Where do I put data or software?
+
+See [Storage](03-storage.md) for your home, `/scratch` and your group's NAS storage, and [Containers with Apptainer](09-apptainer.md) for software stacks. Nothing on the cluster is backed up, so keep a copy of important data elsewhere.
 
 ## How do I report a problem?
 

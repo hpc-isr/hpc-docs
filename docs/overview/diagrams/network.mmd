@@ -1,9 +1,0 @@
-flowchart LR
-    User[Users] --> Login[Approved login entry]
-    Login --> Scheduler[SLURM scheduler]
-    Scheduler --> Compute[Allocated compute nodes]
-    Identity[Central identity service] --> Login
-    Identity --> Compute
-    Scheduler --> Accounting[Accounting service]
-    Compute --> Storage[Approved storage]
-    Admin[Administrators] --> Operations[Restricted operations inventory]

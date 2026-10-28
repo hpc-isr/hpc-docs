@@ -12,13 +12,14 @@ has_toc: false
 Everything a researcher needs to log in and run work on the ISR HPC nodes. Read in order the first time.
 
 1. [Getting an account](01-getting-an-account.md): invitation, assigned login, password recovery.
-2. [SSH login](02-ssh-login.md): connecting, SSH keys, `~/.ssh/config`, copying files, VS Code.
-3. [Storage](03-storage.md): where to keep data.
+2. [SSH login](02-ssh-login.md): connecting, SSH keys, `~/.ssh/config`, copying files, limits outside Slurm.
+3. [Storage](03-storage.md): your home, its quota, and `/scratch`.
 4. [SLURM basics](04-slurm-basics.md): where jobs run, tiers and limits, GPUs and shards, preemption.
 5. [SLURM job script examples](05-slurm-job-examples.md): copy-paste scripts for CPU, GPU, arrays and pipelines.
 6. [Group nodes](06-group-nodes.md): using your group's dedicated machine.
 7. [FAQ & troubleshooting](07-faq.md)
 8. [Isaac Sim](08-isaac-sim.md): running Isaac Sim on the cluster.
+9. [Containers with Apptainer](09-apptainer.md): running Docker and Apptainer images in a job.
 
 ## Quick start
 
