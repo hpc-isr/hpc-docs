@@ -12,7 +12,7 @@ nav_order: 3
 |---|---|---|---|---|
 | `/home/<username>` | Your home, on the cluster's MooseFS filesystem | Yes: the same on `hpc01`–`hpc03` and on group nodes that have joined the cluster | 500 GiB soft, 1000 GiB hard | No |
 | `/opt` | Shared software, on MooseFS | Yes | | No |
-| `/scratch` | Fast local disk on each shared node | No: each node has its own | Free space on that disk | No |
+| `/scratch` | Fast local disk on each node (shared nodes, and group nodes that have joined the cluster) | No: each node has its own | Free space on that disk | No |
 
 ## Your home
 
@@ -34,7 +34,7 @@ Everything under your home counts, including virtual environments, Apptainer ima
 
 ## `/scratch`
 
-`/scratch` is a local disk on each shared node. It is faster than your home for many small files, but it is not shared: a file written there by a job on `hpc02` isn't visible on `hpc03` or `hpc01`. Use it for temporary files during a job:
+`/scratch` is a local disk on each node: `hpc01`–`hpc03`, and each group node once it has joined the cluster. It is faster than your home for many small files, but it is not shared: a file written there by a job on `hpc02` isn't visible on `hpc03` or `hpc01`. Use it for temporary files during a job:
 
     WORK="/scratch/$USER/$SLURM_JOB_ID"
     mkdir -p "$WORK"
