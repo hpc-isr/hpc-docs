@@ -12,7 +12,7 @@ nav_order: 3
 |---|---|---|---|---|
 | `/home/<username>` | Your home, on the cluster's MooseFS filesystem | Yes: the same on `hpc01`–`hpc03` and on group nodes that have joined the cluster | 500 GiB soft, 1000 GiB hard | No |
 | `/opt` | Shared software, on MooseFS | Yes | | No |
-| `/scratch` | Fast local disk on each node (shared nodes, and group nodes that have joined the cluster) | No: each node has its own | Free space on that disk | No |
+| `/scratch` | Fast local disk on each node (shared nodes, and group nodes that have joined the cluster) | No: each node has its own | 100 GiB soft, 200 GiB hard on each node; files untouched for 30 days are deleted | No |
 | `/storage/anubis-nas/<group>` | Your group's storage on the ISR NAS (DSOR so far) | Yes: mounted on every node | The group's NAS volume | No |
 
 ## Your home
@@ -45,6 +45,24 @@ Everything under your home counts, including virtual environments, Apptainer ima
     rm -rf "$WORK"
 
 Copy results back to your home before the job ends, and delete what you leave there. Other users share the same disk.
+
+### Quota
+
+On each node you have a quota of **100 GiB soft and 200 GiB hard** on `/scratch`, counted separately on each node:
+
+- Above 100 GiB you can keep writing for 7 days. After that, the soft limit acts as a hard one until you go back under 100 GiB.
+- A write that would go above 200 GiB fails with `Disk quota exceeded`.
+
+Check your usage and limits on the node you are on (in a job, or on `hpc01`):
+
+    quota -s
+    du -sh /scratch/$USER
+
+If a job needs more, ask the admins.
+
+### Old files are deleted
+
+`/scratch` is for files a job is using, not for keeping data. Every week, and whenever a node's `/scratch` is more than 90% full, files that nobody has read, written or changed for **30 days** are deleted. Then empty directories are deleted too, except your top-level `/scratch/<name>` directory. While you have a job running anywhere on the cluster, or a session on that node, none of your files are deleted. Deleted files can't be restored: keep results in your home or your group's NAS storage.
 
 ## Group NAS storage
 
