@@ -1,18 +1,27 @@
-# HPC Documentation
+# hpc-docs
 
-General documentation for users of hpc-isr computing resources. Site-specific policies and configurations must be confirmed with the relevant service administrators; the examples here do not establish that any particular cluster supports a given setting.
-
-## Research group contacts
-
-The organization profile is the authoritative directory for research-group SysAdmins and contact links: [HPC@ISR-Lisboa/LARSyS organization directory](https://github.com/hpc-isr/.github/blob/main/profile/README.md).
+User documentation for the ISR HPC cluster: the shared Slurm nodes hpc01–hpc03 and the group nodes `hpc-<group>`. The pages in `docs/` are published as the [ISR HPC Knowledge Base](docs/README.md).
 
 ## Start here
 
-For account access, SSH, storage, and job submission, start with the [ISR HPC Knowledge Base](docs/README.md). New researchers should begin with [Getting an account](docs/user-guide/01-getting-an-account.md) and continue through the [User Guide](docs/user-guide/README.md). Your group administrator must confirm your exact HPC login and provision the appropriate service access before you submit jobs.
+New users should read the [User Guide](docs/user-guide/README.md) in order, starting with [Getting an account](docs/user-guide/01-getting-an-account.md).
 
-## Guides
+| Topic | Page |
+|---|---|
+| Account and password | [Getting an account](docs/user-guide/01-getting-an-account.md) |
+| SSH login, keys, copying files | [SSH login](docs/user-guide/02-ssh-login.md) |
+| Where to keep data | [Storage](docs/user-guide/03-storage.md) |
+| Running jobs | [Slurm basics](docs/user-guide/04-slurm-basics.md), [job script examples](docs/user-guide/05-slurm-job-examples.md) |
+| Tiers and priority | [Access and priority](docs/slurm/access-priority.md) |
+| Your group's node | [Group nodes](docs/user-guide/06-group-nodes.md) |
+| Problems | [FAQ and troubleshooting](docs/user-guide/07-faq.md) |
+| How the cluster is laid out | [Overview](docs/overview/README.md) |
 
-- [ISR HPC Knowledge Base](docs/README.md): user guide and cluster overview
-- [Shared ISR Slurm baseline](docs/slurm/verified-baseline.md)
-- [Submitting a batch job with Slurm](docs/slurm/batch-jobs.md)
-- [Group-aware access and priority model](docs/slurm/access-priority.md)
+## Help
+
+Ask your research group's admin first. The list of admins is in [Who's who](docs/overview/contacts.md).
+
+## Related repositories
+
+- [slurm-testing-cases](https://github.com/hpc-isr/slurm-testing-cases): example workloads.
+- [hpc-automation](https://github.com/hpc-isr/hpc-automation): playbooks that configure the cluster.
