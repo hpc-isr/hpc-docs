@@ -8,4 +8,4 @@ nav_order: 5
 
 [← Overview](../README.md)
 
-Detailed network, node, storage, and service-topology diagrams are maintained in restricted operator sources. This public repository does not publish host-level diagrams. The remaining Mermaid files are conceptual illustrations only and are not an as-built inventory.
+Mermaid sources for diagrams of the network (`network.mmd`), a shared node (`node-shared.mmd`) and a group node (`node-group.mmd`).
