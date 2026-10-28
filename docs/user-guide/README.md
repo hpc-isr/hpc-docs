@@ -19,7 +19,7 @@ Everything a researcher needs to log in and run work on the ISR HPC nodes. Read 
 6. [Group nodes](06-group-nodes.md): using your group's dedicated machine.
 7. [FAQ & troubleshooting](07-faq.md)
 8. [Isaac Sim](08-isaac-sim.md): running Isaac Sim on the cluster.
-9. [Containers with Apptainer](09-apptainer.md): running Docker and Apptainer images in a job.
+9. [Containers with Apptainer](09-apptainer.md): converting a Docker image to Apptainer and running it in a job.
 
 ## Quick start
 
