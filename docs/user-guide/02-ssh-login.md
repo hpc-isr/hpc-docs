@@ -53,6 +53,12 @@ Host isr-hpc
 
 Use `scp` or `rsync` to transfer data to and from your home directory. For large transfers, `rsync` can resume interrupted transfers. Keep data within the applicable institutional data-handling rules.
 
-## Interactive sessions
+## Limits outside Slurm
 
-Use SLURM for compute work and `tmux` for long-lived interactive sessions. Do not run heavy computations on the login node outside an allocated job.
+Compute work runs inside Slurm jobs. Outside a job:
+
+- **On `hpc01`**, all of your SSH and VS Code sessions together get at most **4 CPU cores and 16 GiB of memory**, and no GPU. A session that goes above 16 GiB has its largest process killed. You can't use `crontab` or `at`. For recurring work, use Slurm (`sbatch --begin=...`, or a job that resubmits itself).
+- **On `hpc02` and `hpc03`** you can only SSH in while you have a job running there. Your session then joins the job and sees only its CPUs, memory and GPUs.
+- **On your group's node**, once it has joined the cluster, you log in as before, but the GPU only works inside a job. See [Group nodes](06-group-nodes.md).
+
+Editing, compiling small programs, `git` and submitting jobs are fine on `hpc01`. For anything heavier, start a job with `salloc` or `srun` (see [SLURM basics](04-slurm-basics.md#interactive-work)). Use `tmux` to keep a session running after you disconnect.

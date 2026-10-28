@@ -85,6 +85,8 @@ To survive it:
     sacct -X -j <job-id> --format=JobIDRaw,Account,Partition,QOS,State,ExitCode,Elapsed,AllocTRES
     scancel <job-id>
 
+The same information is in a browser at [Slurm-web](https://slurm.hpc.isr.tecnico.ulisboa.pt): log in with your Authentik account to see the jobs, nodes, partitions, QOS and accounts, with history charts.
+
 A pending job isn't a failure: read its reason (the last column of `squeue`) before resubmitting. Common reasons are `Resources` (waiting for a free GPU or cores) and `QOSMaxGRESPerUser` (you already have a shard). Cancel only job IDs that you have checked are yours.
 
 ## Getting help

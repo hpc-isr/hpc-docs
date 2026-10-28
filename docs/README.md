@@ -17,6 +17,8 @@ Documentation for users of the HPC cluster of the **Institute for Systems and Ro
 | Run jobs on the shared cluster | [SLURM basics](user-guide/04-slurm-basics.md) · [Job script examples](user-guide/05-slurm-job-examples.md) |
 | Use my group's dedicated node | [Group nodes](user-guide/06-group-nodes.md) |
 | Run Isaac Sim | [Isaac Sim](user-guide/08-isaac-sim.md) |
+| Run a container | [Containers with Apptainer](user-guide/09-apptainer.md) |
+| See the queue and nodes in a browser | [Slurm-web](https://slurm.hpc.isr.tecnico.ulisboa.pt) (see [SLURM basics](user-guide/04-slurm-basics.md#check-monitor-and-cancel)) |
 | Something isn't working | [FAQ & troubleshooting](user-guide/07-faq.md) |
 | Learn how the cluster is laid out | [Overview](overview/README.md) |
 

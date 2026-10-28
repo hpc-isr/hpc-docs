@@ -8,9 +8,9 @@ nav_order: 5
 
 [← User Guide](README.md) · [Home](../README.md)
 
-These are small starting examples, not a promise that a particular account, QoS, software package, or filesystem is available. Ask your group SysAdmin for your assigned account and currently permitted QoS. Keep the examples short and use paths confirmed for your account. Create the log directory before submitting:
+Small starting examples. Your Slurm account is your research group (`dsor`, `irsg`, `laseeb`, `sipg` or `vislab`). Check it with `sacctmgr show assoc user=$USER format=account,qos%25,defaultqos`. Create the log directory before submitting:
 
-    export SLURM_ACCOUNT="<account-assigned-by-your-admin>"
+    export SLURM_ACCOUNT="<your group>"
     mkdir -p "$HOME/slurm-logs"
 
 Every user has the low tier, so `--qos=low` always works; drop it to use your own tier. There's no need for `--partition`: Slurm routes each job to your group's node, the shared nodes or an idle node (see [SLURM basics](04-slurm-basics.md#where-jobs-run)). Tiers are explained in [Access and priority](../slurm/access-priority.md).
@@ -27,7 +27,7 @@ Expected: Slurm returns a job ID. After the job completes, inspect the output an
 
 ## 2. CPU program with a user-owned environment
 
-The path and software setup below are examples. Confirm that the environment path is visible from compute nodes and that the required packages can be installed under site policy. Do not assume that another person's virtual environment exists.
+This uses a Python environment in your home, which every node sees (see [Storage](03-storage.md#software-environments)). Replace the paths with your own.
 
     cd "$HOME/slurm-logs"
     cat > "$HOME/slurm-logs/cpu-program.sbatch" <<'SBATCH'
@@ -43,14 +43,14 @@ The path and software setup below are examples. Confirm that the environment pat
 
     source "$HOME/envs/my-project/bin/activate"
     python "$HOME/code/my-project/run.py" \
-      --input "/path/confirmed/by/your/admin/input" \
-      --output "/path/confirmed/by/your/admin/results/$SLURM_JOB_ID"
+      --input "$HOME/data/input" \
+      --output "$HOME/results/$SLURM_JOB_ID"
     SBATCH
 
     sbatch --account="$SLURM_ACCOUNT" --qos=low \
       "$HOME/slurm-logs/cpu-program.sbatch"
 
-Replace the environment, script, and data paths with locations that your administrator has confirmed. The example changes to the existing log directory before submission so the relative `#SBATCH` output paths resolve there. Ensure the output directory exists and the job can write to it.
+The example changes to the existing log directory before submission so the relative `#SBATCH` output paths resolve there. Ensure the output directory exists and the job can write to it.
 
 ## 3. One-GPU visibility smoke job
 

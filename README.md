@@ -10,7 +10,8 @@ New users should read the [User Guide](docs/user-guide/README.md) in order, star
 |---|---|
 | Account and password | [Getting an account](docs/user-guide/01-getting-an-account.md) |
 | SSH login, keys, copying files | [SSH login](docs/user-guide/02-ssh-login.md) |
-| Where to keep data | [Storage](docs/user-guide/03-storage.md) |
+| Where to keep data, quotas | [Storage](docs/user-guide/03-storage.md) |
+| Containers | [Apptainer](docs/user-guide/09-apptainer.md) |
 | Running jobs | [Slurm basics](docs/user-guide/04-slurm-basics.md), [job script examples](docs/user-guide/05-slurm-job-examples.md) |
 | Tiers and priority | [Access and priority](docs/slurm/access-priority.md) |
 | Your group's node | [Group nodes](docs/user-guide/06-group-nodes.md) |
