@@ -17,7 +17,7 @@ Group nodes are joining the Slurm cluster one at a time, after each group agrees
 - you can still SSH in, but the GPU is only usable inside a Slurm job (`salloc --gres=gpu:1 -t 2:00:00` for an interactive shell);
 - your jobs go to your group's node first, at your tier, before the shared nodes;
 - when the node is idle, other groups can use it through the `scavenge` partition, and their jobs are preempted as soon as your group needs it;
-- `/home` and `/opt` are the same as on the shared cluster. Files from the node's old local home stay where they were; your administrator can tell you the path, so you can copy what you need.
+- `/home` and `/storage` are the same as on the shared cluster. Files from the node's old local home stay where they were; your administrator can tell you the path, so you can copy what you need.
 
 Until your group's node has joined, it keeps its own rules: follow the instructions of its administrator. See [SLURM basics](04-slurm-basics.md) for partitions, tiers and preemption.
 

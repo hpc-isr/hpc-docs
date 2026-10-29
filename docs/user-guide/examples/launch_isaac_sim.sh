@@ -12,7 +12,7 @@ printf 'Server:      %s\n' "$server_ip"
 printf 'Signal port: %s (TCP)\n' "$signal_port"
 printf 'Stream port: %s (UDP)\n\n' "$stream_port"
 
-image="/opt/containers/isaac-sim-6.1.0.sif"
+image="/storage/software/containers/isaac-sim-6.1.0.sif"
 scratch="/scratch/$(id -un)"
 isaac_dir="$scratch/isaac-scratch"
 sandbox="$isaac_dir/sandbox"
