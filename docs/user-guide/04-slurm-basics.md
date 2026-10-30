@@ -8,62 +8,87 @@ nav_order: 4
 
 [← User Guide](README.md) · [Home](../README.md)
 
-## Before you submit
+The shared cluster runs Slurm 26.05 since 2026-10-26. This page explains how jobs are placed, what limits apply and how to submit. The tiers and how to get a higher one are in [Access and priority](../slurm/access-priority.md). Copy-paste scripts are in [SLURM job examples](05-slurm-job-examples.md).
 
-The shared cluster configuration and resource availability can change. The facts in this guide are dated observations from operator readbacks on 2026-10-18 and 2026-10-19, not a live check or a production guarantee. Ask your group SysAdmin to confirm your POSIX login, affiliated account, partition, allowed QoS, software environment, storage paths, and current resource limits before a larger run.
+## Where jobs run
 
-The staging readbacks described a Slurm cluster named hpc-isr, with a normal partition containing hpc01, hpc02, and hpc03. Each node was reported with 56 CPUs, approximately 443 GB configured memory, and one NVIDIA L40S GPU. These values are point-in-time configuration evidence; the scheduler is authoritative for current node state.
+You submit from `hpc01` (or from your group's node, once it has joined the cluster). Slurm picks the partition for you: you don't need `--partition` for normal work.
 
-The five QoS names and their dated limits are listed in [Group-aware access and priority](../slurm/access-priority.md). New associations default to low in the recorded staging policy. A higher QoS is not available until an administrator confirms it is allowed for your association. QoS affects scheduling preference; it does not reserve resources or guarantee a start time.
+| Partition | Nodes | Who | Notes |
+|---|---|---|---|
+| `<group>-high`, `<group>-med`, `<group>-low` | your group's own node | members of that group, by tier | Tried first. High and medium jobs can preempt low-tier jobs and scavengers there |
+| `shared` | `hpc02`, `hpc03` | everyone | Whole GPUs, never preempted |
+| `interactive` | `hpc01` | everyone | GPU shards (a sixth of the GPU each), up to 8 h |
+| `scavenge` | idle group nodes and `hpc01` | everyone | Lowest priority: jobs here can be preempted |
 
-## Check the current queue and nodes
+A job that names no partition goes to `<your group>-<your tier>,shared,scavenge`, and Slurm starts it wherever it fits first. A job asking for `--gres=shard:1` goes to `interactive`.
 
-    sinfo -N -h -o '%N|%T|%c|%m|%G'
-    squeue -u "$USER" -o '%i|%a|%q|%T|%M|%R'
+## Your tier and limits
 
-A pending job is not necessarily rejected. Read the pending reason, wait for the agreed observation period, and ask your group SysAdmin if the reason is unclear. Do not repeatedly resubmit the same job.
+Your tier (low, medium or high) is set by an administrator and shown as your QOS. Check it with:
 
-## Submit a short CPU job
+    sacctmgr show assoc user=$USER format=account,qos%25,defaultqos
 
-For a first test, use the short, one-CPU example in [SLURM job examples](05-slurm-job-examples.md). Replace the account placeholder with the group account assigned to you. Keep the resource request within the QoS and account limits confirmed for your association.
+| Tier | Longest job | On your group's node |
+|---|---|---|
+| high | 1 day | Scheduled first, never preempted |
+| medium | 3 days | Never preempted |
+| low | 7 days | Can be preempted by medium and high groupmates |
 
-    export SLURM_ACCOUNT="<account-assigned-by-your-admin>"
-    mkdir -p "$HOME/slurm-logs"
-    sbatch --parsable --partition=normal --account="$SLURM_ACCOUNT" --qos=low \
-      --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
-      --output="$HOME/slurm-logs/cpu-%j.out" \
-      --wrap='id -un; hostname; date -Is'
+The same time limits apply on `shared`. A job asking for more than its tier allows is rejected at submit, with a message giving the cap. A high or medium user can submit a longer job with `--qos=low` (7 days, preemptible on the group node).
 
-Use --qos=low only if your administrator has confirmed that it is allowed. If the site or your association uses a different approved default, follow that instruction rather than guessing.
+Other limits:
 
-## Requesting a GPU or an interactive session
+- **Default wall time is 4 hours.** A job without `-t` is stopped after 4 h.
+- **Default memory is 7800 MB per CPU core** when you don't give `--mem`.
+- **CPU-only jobs** can use at most 48 cores per node (36 on `hpc01`): 8 cores per node are kept for GPU jobs. Larger requests are rejected at submit.
+- **Shards:** one per user at a time, with at most 6 cores and 64 GB.
+- CPUs, memory and GPUs are enforced. Ask for what you use: over-asking makes others wait or get preempted.
 
-A one-GPU smoke-test procedure and its prerequisites are in [SLURM job examples](05-slurm-job-examples.md). The dated staging readback showed that a one-GPU batch smoke job could see the allocated GPU. This did not validate a research framework, a training workload, or a multi-node GPU job.
+## Submit
 
-A successful one-shot srun command was recorded, but a successful interactive PTY shell was not. Coordinate a short interactive-shell test with your group SysAdmin; exit promptly and verify that the allocation is released. Do not leave an allocation running while idle.
+    sbatch --gres=gpu:1 -t 12:00:00 job.sh               # one GPU, 12 h
+    sbatch -c 16 --mem=64G -t 12:00:00 job.sh            # CPU-only
+    sbatch --qos=low --gres=gpu:1 -t 5-00:00:00 job.sh   # 5 days: low tier only
 
-Use the account and QoS explicitly when instructed by the administrator. Do not request another user's account, a higher QoS, or more resources as a diagnostic probe.
+If you belong to more than one group, add `--account=<group>` to choose which one the job is charged to.
 
-## Monitor and cancel your own job
+## Interactive work
 
-Use the job ID returned by sbatch:
+- **A whole GPU:** `salloc --gres=gpu:1 -t 2:00:00`, on your group's node or on `shared`.
+- **A small GPU slice:** `salloc --gres=shard:1 -c 4 --mem=32G` gets a sixth of `hpc01`'s GPU for up to 8 h (2 h by default). It is time-shared with up to five other users and has no memory isolation, so keep GPU memory under about 8 GB.
+- Interactive sessions can't be requeued. If one is preempted it is killed, so don't run them in `scavenge`.
+- Exit when you're done, so the allocation is released.
 
-    squeue --jobs="<job-id>" -o '%i|%u|%a|%q|%T|%M|%l|%R'
-    scontrol show job "<job-id>"
-    sacct -X -j "<job-id>" --noheader \
-      --format=JobIDRaw,User,Account,Partition,QOS,State,ExitCode,Elapsed,AllocTRES
+## No GPU outside a job
 
-SlurmDBD accounting and a completed test job were observed on staging on 2026-10-19. This does not guarantee current service availability or retention. Compare the readback with your submission and output files. A completed state alone does not confirm that your application produced the expected result.
+In an SSH session on a cluster node, the GPU isn't visible (`nvidia-smi` fails with "Failed to initialize NVML"). Use `salloc` or `srun` to get one. GPU work started in `tmux` or with `nohup` outside a job doesn't work.
 
-Before cancellation, verify that the job ID belongs to you:
+## Preemption
 
-    squeue --jobs="<job-id>" -o '%i|%u|%T|%R'
-    scancel "<job-id>"
+Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted when the node's owners or a shard user need it. A preempted job gets SIGTERM, then 180 seconds, then it is requeued and starts again later. Allow a few minutes between a higher-priority job arriving and the preemption.
 
-Cancel only the specific job you verified. Do not use broad cancellation commands.
+To survive it:
 
-## Limits and enforcement
+- trap SIGTERM and write a checkpoint;
+- start the program with `srun` or `exec`, so it gets the signal;
+- use `#SBATCH --requeue` and `#SBATCH --open-mode=append`;
+- make the job idempotent: a job that ends during the grace time is requeued even if it finished, so check for a "done" marker before redoing work.
 
-The staging readback reported AccountingStorageEnforce=none. It also included a same-user low-QoS overlap despite a configured one-job-per-user limit. Therefore, the recorded configured limits must not be treated as proven enforcement or as a safety barrier. Do not increase a request because you expect a limit to reject it. The enforcement behavior and the staging concurrency anomaly remain operational issues for SysAdmins.
+`--qos=low` on your own node is the considerate choice for long, restartable work: it never preempts groupmates.
 
-For precise request guidance and the dated QoS values, see [Group-aware access and priority](../slurm/access-priority.md). For examples and case-specific validation status, use the public examples on this site and follow any case-specific instructions from your SysAdmin.
+## Check, monitor and cancel
+
+    sinfo                                     # partitions and node states
+    squeue -u "$USER" -o '%i|%P|%q|%T|%M|%l|%R'
+    scontrol show job <job-id>
+    sacct -X -j <job-id> --format=JobIDRaw,Account,Partition,QOS,State,ExitCode,Elapsed,AllocTRES
+    scancel <job-id>
+
+The same information is in a browser at [Slurm-web](https://slurm.hpc.isr.tecnico.ulisboa.pt): log in with your Authentik account to see the jobs, nodes, partitions, QOS and accounts, with history charts.
+
+A pending job isn't a failure: read its reason (the last column of `squeue`) before resubmitting. Common reasons are `Resources` (waiting for a free GPU or cores) and `QOSMaxGRESPerUser` (you already have a shard). Cancel only job IDs that you have checked are yours.
+
+## Getting help
+
+Include the job ID, the command you used, the time and the error or pending reason. Send it through your group's support route in [Who's who](../overview/contacts.md). Don't include passwords, tokens or private data.

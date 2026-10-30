@@ -35,22 +35,30 @@ For OUT_OF_MEMORY, TIMEOUT, or an application error, review the requested resour
 
 Check that the job was submitted with a GPU request allowed for your association and inspect the job's allocated resources. A GPU visible to nvidia-smi does not prove that your Python environment contains a compatible CUDA framework. Ask your administrator which software environment is supported; do not install system packages or change node configuration.
 
-## Where should I put job data?
+## `Disk quota exceeded`
 
-Use the scratch path your group SysAdmin assigned for temporary job inputs and outputs. Confirm whether it is shared across your allocated nodes and how long it is retained. Copy results you need to keep to approved persistent project storage before the job ends. See [Storage](03-storage.md). Do not assume a path, quota, backup service, or shared filesystem.
+Your home is above its quota: 1000 GiB, or 500 GiB for more than 7 days. Check with `mfsgetquota -h "$HOME"` and `du -sh "$HOME"/* | sort -h`, then delete or move data until you are under 500 GiB. The usual culprits are old results, checkpoints, and caches such as `~/.cache/pip` and `~/.apptainer/cache`. See [Storage](03-storage.md#quota). If you need more space, ask your group's admin.
 
-## How do I check my SLURM credits or usage?
+## My session on `hpc01` was killed, or is slow
 
-No per-user credit balance or credit conversion is documented in the verified cluster evidence. `sacct` can show recorded job resource usage, but it does not show credits remaining:
+Outside a job, your sessions on `hpc01` share 4 CPU cores and 16 GiB of memory. Run heavy work in a job. See [SSH login](02-ssh-login.md#limits-outside-slurm).
+
+## Where do I put data or software?
+
+See [Storage](03-storage.md) for your home, `/scratch` and your group's NAS storage, and [Containers with Apptainer](09-apptainer.md) for software stacks. Nothing on the cluster is backed up, so keep a copy of important data elsewhere.
+
+## How do I check my Slurm usage or credits?
+
+Slurm's [`sacct` command](https://slurm.schedmd.com/sacct.html) reports job accounting data and resource use, not a credit balance. The cluster guidance does not define a per-user credit balance or conversion. To review your recorded usage for the last 30 days:
 
     sacct -X -u "$USER" -S "$(date -d '30 days ago' +%F)" \
       --format=JobIDRaw,Account,Partition,QOS,State,Elapsed,AllocCPUS,AllocTRES
 
-This reports job records, not credits remaining. If your group uses a separate credit or budget system, ask its SysAdmin which report and conversion rule to use.
+If your group uses a separate budget system, ask your group SysAdmin which report and conversion rule applies.
 
 ## Can I run Docker?
 
-Do not run Docker on this cluster. The approved alternative software or container method has not been verified in this guide. Ask your group SysAdmin how to provide your dependencies; do not assume another container runtime is available.
+Docker is not available to users. Use [Apptainer](09-apptainer.md) to run Docker or OCI images.
 
 ## How do I report a problem?
 
