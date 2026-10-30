@@ -11,7 +11,7 @@ nav_order: 3
 | Path | What it is | Shared between nodes | Limit | Backed up |
 |---|---|---|---|---|
 | `/home/<username>` | Your home, on the cluster's MooseFS filesystem | Yes: the same on `hpc01`–`hpc03` and on group nodes that have joined the cluster | 500 GiB soft, 1000 GiB hard | No |
-| `/opt` | Shared software, on MooseFS | Yes | | No |
+| `/storage/shared` | Shared software and container images, on MooseFS | Yes | | No |
 | `/scratch` | Fast local disk on each node (shared nodes, and group nodes that have joined the cluster) | No: each node has its own | 100 GiB soft, 200 GiB hard on each node; files untouched for 30 days are deleted | No |
 | `/storage/anubis-nas/<group>` | Your group's storage on the ISR NAS (DSOR so far) | Yes: mounted on every node | The group's NAS volume | No |
 
