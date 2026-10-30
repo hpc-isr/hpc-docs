@@ -47,6 +47,19 @@ Outside a job, your sessions on `hpc01` share 4 CPU cores and 16 GiB of memory. 
 
 See [Storage](03-storage.md) for your home, `/scratch` and your group's NAS storage, and [Containers with Apptainer](09-apptainer.md) for software stacks. Nothing on the cluster is backed up, so keep a copy of important data elsewhere.
 
+## How do I check my Slurm usage or credits?
+
+Slurm's [`sacct` command](https://slurm.schedmd.com/sacct.html) reports job accounting data and resource use, not a credit balance. The cluster guidance does not define a per-user credit balance or conversion. To review your recorded usage for the last 30 days:
+
+    sacct -X -u "$USER" -S "$(date -d '30 days ago' +%F)" \
+      --format=JobIDRaw,Account,Partition,QOS,State,Elapsed,AllocCPUS,AllocTRES
+
+If your group uses a separate budget system, ask your group SysAdmin which report and conversion rule applies.
+
+## Can I run Docker?
+
+Docker is not available to users. Use [Apptainer](09-apptainer.md) to run Docker or OCI images.
+
 ## How do I report a problem?
 
 Use the support contact for your group in [Who's who](../overview/contacts.md). Include the job ID, case or command, approximate submission time, observed state or sanitized error, and expected result. Keep raw logs and personal or research data in approved storage. Never include passwords, tokens, private keys, or sensitive research data in a public issue or message.
