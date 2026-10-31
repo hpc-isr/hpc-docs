@@ -17,7 +17,7 @@ nav_order: 3
 
 ## Your home
 
-Your home is the same on every node, so a job sees the files you left from `hpc01`. MooseFS keeps two copies of every file on different nodes, so it survives a disk or node failure. That isn't a backup: a deleted or overwritten file can't be restored after the 24 hours it stays in the MooseFS trash. Keep a copy of anything important somewhere else.
+Your home is the same on every node, so a job sees the files you left from `hpc01`. MooseFS keeps three copies of every file in your home on different nodes, so it survives two disk or node failures at once. That isn't a backup: a deleted or overwritten file can't be restored after the 24 hours it stays in the MooseFS trash. Keep a copy of anything important somewhere else.
 
 ### Quota
 
