@@ -10,7 +10,7 @@ nav_order: 3
 
 | Path | What it is | Shared between nodes | Limit | Backed up |
 |---|---|---|---|---|
-| `/home/<username>` | Your home, on the cluster's MooseFS filesystem | Yes: the same on `hpc01`–`hpc03` and on group nodes that have joined the cluster | 500 GiB soft, 1000 GiB hard | No |
+| `/home/<username>` | Your home, on the cluster's MooseFS filesystem | Yes: the same on `hpc01`–`hpc03` and on group nodes that have joined the cluster | 200 GiB soft, 500 GiB hard | No |
 | `/storage/shared` | Shared software and container images, on MooseFS | Yes | | No |
 | `/scratch` | Fast local NVMe disk on each node, 3.5 TB (shared nodes, and group nodes that have joined the cluster) | No: each node has its own | 100 GiB soft, 200 GiB hard on each node; files untouched for 30 days are deleted | No |
 | `/storage/anubis-nas/<group>` | Your group's storage on the ISR NAS (DSOR so far) | Yes: mounted on every node | The group's NAS volume | No |
@@ -21,10 +21,10 @@ Your home is the same on every node, so a job sees the files you left from `hpc0
 
 ### Quota
 
-Each home has a quota of **500 GiB soft and 1000 GiB hard**:
+Each home has a quota of **200 GiB soft and 500 GiB hard**:
 
-- Above 500 GiB you can keep writing for 7 days. After that, the soft limit acts as a hard one until you go back under 500 GiB.
-- A write that would go above 1000 GiB fails with `Disk quota exceeded`.
+- Above 200 GiB you can keep writing for 7 days. After that, the soft limit acts as a hard one until you go back under 200 GiB.
+- A write that would go above 500 GiB fails with `Disk quota exceeded`.
 
 Check your usage and limits:
 
