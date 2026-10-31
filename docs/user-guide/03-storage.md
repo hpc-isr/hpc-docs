@@ -35,7 +35,7 @@ Everything under your home counts, including virtual environments, Apptainer ima
 
 ## `/scratch`
 
-`/scratch` is a local NVMe disk (3.5 TB) on each node: `hpc01`–`hpc03`, and each group node once it has joined the cluster. Some nodes still have the older 1.5 TB `/scratch` until they are moved, one at a time with a short drain, in early November 2026; your files there are carried over. It is the fastest storage on the cluster, especially for many small files, but it is not shared: a file written there by a job on `hpc02` isn't visible on `hpc03` or `hpc01`. Use it for temporary files during a job:
+`/scratch` is a local NVMe disk (3.5 TB) on each node: `hpc01`–`hpc03`, and each group node once it has joined the cluster. It is the fastest storage on the cluster, especially for many small files, but it is not shared: a file written there by a job on `hpc02` isn't visible on `hpc03` or `hpc01`. Use it for temporary files during a job:
 
     WORK="/scratch/$USER/$SLURM_JOB_ID"
     mkdir -p "$WORK"
