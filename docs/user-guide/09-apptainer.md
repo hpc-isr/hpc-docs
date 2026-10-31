@@ -113,7 +113,7 @@ Your home is mounted inside the container at the same path, and so is the direct
     apptainer exec --bind /scratch/$USER/data:/data image.sif ...     # like docker -v host:container
     apptainer exec --bind /scratch,/storage/anubis-nas image.sif ...  # several paths
 
-The paths must exist on the node the job runs on. `/scratch` exists on `hpc01`–`hpc03` and on group nodes that have joined the cluster, and is local to each node (see [Storage](03-storage.md#scratch)).
+The paths must exist on the node the job runs on. `/scratch` exists on `hpc01`–`hpc03` and on group nodes that have joined the cluster, and is a local NVMe disk on each node (see [Storage](03-storage.md#scratch)).
 
 ### A batch script
 
