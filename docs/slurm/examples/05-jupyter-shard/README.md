@@ -64,12 +64,6 @@ Your notebook environment has TensorBoard. To watch training curves from another
 
 TensorBoard is not installed in your login shell or in the other examples' environments, so `tensorboard` there gives "command not found".
 
-Without a notebook, run it from this example's environment in a [shell on a shard](#without-a-notebook), then do steps 2 and 3:
-
-    /scratch/$USER/envs/jupyter/bin/tensorboard --logdir ~/results/yolo-voc
-
-That environment exists only on `hpc01`, and only after this example has run there once.
-
 ## Without a notebook
 
 For a plain shell on a shard:
