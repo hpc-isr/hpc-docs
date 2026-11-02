@@ -27,11 +27,22 @@ export PATH="$HOME/.local/bin:$PATH"
 # They are on the same disk, so uv hard-links the files: the cache costs no extra space.
 export UV_PROJECT_ENVIRONMENT="/scratch/$USER/envs/isaaclab"
 export UV_CACHE_DIR="/scratch/$USER/uv-cache"
+export OMNI_KIT_ACCEPT_EULA=YES   # the import check below starts Isaac Sim
 
 if [ ! -d "$ISAACLAB_DIR/.git" ]; then
     git clone --depth 1 --branch "$ISAACLAB_BRANCH" https://github.com/isaac-sim/IsaacLab.git "$ISAACLAB_DIR"
 fi
 cd "$ISAACLAB_DIR"
+echo "Isaac Lab checkout: $ISAACLAB_DIR, branch $(git branch --show-current 2>/dev/null || echo '?')"
+
+# An older or unrelated ~/IsaacLab (for example a 2.x install) has no uv project
+# for this setup; stop with a clear message instead of a uv error.
+if [ ! -f pyproject.toml ] || [ ! -f uv.lock ]; then
+    echo "$ISAACLAB_DIR is not an Isaac Lab $ISAACLAB_BRANCH checkout (no pyproject.toml or uv.lock)." >&2
+    echo "Move it aside (mv $ISAACLAB_DIR $ISAACLAB_DIR.old) and submit setup.sbatch again," >&2
+    echo "or use another folder: sbatch --export=ALL,ISAACLAB_DIR=\$HOME/IsaacLab-3 setup.sbatch" >&2
+    exit 1
+fi
 
 # Creates $UV_PROJECT_ENVIRONMENT with Isaac Lab, Isaac Sim (pip wheels) and CUDA PyTorch.
 uv sync --extra isaacsim
