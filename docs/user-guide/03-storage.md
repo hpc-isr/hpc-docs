@@ -17,7 +17,7 @@ nav_order: 3
 
 ## Your home
 
-Your home is the same on every node, so a job sees the files you left from `hpc01`. MooseFS keeps two copies of every file on different nodes, so it survives a disk or node failure. That isn't a backup: a deleted or overwritten file can't be restored after the 24 hours it stays in the MooseFS trash. Keep a copy of anything important somewhere else.
+Your home is the same on every node, so a job sees the files you left from `hpc01`. MooseFS keeps three copies of every file in your home on different nodes, so it survives two disk or node failures at once. That isn't a backup: a deleted or overwritten file can't be restored after the 24 hours it stays in the MooseFS trash. Keep a copy of anything important somewhere else.
 
 ### Quota
 
@@ -48,12 +48,13 @@ Copy results back to your home before the job ends, and delete what you leave th
 
 ### Staging a dataset
 
-Reading a dataset straight from your home or the NAS in every epoch is slower than reading it from `/scratch`, and it slows everyone else down too. Measured with three nodes reading at once (2026-10-31):
+Reading a dataset straight from your home or the NAS in every epoch is slower than reading it from `/scratch`, and it slows everyone else down too. Measured with several nodes reading at once:
 
-| From | All three nodes together | Per node |
-|---|---|---|
-| Your home and `/storage/shared` (MooseFS) | about 1.8 GiB/s | about 600 MiB/s |
-| Group NAS (`/storage/anubis-nas/<group>`) | about 470 MiB/s | about 160 MiB/s |
+| From | Nodes reading | All together | Per node |
+|---|---|---|---|
+| Your home (MooseFS) | 4 (2026-11-01) | about 3.3 GiB/s | about 860 MiB/s |
+| `/storage/shared` (MooseFS) | 4 (2026-11-01) | about 2.4 GiB/s | about 620 MiB/s |
+| Group NAS (`/storage/anubis-nas/<group>`) | 5 (2026-11-02) | about 570 MiB/s | about 115 MiB/s |
 
 The NAS link is shared by every node, so it gets slower the more jobs read from it at once. What helps:
 
