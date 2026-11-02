@@ -42,6 +42,8 @@ In `logs/`, one log per step. When both are done:
 | `~/results/splats/<scene>/runs/export/splat.ply` | The model; drag it into a web viewer such as [SuperSplat](https://superspl.at/editor) on your laptop |
 | `~/results/splats/<scene>/runs/data/splatfacto/<date>/` | Checkpoints, config and TensorBoard logs |
 
+**TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `logs/splat-train-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. It shows the training loss and the rendered views as they improve. The copy in `~/results/splats/<scene>/runs` is written only when the job ends.
+
 ## How it works
 
 - **`--dependency=afterok`.** `submit.sh` submits both jobs at once. The second waits, with reason `Dependency`, until the first ends successfully. If preparation fails, training never starts: cancel it, fix the problem, and run `submit.sh` again.

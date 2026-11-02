@@ -42,6 +42,8 @@ The first run on a node downloads VOC to `/scratch/$USER/datasets` and converts 
 | `results.csv`, `results.png` | Loss and mAP per epoch |
 | `confusion_matrix.png`, `val_batch*_pred.jpg` | What the model gets right and wrong |
 
+**TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `yolo-voc-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. The job reads the logs live from the node's `/scratch`. The copy in `~/results/yolo-voc` is updated only every 30 minutes and when the job ends, so a TensorBoard pointed there runs up to half an hour behind. `results.csv` and `results.png` in `~/results/yolo-voc/train` have the same numbers, with the same delay.
+
 ## How it survives preemption
 
 Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: Slurm sends SIGTERM, waits 180 seconds, and puts the job back in the queue. This script handles that:
@@ -58,4 +60,3 @@ The same restart works after a **time limit**: if the job is stopped by `--time`
 
 - A bigger model: `--export=ALL,MODEL=yolo11s.pt` (or `m`, `l`, `x`). Raise `--time` and memory to match.
 - Your own dataset: write a [dataset YAML](https://docs.ultralytics.com/datasets/detect/) pointing to images on `/scratch` and pass it as `DATA=/path/to/data.yaml`. Stage the images to `/scratch` first, as in [Staging a dataset](../../../user-guide/03-storage.md#staging-a-dataset).
-- Watch the training curves in TensorBoard: start a [Jupyter shard](../05-jupyter-shard/README.md#tensorboard) and run `tensorboard --logdir ~/results/yolo-voc` in a JupyterLab terminal. The job copies its event files there every 30 minutes, so the curves lag by up to half an hour. `results.csv` and `results.png` in `~/results/yolo-voc/train` have the same numbers.

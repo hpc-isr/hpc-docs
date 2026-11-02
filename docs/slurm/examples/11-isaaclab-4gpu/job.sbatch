@@ -50,6 +50,10 @@ trap 'exit 143' TERM
 export ISAACLAB_DIR
 srun --ntasks-per-node=1 bash -c 'uv sync --project "$ISAACLAB_DIR" --extra isaacsim'
 
+# TensorBoard on this (the first) node, where rank 0 writes the logs.
+source "$SLURM_SUBMIT_DIR/../env.sh"   # for start_tensorboard
+start_tensorboard "$WORK/logs" "$UV_PROJECT_ENVIRONMENT/bin/tensorboard"
+
 # Rendezvous on the first node; one run name shared by all ranks.
 MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n1)
 MASTER_PORT=$(( 20000 + SLURM_JOB_ID % 20000 ))

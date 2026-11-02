@@ -46,6 +46,7 @@ trap finish EXIT
 trap 'exit 143' TERM
 
 echo "=== $(date -Is) start on $(hostname), restart count ${SLURM_RESTART_COUNT:-0}"
+start_tensorboard "$WORK/train"
 
 # srun passes Slurm's SIGTERM (preemption) to Python. Ultralytics saves
 # last.pt after every epoch, so the requeued job loses at most one epoch.

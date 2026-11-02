@@ -46,6 +46,9 @@ finish() {
 trap finish EXIT
 trap 'exit 143' TERM
 
+source "$SLURM_SUBMIT_DIR/../env.sh"   # for start_tensorboard
+start_tensorboard "$WORK/logs" "$UV_PROJECT_ENVIRONMENT/bin/tensorboard"
+
 extra=()
 if [ "$STREAM" = 1 ]; then
     source "$SLURM_SUBMIT_DIR/stream-info.sh"
