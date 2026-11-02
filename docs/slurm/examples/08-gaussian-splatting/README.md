@@ -44,6 +44,8 @@ In `logs/`, one log per step. When both are done:
 
 **TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `logs/splat-train-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. It shows the training loss and the rendered views as they improve. The copy in `~/results/splats/<scene>/runs` is written only when the job ends.
 
+To run TensorBoard yourself on the live logs, run it on the job's node, since `/scratch` is local to each node: `srun --jobid=<jobid> --overlap apptainer exec ~/containers/nerfstudio-1.1.3.sif tensorboard --logdir /scratch/$USER/<jobid>/runs --port <port>`, then tunnel to that node and port as the job log shows.
+
 ## How it works
 
 - **`--dependency=afterok`.** `submit.sh` submits both jobs at once. The second waits, with reason `Dependency`, until the first ends successfully. If preparation fails, training never starts: cancel it, fix the problem, and run `submit.sh` again.

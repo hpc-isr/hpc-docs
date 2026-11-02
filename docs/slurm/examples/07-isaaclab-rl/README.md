@@ -56,6 +56,8 @@ List every task with `uv run --project ~/IsaacLab --extra isaacsim isaaclab list
 
 **TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `isaaclab-train-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. The job reads the logs live from the node's `/scratch`. The copy in `~/results/isaaclab/logs` is updated only every 30 minutes and when the job ends, so a TensorBoard pointed there runs up to half an hour behind.
 
+To run TensorBoard yourself on the live logs, run it on the job's node, since `/scratch` is local to each node: `srun --jobid=<jobid> --overlap /scratch/$USER/envs/isaaclab/bin/tensorboard --logdir /scratch/$USER/<jobid>/logs --port <port>`, then tunnel to that node and port as the job log shows.
+
 ## Watch it
 
 All three need you to be on IST's network or VPN. Install the **Isaac Sim WebRTC Streaming Client** on your laptop ([download](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/download.html#isaac-sim-latest-release)). When the job runs, its log prints the server address and ports to type into the client.

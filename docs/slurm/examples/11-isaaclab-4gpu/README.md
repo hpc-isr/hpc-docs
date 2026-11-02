@@ -44,6 +44,8 @@ Watch the trained policy with example 7's `play.sbatch` and the same task:
 
 **TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `isaaclab-4gpu-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. It runs on the first node, where rank 0 writes the logs. The job reads the logs live from the node's `/scratch`. The copy in `~/results/isaaclab/logs` is updated only every 30 minutes and when the job ends, so a TensorBoard pointed there runs up to half an hour behind.
 
+To run TensorBoard yourself on the live logs, run it on the job's node, since `/scratch` is local to each node: `srun --jobid=<jobid> --overlap /scratch/$USER/envs/isaaclab/bin/tensorboard --logdir /scratch/$USER/<jobid>/logs --port <port>`, then tunnel to that node and port as the job log shows.
+
 ## How it works
 
 - **One process per GPU, one GPU per node.** `--nodes=4 --ntasks-per-node=1 --gres=gpu:1` gives one GPU on each of four nodes, and `srun` runs Isaac Lab's `train_multigpu` launcher once on each node.

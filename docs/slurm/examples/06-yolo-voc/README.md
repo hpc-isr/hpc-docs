@@ -44,6 +44,8 @@ The first run on a node downloads VOC to `/scratch/$USER/datasets` and converts 
 
 **TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `yolo-voc-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. The job reads the logs live from the node's `/scratch`. The copy in `~/results/yolo-voc` is updated only every 30 minutes and when the job ends, so a TensorBoard pointed there runs up to half an hour behind. `results.csv` and `results.png` in `~/results/yolo-voc/train` have the same numbers, with the same delay.
 
+To run TensorBoard yourself on the live logs, run it on the job's node, since `/scratch` is local to each node: `srun --jobid=<jobid> --overlap /scratch/$USER/envs/yolo-voc/bin/tensorboard --logdir /scratch/$USER/runs/yolo-voc/train --port <port>`, then tunnel to that node and port as the job log shows.
+
 ## How it survives preemption
 
 Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: Slurm sends SIGTERM, waits 180 seconds, and puts the job back in the queue. This script handles that:
