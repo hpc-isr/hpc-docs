@@ -45,7 +45,21 @@ The filter's advantage grows with the noise. The plot is `~/results/kalman-sweep
 - `#SBATCH --array=0-19%10` creates tasks 0 to 19 and runs at most 10 at once, so the sweep doesn't fill the cluster. Cancel one task with `scancel <jobid>_7`, or all of them with `scancel <jobid>`.
 - `%A_%a` in the log name is the array's job ID and the task number.
 - `OMP_NUM_THREADS=1` stops numpy from starting a thread per core of the node when the task has one CPU.
-- `afterok` waits for every task of the array. If one fails, the collector stays pending with reason `DependencyNeverSatisfied`; cancel it, fix the problem, and resubmit only the failed tasks with `sbatch --array=7 sweep.sbatch`.
+- `afterok` waits for every task of the array. If one fails, the collector can never start, so `submit.sh` also passes `--kill-on-invalid-dep=yes` and Slurm cancels it instead of leaving it pending with reason `DependencyNeverSatisfied`.
+- `submit.sh` refuses to submit if the [examples environment](../../README.md#before-you-start) doesn't exist yet, the most common reason for every task to fail.
+
+## If a task fails
+
+Find which tasks failed and why. Replace `<jobid>` with the sweep's job ID, the number before `_` in the log names:
+
+    sacct -j <jobid> -X -o JobID,State,ExitCode,NodeList
+    cat logs/kalman-sweep-<jobid>_7.out
+
+Fix the problem, then rerun only the failed tasks. The collector is submitted again and gathers every result in `RESULTS_DIR`, old and new:
+
+    ./submit.sh 7,12
+
+A collector submitted by an older `submit.sh` stays pending with reason `DependencyNeverSatisfied`. Cancel it with `scancel <collector-jobid>`; it will never start on its own, and a new sweep doesn't release it.
 
 ## Try next
 
