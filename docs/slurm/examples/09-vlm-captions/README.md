@@ -12,7 +12,7 @@ nav_order: 9
 |---|---|---|---|
 | 8 | 64 GB | 1 × L40S | a few minutes to load, then a few images per second |
 
-**First run:** About 43 GB in all. `pull.sbatch` downloads the vLLM image (11.2 GB, under a minute) and takes 15–30 min to build an 11 GB `.sif` in your home (using up to 35 GB of `/scratch` while it builds). Each new node downloads the model weights (30.9 GB, 1–2 min) and COCO val2017 (0.8 GB) into `/scratch`, so plan for 32 GB of your 100 GiB `/scratch` quota there. Loading the model takes 2–5 min per job. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** About 41 GB in all. `pull.sbatch` downloads the vLLM image (9.2 GB, under a minute) and takes 15–30 min to build a 9 GB `.sif` in your home (using up to 35 GB of `/scratch` while it builds). Each new node downloads the model weights (30.9 GB, 1–2 min) and COCO val2017 (0.8 GB) into `/scratch`, so plan for 32 GB of your 100 GiB `/scratch` quota there. Loading the model takes 2–5 min per job. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 Runs **Qwen3.8-27B**, a recent open-weight vision-language model, on one GPU of the cluster, with no cloud API and no data leaving ISR. The job reads a folder of images (COCO's sample photos, or your own robot camera frames, underwater footage or lab photos) and writes, for each one, a caption, the objects in it, the kind of environment and the hazards a mobile robot should avoid, as JSON lines.
 
@@ -24,7 +24,7 @@ It uses [vLLM](https://docs.vllm.ai/), the standard engine for serving language 
 
     cd ~/slurm-examples/09-vlm-captions
 
-    # Once: convert the vLLM image to ~/containers/vllm-0.32.0.sif (about 11 GB)
+    # Once: convert the vLLM image to ~/containers/vllm-0.32.0-cu130.sif (about 9 GB)
     sbatch pull.sbatch
 
     # 200 photos from COCO val2017, a free dataset downloaded on first use
@@ -57,7 +57,7 @@ The first run on a node takes longer for the downloads. The weights count toward
 
 - **vLLM batches.** The script sends 32 images at a time and vLLM processes them together on the GPU, which is far faster than one by one. `--max-model-len 32768` caps each request's length (the model accepts 262k tokens), which leaves memory for bigger batches.
 - **No thinking.** Qwen3.8 reasons step by step before answering by default. For labelling, the script turns that off (`enable_thinking: False`) and uses Qwen's recommended settings for direct answers. Remove that line for harder questions about an image, and expect slower answers.
-- **The container brings its own CUDA.** The `cu129` build of vLLM runs on the nodes' NVIDIA driver; `--nv` gives it the GPU Slurm allocated. `--cleanenv` stops your session's Python settings from leaking into it.
+- **The container brings its own CUDA.** The CUDA 13.0 build of vLLM runs on the nodes' NVIDIA driver (CUDA 13.2). Its `cu129` build doesn't work: importing vLLM fails with `libnvrtc.so.13: cannot open shared object file`, because its torchcodec was built for CUDA 13; `--nv` gives it the GPU Slurm allocated. `--cleanenv` stops your session's Python settings from leaking into it.
 - **Change the question** by editing `PROMPT` in `caption.py`: count objects, rate image quality, flag frames with people for anonymisation, or describe a robot's failure in a video frame.
 
 ## Try next
