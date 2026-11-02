@@ -3,6 +3,7 @@
 #   sbatch train.sbatch                                   # H1 humanoid learns to walk
 #   sbatch --export=ALL,TASK=Isaac-Humanoid train.sbatch  # another task
 #   sbatch --export=ALL,STREAM=1 train.sbatch             # watch it train (WebRTC)
+#   sbatch --export=ALL,NUM_ENVS=8192,NUM_MINI_BATCHES=8 train.sbatch   # bigger PPO batch
 #SBATCH --job-name=isaaclab-train
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=16
@@ -16,6 +17,10 @@ ISAACLAB_DIR="${ISAACLAB_DIR:-$HOME/IsaacLab}"
 TASK="${TASK:-Isaac-Velocity-Flat-H1}"
 NUM_ENVS="${NUM_ENVS:-4096}"
 MAX_ITERATIONS="${MAX_ITERATIONS:-1500}"
+# PPO batch: each iteration collects NUM_STEPS_PER_ENV steps from every environment
+# and splits them into NUM_MINI_BATCHES. Empty: the task's own settings.
+NUM_STEPS_PER_ENV="${NUM_STEPS_PER_ENV:-}"
+NUM_MINI_BATCHES="${NUM_MINI_BATCHES:-}"
 STREAM="${STREAM:-0}"
 # Where checkpoints and logs are kept: your home by default, or your group's NAS,
 # e.g. RESULTS_DIR=/storage/anubis-nas/<group>/isaaclab
@@ -50,6 +55,9 @@ source "$SLURM_SUBMIT_DIR/../env.sh"   # for start_tensorboard
 start_tensorboard "$WORK/logs" "$UV_PROJECT_ENVIRONMENT/bin/tensorboard"
 
 extra=()
+overrides=(physics=isaacsim_physx)   # Hydra overrides, after the options
+[ -n "$NUM_STEPS_PER_ENV" ] && overrides+=(agent.num_steps_per_env="$NUM_STEPS_PER_ENV")
+[ -n "$NUM_MINI_BATCHES" ] && overrides+=(agent.algorithm.num_mini_batches="$NUM_MINI_BATCHES")
 if [ "$STREAM" = 1 ]; then
     source "$SLURM_SUBMIT_DIR/stream-info.sh"
     extra=(--livestream 2)
@@ -58,7 +66,8 @@ if [ "$STREAM" = 1 ]; then
 fi
 
 echo "Task $TASK, $NUM_ENVS envs, $MAX_ITERATIONS iterations, on $(hostname)"
+echo "Overrides: ${overrides[*]}"
 srun uv run --project "$ISAACLAB_DIR" --extra isaacsim \
     isaaclab train --rl_library rsl_rl --task "$TASK" \
     --num_envs "$NUM_ENVS" --max_iterations "$MAX_ITERATIONS" \
-    "${extra[@]}" physics=isaacsim_physx
+    "${extra[@]}" "${overrides[@]}"

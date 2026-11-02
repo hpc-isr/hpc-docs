@@ -52,6 +52,13 @@ Change the task, size or length with `--export`:
     sbatch --export=ALL,TASK=Isaac-Humanoid,MAX_ITERATIONS=500 train.sbatch
     sbatch --export=ALL,TASK=IsaacContrib-TrackPositionNoObstacles-ARL-Robot-1 train.sbatch   # a drone
 
+**PPO batch size.** Each iteration collects `NUM_STEPS_PER_ENV` steps from each of the `NUM_ENVS` robots, then PPO splits that batch into `NUM_MINI_BATCHES` for its gradient steps. Left empty, the task's own settings apply (24 steps and 4 mini-batches for most locomotion tasks). More environments give a bigger batch per iteration; to keep each mini-batch a size the GPU handles well, raise `NUM_MINI_BATCHES` in proportion. Fewer steps per environment make iterations shorter but noisier.
+
+    sbatch --export=ALL,NUM_ENVS=8192,NUM_MINI_BATCHES=8 train.sbatch      # twice the robots, same mini-batch size
+    sbatch --export=ALL,NUM_STEPS_PER_ENV=48 train.sbatch                   # longer rollouts
+
+They are passed to Isaac Lab as the Hydra overrides `agent.num_steps_per_env` and `agent.algorithm.num_mini_batches`; any other agent or environment setting can be added the same way on the `isaaclab train` line.
+
 List every task with `uv run --project ~/IsaacLab --extra isaacsim isaaclab list_envs` inside a job. Isaac Lab 3.0 removed the old `Isaac-Quadcopter-Direct` task; the drone tasks are now the `IsaacContrib-*-ARL-Robot-1` ones.
 
 **TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `isaaclab-train-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. The job reads the logs live from the node's `/scratch`. The copy in `~/results/isaaclab/logs` is updated only every 30 minutes and when the job ends, so a TensorBoard pointed there runs up to half an hour behind.
