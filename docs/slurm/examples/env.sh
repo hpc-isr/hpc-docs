@@ -36,8 +36,10 @@ start_tensorboard() {
     local logdir=$1; shift
     local cmd=("$@")
     [ ${#cmd[@]} -gt 0 ] || cmd=(tensorboard)
-    # A free port derived from your UID and the job ID, so two users rarely collide.
-    local port=$(( 40000 + ($(id -u) + SLURM_JOB_ID) % 10000 ))
+    # Your own port, UID + 10000 (LDAP UIDs start at 20000), so the tunnel command
+    # stays the same from job to job. The next free one if it is taken, e.g. by
+    # a second job of yours on the same node.
+    local port=$(( $(id -u) + 10000 ))
     while ss -ltn "( sport = :$port )" | grep -q LISTEN; do port=$((port + 1)); done
     mkdir -p "$logdir"
     "${cmd[@]}" --logdir "$logdir" --host 127.0.0.1 --port "$port" >/dev/null 2>&1 &
