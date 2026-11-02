@@ -13,7 +13,7 @@ nav_order: 8
 | 1. Prepare: camera poses with COLMAP | 16 | 32 GB | none | 10–60 min for a video |
 | 2. Train and render | 8 | 64 GB | 1 × L40S | about 30 min |
 
-**First run:** The first run downloads the nerfstudio image (5.4 GB, under a minute) and takes 10–20 min to build `~/containers/nerfstudio-1.1.3.sif` (5.5 GB of your home, using about 20 GB of `/scratch` while it builds). The sample scene is about 0.2 GB. Each scene keeps 0.2–1 GB in `RESULTS_DIR`; jobs use 1–2 GB of `/scratch`. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** The first run downloads the nerfstudio image (5.4 GB, under a minute) and takes 10–20 min to build `~/containers/nerfstudio-1.1.3.sif` (5.5 GB of your home, using about 20 GB of `/scratch` while it builds). The sample scenes are a 683 MB download, kept in `/scratch/$USER/datasets` on that node. Each scene keeps 0.2–1 GB in `RESULTS_DIR`; jobs use 1–2 GB of `/scratch`. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 Turns a short phone video of a room, an object or a robot's workspace into a **3D Gaussian Splatting** model you can fly through, using [nerfstudio](https://docs.nerf.studio/) from its official container. It is a two-step **pipeline**: a CPU job finds the camera positions, and a GPU job, which Slurm starts only if the first succeeds, trains the model and renders a video. Splitting it this way means the GPU isn't held while COLMAP runs on CPUs.
 
@@ -21,11 +21,24 @@ Turns a short phone video of a room, an object or a robot's workspace into a **3
 
     cd ~/slurm-examples/08-gaussian-splatting
 
-    # Nerfstudio's free sample scene (a poster on a wall)
+    # A free sample scene: the Truck from Tanks and Temples, 251 photos with camera poses
     ./submit.sh
 
     # Your own video: walk slowly around the scene for 30–60 s, then
     VIDEO=$HOME/videos/lab.mp4 SCENE_NAME=lab ./submit.sh
+
+    # A scene you already have on disk (see below)
+    DATA=$HOME/scenes/bench SCENE_NAME=bench ./submit.sh
+
+`DATA` is a folder in one of three forms. `prepare.sbatch` picks the right step for each:
+
+| `DATA` contains | What preparation does |
+|---|---|
+| `transforms.json` and the images it lists (nerfstudio's format) | Uses it as it is |
+| `images/` and `sparse/0/` (COLMAP's output, as in most Gaussian Splatting datasets) | Converts it to nerfstudio's format, without running COLMAP again |
+| `images/` only | Runs COLMAP on the photos to find the camera poses |
+
+The sample comes from the [3D Gaussian Splatting](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) authors' server at Inria. If that download fails, fetch `tandt_db.zip` from their page on your laptop, copy it to the cluster, unzip it, and pass a scene with `DATA=~/tandt_db/tandt/truck SCENE_NAME=truck ./submit.sh`. Any other scene from nerfstudio's `ns-download-data` or the Mip-NeRF 360 dataset works the same way. Nerfstudio's own samples, such as the poster scene, are on Google Drive, which often refuses downloads from scripts, so this example doesn't use them.
 
 Files: [`submit.sh`](submit.sh), [`prepare.sbatch`](prepare.sbatch), [`train.sbatch`](train.sbatch), [`common.sh`](common.sh)
 

@@ -104,7 +104,7 @@ What each example downloads the first time, how long it takes to get ready, and 
 | 5 | JupyterLab, PyTorch with CUDA | 3 GB | under 1 min | 2–5 min to create the environment | your notebooks | 7 GB environment, plus what you stage |
 | 6 | Ultralytics with PyTorch; Pascal VOC, YOLO11n weights | 3 GB + 2.8 GB | under 1 min | 2–5 min to create the environment, 5–10 min to unzip and convert the labels | 0.1–0.5 GB per run | 7 GB environment, 4 GB dataset cache (7 GB while unpacking), plus the run while it trains |
 | 7 | Isaac Lab, Isaac Sim 6.2, PyTorch (`setup.sbatch`); robot assets on the first run | 12 GB | about 1 min | 15–30 min to create the environment (`uv sync`) and 5–15 min of shader compilation, on each node's first run | Isaac Lab code, a few GB of Isaac Sim caches, 0.1–1 GB per run | 25–30 GB environment and uv cache (hard-linked, so counted once), under 1 GB per run |
-| 8 | nerfstudio image, sample scene | 5.6 GB | under 1 min | 10–20 min to build the `.sif` | 5.5 GB image, 0.2–1 GB per scene | 20 GB while building the image; 1–2 GB per job |
+| 8 | nerfstudio image, sample scenes | 6.1 GB (5.4 + 0.7) | under 1 min | 10–20 min to build the `.sif` | 5.5 GB image, 0.2–1 GB per scene | 20 GB while building the image; 1–2 GB per job |
 | 9 | vLLM image, Qwen3.8-27B-FP8 weights, COCO val2017 | 43 GB (11.2 + 30.9 + 0.8) | 1–3 min | 15–30 min to build the `.sif` (once); 2–5 min to load the model in every job | 11 GB image, under 1 MB of captions | 32 GB cache (weights + images); 35 GB while building the image |
 | 10 | PyTorch with CUDA; CIFAR-10, on each node | 3 GB + 170 MB | under 1 min | 2–5 min to create the environment, under 1 min to unpack | 50 MB of results | 7 GB environment, 0.4 GB dataset cache |
 | 11 | nothing beyond example 7's, on each node | | | as example 7, on each node that doesn't have it yet | 0.1–1 GB per run | example 7's environment, under 1 GB per run |
@@ -123,7 +123,7 @@ All are free and downloaded by the jobs themselves, on first use on each node.
 | Pascal VOC 2007 + 2012 | 3 GB | 6 | [host.robots.ox.ac.uk/pascal/VOC](http://host.robots.ox.ac.uk/pascal/VOC/), via Ultralytics |
 | COCO128 (quick test) | 7 MB | 6 | [Ultralytics](https://docs.ultralytics.com/datasets/detect/coco128/) |
 | Isaac Sim robot assets | | 7 | NVIDIA, downloaded by Isaac Sim |
-| Nerfstudio "poster" scene | 100 MB | 8 | [nerfstudio sample data](https://docs.nerf.studio/quickstart/existing_dataset.html) |
+| Tanks and Temples "Truck" (from the 3D Gaussian Splatting authors' `tandt_db.zip`) | 683 MB for 4 scenes; Truck is 251 photos, 190 MB | 8 | [3D Gaussian Splatting datasets](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) |
 | COCO 2017 validation images | 0.8 GB | 9 | [cocodataset.org](https://cocodataset.org/#download) (CC BY 4.0) |
 | CIFAR-10 | 170 MB | 10 | [cs.toronto.edu/~kriz/cifar.html](https://www.cs.toronto.edu/~kriz/cifar.html), via torchvision |
 
