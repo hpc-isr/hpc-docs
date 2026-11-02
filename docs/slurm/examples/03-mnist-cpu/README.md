@@ -12,13 +12,13 @@ nav_order: 3
 |---|---|---|---|
 | 16 | 16 GB | none | a few minutes |
 
-**First run:** Downloads MNIST (60 MB, seconds; no setup) to `/scratch/$USER/datasets` on each new node; about 0.1 GB of `/scratch` and 5 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** Creates this example's Python environment (CPU-only PyTorch, 1 GB, 1–2 min) in `/scratch` on each new node. Downloads MNIST (60 MB, seconds; no setup) to `/scratch/$USER/datasets` on each new node; about 0.1 GB of `/scratch` and 5 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 Trains a small convolutional network on the MNIST handwritten digits with PyTorch, using only CPUs. It shows how to make a multi-threaded program use exactly the cores Slurm gave the job, and how to keep a dataset on the node's `/scratch`.
 
 ## Run it
 
-Needs the [examples environment](../../README.md#before-you-start).
+Uses its own Python environment, from [`requirements.txt`](requirements.txt), created on each node the first time (see [Before you start](../../README.md#before-you-start)).
 
     cd ~/slurm-examples/03-mnist-cpu
     sbatch job.sbatch

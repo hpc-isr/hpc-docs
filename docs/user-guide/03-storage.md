@@ -119,7 +119,7 @@ Create Python environments on `/scratch`, in a job on the node that will use the
     export PIP_CACHE_DIR="/scratch/$USER/pip-cache"
     python -m pip install -r "$HOME/code/my-project/requirements.txt"
 
-Keep your `requirements.txt` in your home, so you can recreate the environment on any node. An environment nobody uses for 30 days is deleted with other old `/scratch` files. The [Slurm examples](../slurm/README.md#before-you-start) do the same with `setup-env.sbatch`.
+Keep your `requirements.txt` in your home, so you can recreate the environment on any node. An environment nobody uses for 30 days is deleted with other old `/scratch` files. The [Slurm examples](../slurm/README.md#before-you-start) do this automatically: each job creates its environment on its node when it isn't there yet ([`env.sh`](../slurm/examples/env.sh)).
 
 For a full software stack, CUDA libraries included, use a container: see [Containers with Apptainer](09-apptainer.md). You can't install system packages on the nodes.
 

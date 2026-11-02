@@ -1,0 +1,4 @@
+# CPU-only PyTorch: about 1 GB instead of 7 GB with the CUDA libraries.
+--index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision

@@ -8,15 +8,8 @@
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-# The environment is on this node's /scratch; create it on each node you use with
-#   sbatch --nodelist=<node> setup-env.sbatch   (see "Before you start" in the Slurm README)
-ENV_DIR="${ENV_DIR:-/scratch/$USER/envs/slurm-examples}"
-if [ ! -x "$ENV_DIR/bin/python" ]; then
-    echo "No Python environment in $ENV_DIR on $(hostname)." >&2
-    echo "Create it from the examples folder: sbatch --nodelist=$(hostname) setup-env.sbatch" >&2
-    exit 1
-fi
-source "$ENV_DIR/bin/activate"
+source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
+ensure_env jupyter "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # A free port derived from your UID and the job ID, so two users rarely collide.
 PORT=$(( 20000 + ($(id -u) + SLURM_JOB_ID) % 20000 ))

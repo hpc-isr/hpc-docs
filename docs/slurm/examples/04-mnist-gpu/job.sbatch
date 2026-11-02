@@ -3,19 +3,12 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
-#SBATCH --time=00:30:00
+#SBATCH --time=00:45:00
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-# The environment is on this node's /scratch; create it on each node you use with
-#   sbatch --nodelist=<node> setup-env.sbatch   (see "Before you start" in the Slurm README)
-ENV_DIR="${ENV_DIR:-/scratch/$USER/envs/slurm-examples}"
-if [ ! -x "$ENV_DIR/bin/python" ]; then
-    echo "No Python environment in $ENV_DIR on $(hostname)." >&2
-    echo "Create it from the examples folder: sbatch --nodelist=$(hostname) setup-env.sbatch" >&2
-    exit 1
-fi
-source "$ENV_DIR/bin/activate"
+source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
+ensure_env mnist-gpu "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # Same layout as example 3: dataset cached on /scratch, work in /scratch, results copied out.
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/mnist}"   # or /storage/anubis-nas/<group>/mnist

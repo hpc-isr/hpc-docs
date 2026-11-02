@@ -12,7 +12,7 @@ nav_order: 2
 |---|---|---|---|
 | 1 per task, 20 tasks, 10 at a time | 1 GB per task | none | under a minute per task |
 
-**First run:** Downloads nothing beyond the [examples environment](../../README.md#before-you-start). Results take under 1 MB. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** Creates this example's Python environment (numpy and matplotlib, 0.15 GB, under a minute) in `/scratch` on each node it runs on. Results take under 1 MB. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 Many small, independent runs are the most common HPC job, and a **job array** is the way to submit them: one script, one job ID, and `SLURM_ARRAY_TASK_ID` telling each task which case to run.
 
@@ -20,13 +20,11 @@ Here each task runs 500 Monte Carlo trials of a Kalman filter tracking a target 
 
 ## Run it
 
-Needs the [examples environment](../../README.md#before-you-start) (numpy and matplotlib).
-
     cd ~/slurm-examples/02-kalman-sweep
     ./submit.sh
     squeue --me          # the array shows as <jobid>_[0-19%10]
 
-Files: [`submit.sh`](submit.sh), [`sweep.sbatch`](sweep.sbatch), [`collect.sbatch`](collect.sbatch), [`kalman.py`](kalman.py), [`collect.py`](collect.py)
+Files: [`submit.sh`](submit.sh), [`sweep.sbatch`](sweep.sbatch), [`collect.sbatch`](collect.sbatch), [`kalman.py`](kalman.py), [`collect.py`](collect.py), [`requirements.txt`](requirements.txt)
 
 ## What you should see
 
@@ -46,7 +44,7 @@ The filter's advantage grows with the noise. The plot is `~/results/kalman-sweep
 - `%A_%a` in the log name is the array's job ID and the task number.
 - `OMP_NUM_THREADS=1` stops numpy from starting a thread per core of the node when the task has one CPU.
 - `afterok` waits for every task of the array. If one fails, the collector can never start, so `submit.sh` also passes `--kill-on-invalid-dep=yes` and Slurm cancels it instead of leaving it pending with reason `DependencyNeverSatisfied`.
-- Tasks can run on any node you have access to, and the [examples environment](../../README.md#before-you-start) is local to each node. A task that lands on a node without it fails at once with `No Python environment ... on <node>` in its log: create the environment there, or on every node, before you submit.
+- **Its own environment on each node.** `ensure_env` from [`env.sh`](../env.sh) creates `/scratch/$USER/envs/kalman-sweep` from [`requirements.txt`](requirements.txt) on a node the first time a task runs there. Tasks that start together on that node wait for one build, then share it. See [Before you start](../../README.md#before-you-start).
 
 ## If a task fails
 
