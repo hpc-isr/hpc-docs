@@ -9,6 +9,9 @@
 
 set -euo pipefail
 
+# The environment goes in your home, which every node mounts, so jobs on any
+# node can use it. /scratch is local to each node: only pip's download cache
+# goes there, on whichever node this job runs.
 ENV_DIR="${ENV_DIR:-$HOME/envs/slurm-examples}"
 
 if [ ! -x "$ENV_DIR/bin/python" ]; then
@@ -18,6 +21,7 @@ source "$ENV_DIR/bin/activate"
 
 # Keep pip's download cache off your home quota.
 export PIP_CACHE_DIR="/scratch/$USER/pip-cache"
+echo "Node: $(hostname)   Environment: $ENV_DIR   pip cache: $PIP_CACHE_DIR"
 
 python -m pip install --upgrade pip
 python -m pip install -r "$SLURM_SUBMIT_DIR/requirements.txt"
