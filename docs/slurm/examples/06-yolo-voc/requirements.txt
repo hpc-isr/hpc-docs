@@ -1,2 +1,4 @@
 # Ultralytics brings PyTorch (with its CUDA libraries) and torchvision.
 ultralytics
+# Ultralytics writes TensorBoard event files only when this is installed.
+tensorboard

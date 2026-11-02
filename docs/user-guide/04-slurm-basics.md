@@ -58,6 +58,7 @@ If you belong to more than one group, add `--account=<group>` to choose which on
 - **A whole GPU:** `salloc --gres=gpu:1 -t 2:00:00`, on your group's node or on `shared`.
 - **A small GPU slice:** `salloc --gres=shard:1 -c 4 --mem=32G` gets a sixth of `hpc01`'s GPU for up to 8 h (2 h by default). It is time-shared with up to five other users and has no memory isolation, so keep GPU memory under about 8 GB.
 - Interactive sessions can't be requeued. If one is preempted it is killed, so don't run them in `scavenge`.
+- A shard session opens on `hpc01`, where you are already logged in, so the new shell looks exactly like your login shell. `echo $SLURM_JOB_ID` shows the job number inside a job and nothing outside one.
 - Exit when you're done, so the allocation is released.
 
 ## No GPU outside a job

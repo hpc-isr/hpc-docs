@@ -22,7 +22,8 @@ def main():
     a = p.parse_args()
 
     # Ultralytics downloads the built-in datasets (VOC, COCO, ...) here, once per node.
-    settings.update({"datasets_dir": str(a.datasets)})
+    # tensorboard: also write the training curves as TensorBoard event files.
+    settings.update({"datasets_dir": str(a.datasets), "tensorboard": True})
 
     last = a.run_dir / "train" / "weights" / "last.pt"
     if last.exists():

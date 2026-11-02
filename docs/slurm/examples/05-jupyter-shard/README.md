@@ -57,4 +57,6 @@ For a plain shell on a shard:
 
     srun --gres=shard:1 -c 4 --mem=32G -t 2:00:00 --pty bash
 
+The shell opens on `hpc01`, the machine you are already logged in to, so it looks exactly like your login shell: same hostname, same prompt, no message. To check that you are inside the job, run `echo $SLURM_JOB_ID` (empty outside a job) or `nvidia-smi -L` (fails outside a job). `exit` ends the job and brings you back to your login shell.
+
 The resources stay reserved until you `exit`, even while you are idle. Please exit or `scancel` when you're done.

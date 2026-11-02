@@ -21,6 +21,9 @@ trap 'exit 143' TERM
 rsync -a "$SCENE_RESULTS/data/" "$WORK/data/"
 cd "$WORK"
 
+source "$SLURM_SUBMIT_DIR/../env.sh"   # for start_tensorboard
+start_tensorboard "$WORK/runs" ns tensorboard
+
 ns ns-train splatfacto --data "$WORK/data" --output-dir "$WORK/runs" \
     --max-num-iterations "${ITERATIONS:-30000}" \
     --vis tensorboard   # logs to TensorBoard; no web viewer server to leave running

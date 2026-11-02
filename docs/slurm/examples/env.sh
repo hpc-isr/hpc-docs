@@ -27,3 +27,39 @@ ensure_env() {
     ) 9>"$envs/$name.lock"
     source "$env/bin/activate"
 }
+
+# Start TensorBoard on this node for the rest of the job and print the SSH
+# tunnel to reach it from your laptop. It listens on the node's loopback only,
+# so nobody else on the network can see your runs.
+#   start_tensorboard <logdir> [command that runs tensorboard]   (default: tensorboard)
+start_tensorboard() {
+    local logdir=$1; shift
+    local cmd=("$@")
+    [ ${#cmd[@]} -gt 0 ] || cmd=(tensorboard)
+    # Your own port, UID + 10000 (LDAP UIDs start at 20000), so the tunnel command
+    # stays the same from job to job. The next free one if it is taken, e.g. by
+    # a second job of yours on the same node.
+    local port=$(( $(id -u) + 10000 ))
+    while ss -ltn "( sport = :$port )" | grep -q LISTEN; do port=$((port + 1)); done
+    mkdir -p "$logdir"
+    "${cmd[@]}" --logdir "$logdir" --host 127.0.0.1 --port "$port" >/dev/null 2>&1 &
+    local me node via
+    me=$(id -un)
+    node=$(hostname -s)
+    via="$me@hpc01.isr.tecnico.ulisboa.pt"
+    # Other nodes: jump through hpc01 into the node, which lets you in while you have a job there.
+    [ "$node" = hpc01 ] || via="-J $via $me@$node"
+    cat <<EOT
+
+================  TensorBoard  ================
+TensorBoard runs on $node, port $port, until the job ends.
+On your laptop, open a tunnel (leave it open):
+
+    ssh -N -L 6006:localhost:$port $via
+
+then open http://127.0.0.1:6006. Curves appear once training has
+written its first logs.
+===============================================
+
+EOT
+}
