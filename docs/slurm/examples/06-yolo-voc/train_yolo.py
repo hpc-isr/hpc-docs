@@ -35,7 +35,9 @@ def main():
             epochs=a.epochs,
             imgsz=a.imgsz,
             batch=a.batch,
-            workers=int(os.environ.get("SLURM_CPUS_PER_TASK", 8)),
+            # Ultralytics gives the validation loader twice this many workers, so
+            # half the job's CPUs keeps both within them (PyTorch warns otherwise).
+            workers=max(1, int(os.environ.get("SLURM_CPUS_PER_TASK", 16)) // 2),
             project=str(a.run_dir),
             name="train",
             exist_ok=True,
