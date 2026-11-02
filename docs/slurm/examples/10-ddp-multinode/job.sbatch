@@ -13,7 +13,14 @@
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-source "${ENV_DIR:-$HOME/envs/slurm-examples}/bin/activate"
+# The environment is on each node's /scratch: create it on both nodes first,
+#   sbatch --nodelist=hpc02 setup-env.sbatch; sbatch --nodelist=hpc03 setup-env.sbatch
+export ENV_DIR="${ENV_DIR:-/scratch/$USER/envs/slurm-examples}"
+srun --ntasks-per-node=1 bash -c '[ -x "$ENV_DIR/bin/python" ] || {
+    echo "No Python environment in $ENV_DIR on $(hostname)." >&2
+    echo "Create it from the examples folder: sbatch --nodelist=$(hostname) setup-env.sbatch" >&2
+    exit 1; }'
+source "$ENV_DIR/bin/activate"   # srun passes it to the tasks on every node
 
 # Where the result is kept: your home by default, or your group's NAS,
 # e.g. RESULTS_DIR=/storage/anubis-nas/<group>/ddp-cifar

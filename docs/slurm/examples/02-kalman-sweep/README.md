@@ -46,7 +46,7 @@ The filter's advantage grows with the noise. The plot is `~/results/kalman-sweep
 - `%A_%a` in the log name is the array's job ID and the task number.
 - `OMP_NUM_THREADS=1` stops numpy from starting a thread per core of the node when the task has one CPU.
 - `afterok` waits for every task of the array. If one fails, the collector can never start, so `submit.sh` also passes `--kill-on-invalid-dep=yes` and Slurm cancels it instead of leaving it pending with reason `DependencyNeverSatisfied`.
-- `submit.sh` refuses to submit if the [examples environment](../../README.md#before-you-start) doesn't exist yet, the most common reason for every task to fail.
+- Tasks can run on any node you have access to, and the [examples environment](../../README.md#before-you-start) is local to each node. A task that lands on a node without it fails at once with `No Python environment ... on <node>` in its log: create the environment there, or on every node, before you submit.
 
 ## If a task fails
 

@@ -48,10 +48,21 @@ Get the examples into your home on `hpc01`:
 
 Submit each example **from its own folder** (`cd ~/slurm-examples/03-mnist-cpu`, then `sbatch job.sbatch`): the scripts find their Python files through `$SLURM_SUBMIT_DIR`, and their logs land there.
 
-Examples 2–6 and 10 share one Python environment with PyTorch, Ultralytics and JupyterLab. Create it once, in a job:
+Examples 2–6 and 10 share one Python environment with PyTorch, Ultralytics and JupyterLab. Like any environment on the cluster, it goes on the node's local disk, in `/scratch/$USER/envs/slurm-examples`: Python reads thousands of small files when it starts, and the local NVMe serves them much faster than your home on MooseFS. `/scratch` isn't shared, so **create the environment on every node your jobs will run on, and before you submit them**. A job only sees the environment of the node it runs on.
+
+To create it on every node you can use (`sinfo` lists only those):
 
     cd ~/slurm-examples
-    sbatch setup-env.sbatch          # 5–10 min; creates ~/envs/slurm-examples
+    for node in $(sinfo -h -N -o %N | sort -u); do
+        sbatch --nodelist="$node" setup-env.sbatch    # 5–10 min on each node
+    done
+
+Or create it on one node only, and send the examples there with the same `--nodelist`:
+
+    sbatch --nodelist=hpc02 setup-env.sbatch
+    sbatch --nodelist=hpc02 job.sbatch                # later, from an example's folder
+
+Wait for the setup jobs to finish (`squeue --me`; the log is `setup-env-<node>-<jobid>.out`). A job that lands on a node without the environment stops at once and names the node to run `setup-env.sbatch` on. An environment nobody uses for 30 days is deleted with the rest of that node's old `/scratch` files; run `setup-env.sbatch` there again. Running it on a node that has the environment updates it.
 
 Files: [`setup-env.sbatch`](examples/setup-env.sbatch), [`requirements.txt`](examples/requirements.txt). Examples 7, 8, 9 and 11 bring their own software (Isaac Lab in a uv environment, nerfstudio and vLLM as Apptainer images) and set it up on first use.
 
@@ -63,7 +74,8 @@ Every example follows the same pattern, which you should copy for your own jobs:
 
 | What | Where | Why |
 |---|---|---|
-| Code, environments, job scripts | your home | The same on every node |
+| Code, job scripts | your home | The same on every node |
+| Python environments | `/scratch/$USER/envs/<name>`, created on each node | Python starts much faster from the local disk. Create it on each node in a job there, as `setup-env.sbatch` does |
 | Datasets, model weights, download caches | `/scratch/$USER/datasets`, `/scratch/$USER/hf-cache`, ... | Downloaded once per node, reused by later jobs there. `/scratch` is the node's local NVMe disk, the fastest storage |
 | The job's working files | `/scratch/$USER/<jobid>` | Fast, and doesn't load the shared filesystem. Removed when the job ends |
 | Results to keep | `RESULTS_DIR`: `~/results/<example>` by default | Copied out when the job ends, even when it fails or runs out of time |
@@ -97,7 +109,7 @@ What each example downloads the first time, how long it takes to get ready, and 
 
 | # | Downloads the first time | Size | Download time | Setup time (unpack, install, build) | Home | `/scratch` per node |
 |---|---|---|---|---|---|---|
-| | Python environment (`setup-env.sbatch`): PyTorch, Ultralytics, JupyterLab | 3.2 GB | under 1 min | 5–10 min to install into your home | 7 GB | 3 GB pip cache (can be deleted) |
+| | Python environment (`setup-env.sbatch`): PyTorch, Ultralytics, JupyterLab | 3.2 GB on each node | under 1 min | 5–10 min to install on each node | | 7 GB environment, 3 GB pip cache (can be deleted) |
 | 1 | nothing | | | | | |
 | 2 | nothing beyond the environment | | | | under 1 MB of results | under 1 MB while it runs |
 | 3, 4 | MNIST | 60 MB | seconds | seconds | 5 MB of results | 0.1 GB dataset cache |

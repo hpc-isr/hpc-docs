@@ -27,7 +27,7 @@ Expected: Slurm returns a job ID. After the job completes, inspect the output an
 
 ## 2. CPU program with a user-owned environment
 
-This uses a Python environment in your home, which every node sees (see [Storage](03-storage.md#software-environments)). Replace the paths with your own.
+This uses a Python environment on the node's `/scratch`, which you create first on the node the job runs on (see [Storage](03-storage.md#software-environments)). Replace the paths and the node with your own.
 
     cd "$HOME/slurm-logs"
     cat > "$HOME/slurm-logs/cpu-program.sbatch" <<'SBATCH'
@@ -40,8 +40,9 @@ This uses a Python environment in your home, which every node sees (see [Storage
     #SBATCH --time=00:05:00
     #SBATCH --output=cpu-program-%j.out
     #SBATCH --error=cpu-program-%j.err
+    #SBATCH --nodelist=hpc02
 
-    source "$HOME/envs/my-project/bin/activate"
+    source "/scratch/$USER/envs/my-project/bin/activate"
     python "$HOME/code/my-project/run.py" \
       --input "$HOME/data/input" \
       --output "$HOME/results/$SLURM_JOB_ID"

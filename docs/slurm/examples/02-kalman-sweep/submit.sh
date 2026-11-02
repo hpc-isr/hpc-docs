@@ -8,13 +8,6 @@ set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p logs
 
-ENV_DIR="${ENV_DIR:-$HOME/envs/slurm-examples}"
-if [ ! -x "$ENV_DIR/bin/python" ]; then
-    echo "No Python environment in $ENV_DIR." >&2
-    echo "Create it first: cd .. && sbatch setup-env.sbatch (and wait for it to finish)." >&2
-    exit 1
-fi
-
 array=()
 [ $# -gt 0 ] && array=(--array="$1")
 

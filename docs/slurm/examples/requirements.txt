@@ -1,5 +1,5 @@
 # Python packages for examples 2–6 and 10.
-# Installed by setup-env.sbatch into $HOME/envs/slurm-examples.
+# Installed by setup-env.sbatch into /scratch/$USER/envs/slurm-examples on each node.
 # The PyPI torch wheels bundle their own CUDA libraries; they only need the node's NVIDIA driver.
 torch
 torchvision
