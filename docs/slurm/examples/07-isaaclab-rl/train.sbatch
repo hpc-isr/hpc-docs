@@ -3,7 +3,7 @@
 #   sbatch train.sbatch                                   # H1 humanoid learns to walk
 #   sbatch --export=ALL,TASK=Isaac-Humanoid train.sbatch  # another task
 #   sbatch --export=ALL,STREAM=1 train.sbatch             # watch it train (WebRTC)
-#   sbatch --export=ALL,NUM_ENVS=8192,NUM_MINI_BATCHES=8 train.sbatch   # bigger PPO batch
+#   sbatch --export=ALL,NUM_ENVS=65536,NUM_MINI_BATCHES=64 train.sbatch  # bigger PPO batch
 #SBATCH --job-name=isaaclab-train
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=16

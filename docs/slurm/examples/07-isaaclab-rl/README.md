@@ -54,7 +54,7 @@ Change the task, size or length with `--export`:
 
 **PPO batch size.** Each iteration collects `NUM_STEPS_PER_ENV` steps from each of the `NUM_ENVS` robots, then PPO splits that batch into `NUM_MINI_BATCHES` for its gradient steps. Left empty, the task's own settings apply (24 steps and 4 mini-batches for most locomotion tasks). More environments give a bigger batch per iteration; to keep each mini-batch a size the GPU handles well, raise `NUM_MINI_BATCHES` in proportion. Fewer steps per environment make iterations shorter but noisier.
 
-    sbatch --export=ALL,NUM_ENVS=8192,NUM_MINI_BATCHES=8 train.sbatch      # twice the robots, same mini-batch size
+    sbatch --export=ALL,NUM_ENVS=65536,NUM_MINI_BATCHES=64 train.sbatch    # 16 times the robots, same mini-batch size
     sbatch --export=ALL,NUM_STEPS_PER_ENV=48 train.sbatch                   # longer rollouts
 
 They are passed to Isaac Lab as the Hydra overrides `agent.num_steps_per_env` and `agent.algorithm.num_mini_batches`; any other agent or environment setting can be added the same way on the `isaaclab train` line.
