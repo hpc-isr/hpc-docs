@@ -12,13 +12,13 @@ nav_order: 4
 |---|---|---|---|
 | 8 | 32 GB | 1 × L40S | a few minutes |
 
-**First run:** Downloads MNIST (60 MB, seconds; no setup) to `/scratch/$USER/datasets` on each new node; about 0.1 GB of `/scratch` and 5 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** Creates this example's Python environment (PyTorch with CUDA, 7 GB, 2–5 min) in `/scratch` on each new node. Downloads MNIST (60 MB, seconds; no setup) to `/scratch/$USER/datasets` on each new node; about 0.1 GB of `/scratch` and 5 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 The same model and script as [example 3](../03-mnist-cpu/README.md), on one GPU with mixed precision. Compare the epoch times of the two.
 
 ## Run it
 
-Needs the [examples environment](../../README.md#before-you-start).
+Uses its own Python environment, from [`requirements.txt`](requirements.txt), created on each node the first time (see [Before you start](../../README.md#before-you-start)).
 
     cd ~/slurm-examples/04-mnist-gpu
     sbatch job.sbatch

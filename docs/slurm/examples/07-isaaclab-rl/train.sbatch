@@ -23,6 +23,10 @@ RESULTS_DIR="${RESULTS_DIR:-$HOME/results/isaaclab}"
 
 export PATH="$HOME/.local/bin:$PATH"
 export UV_CACHE_DIR="/scratch/$USER/uv-cache"
+export UV_PROJECT_ENVIRONMENT="/scratch/$USER/envs/isaaclab"   # on this node's local disk
+[ -d "$ISAACLAB_DIR/.git" ] || { echo "No Isaac Lab checkout in $ISAACLAB_DIR: run setup.sbatch first." >&2; exit 1; }
+# Create or update the environment on this node: 15–30 min the first time here.
+uv sync --project "$ISAACLAB_DIR" --extra isaacsim
 export OMNI_KIT_ACCEPT_EULA=YES
 
 # Isaac Lab writes logs/rsl_rl/<experiment>/<date>/ under the current folder:

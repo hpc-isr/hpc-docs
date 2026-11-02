@@ -9,7 +9,8 @@
 #SBATCH --open-mode=append
 
 set -euo pipefail
-source "${ENV_DIR:-$HOME/envs/slurm-examples}/bin/activate"
+source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
+ensure_env yolo-voc "$SLURM_SUBMIT_DIR/requirements.txt"
 
 RUN_NAME="${RUN_NAME:-yolo-voc}"
 # Where the run is kept: your home by default, or your group's NAS,

@@ -13,7 +13,13 @@
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-source "${ENV_DIR:-$HOME/envs/slurm-examples}/bin/activate"
+# This example's environment, on each node's /scratch: created on every node of
+# the job that doesn't have it yet (a few minutes), then activated here; srun
+# passes it to the tasks on every node.
+srun --ntasks-per-node=1 bash -c 'source "$SLURM_SUBMIT_DIR/../env.sh"
+    ensure_env ddp "$SLURM_SUBMIT_DIR/requirements.txt"'
+source "$SLURM_SUBMIT_DIR/../env.sh"
+ensure_env ddp "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # Where the result is kept: your home by default, or your group's NAS,
 # e.g. RESULTS_DIR=/storage/anubis-nas/<group>/ddp-cifar

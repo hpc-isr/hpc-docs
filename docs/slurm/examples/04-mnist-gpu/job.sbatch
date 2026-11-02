@@ -3,11 +3,12 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
-#SBATCH --time=00:30:00
+#SBATCH --time=00:45:00
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-source "${ENV_DIR:-$HOME/envs/slurm-examples}/bin/activate"
+source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
+ensure_env mnist-gpu "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # Same layout as example 3: dataset cached on /scratch, work in /scratch, results copied out.
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/mnist}"   # or /storage/anubis-nas/<group>/mnist

@@ -8,7 +8,8 @@
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-source "${ENV_DIR:-$HOME/envs/slurm-examples}/bin/activate"
+source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
+ensure_env jupyter "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # A free port derived from your UID and the job ID, so two users rarely collide.
 PORT=$(( 20000 + ($(id -u) + SLURM_JOB_ID) % 20000 ))

@@ -1,6 +1,11 @@
 #!/bin/bash
-# Install Isaac Lab 3.0 with Isaac Sim 6.2 from pip, in a uv environment in your home.
-# Run once:  sbatch setup.sbatch   (downloads about 20 GB; takes 20–40 min)
+# Install Isaac Lab 3.0 with Isaac Sim 6.2 from pip. The checkout goes in your home
+# (~/IsaacLab, the same on every node, so you can edit it); the uv environment goes
+# on this node's /scratch (/scratch/$USER/envs/isaaclab), since Python loads it much
+# faster from the local disk. Run once, choosing a node:
+#   sbatch --nodelist=hpc02 setup.sbatch   (downloads about 12 GB; takes 15–30 min)
+# The training jobs create the environment themselves on any other node, the
+# first time they run there; running this on a node first saves that wait.
 #SBATCH --job-name=isaaclab-setup
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
@@ -18,7 +23,9 @@ if ! command -v uv >/dev/null && [ ! -x "$HOME/.local/bin/uv" ]; then
 fi
 export PATH="$HOME/.local/bin:$PATH"
 
-# Download cache on this node's /scratch, not in your home quota.
+# Environment and download cache on this node's /scratch, not in your home quota.
+# They are on the same disk, so uv hard-links the files: the cache costs no extra space.
+export UV_PROJECT_ENVIRONMENT="/scratch/$USER/envs/isaaclab"
 export UV_CACHE_DIR="/scratch/$USER/uv-cache"
 
 if [ ! -d "$ISAACLAB_DIR/.git" ]; then
@@ -26,8 +33,8 @@ if [ ! -d "$ISAACLAB_DIR/.git" ]; then
 fi
 cd "$ISAACLAB_DIR"
 
-# Creates $ISAACLAB_DIR/.venv with Isaac Lab, Isaac Sim (pip wheels) and CUDA PyTorch.
+# Creates $UV_PROJECT_ENVIRONMENT with Isaac Lab, Isaac Sim (pip wheels) and CUDA PyTorch.
 uv sync --extra isaacsim
 
 uv run --extra isaacsim python -c "import isaaclab, isaacsim, torch; print('isaaclab OK, torch', torch.__version__)"
-echo "Isaac Lab ready in $ISAACLAB_DIR"
+echo "Isaac Lab ready on $(hostname): code in $ISAACLAB_DIR, environment in $UV_PROJECT_ENVIRONMENT"

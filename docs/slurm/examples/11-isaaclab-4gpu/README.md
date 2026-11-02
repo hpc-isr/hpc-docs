@@ -12,7 +12,7 @@ nav_order: 11
 |---|---|---|---|---|
 | 4 | 16 per node | 64 GB per node | 1 × L40S per node, 4 in all | about 1 h for 3000 iterations |
 
-**First run:** Downloads nothing new if you've done [example 7](../07-isaaclab-rl/README.md)'s setup. Each node compiles shaders the first time Isaac Sim runs there (5–15 min), and uses under 1 GB of `/scratch`. Each run keeps 0.1–1 GB of checkpoints and logs. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** Needs [example 7](../07-isaaclab-rl/README.md)'s setup. Each of the 4 nodes builds the Isaac Lab environment in its `/scratch` if it doesn't have it yet (12 GB download, 15–30 min, 25–30 GB, all four at once), and compiles shaders the first time Isaac Sim runs there (5–15 min). After that, a run uses under 1 GB of `/scratch`. Each run keeps 0.1–1 GB of checkpoints and logs. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 > **Ask an admin before running this.** Every node has one GPU, so 4 GPUs means 4 nodes. The `shared` partition has only two (`hpc02`, `hpc03`), so the script runs in `scavenge`: idle group nodes and `hpc01`. There, a job is preempted, and this one killed, as soon as a node's owners need it. For a run that must finish, ask your group's admin for a reservation and submit into it with `--reservation=<name>` (and the partition they give you). See [Who's who](../../../overview/contacts.md).
 
@@ -22,7 +22,7 @@ Reinforcement learning suits a cluster whose nodes are linked by Ethernet: most 
 
 ## Run it
 
-Needs the Isaac Lab environment from [example 7](../07-isaaclab-rl/README.md#set-up-once) (`setup.sbatch`). Your home is the same on every node, so the nodes share it.
+Needs the Isaac Lab checkout from [example 7](../07-isaaclab-rl/README.md#set-up-once) (`setup.sbatch`), which every node shares through your home. The environment is on each node's `/scratch`: the job runs `uv sync` on every node first, and builds it where it is missing.
 
     cd ~/slurm-examples/11-isaaclab-4gpu
     sbatch job.sbatch

@@ -6,7 +6,8 @@
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-source "${ENV_DIR:-$HOME/envs/slurm-examples}/bin/activate"
+source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
+ensure_env mnist-cpu "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # Where results are kept: your home by default, or your group's NAS,
 # e.g. RESULTS_DIR=/storage/anubis-nas/<group>/mnist

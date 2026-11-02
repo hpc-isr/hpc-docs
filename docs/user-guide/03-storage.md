@@ -31,7 +31,7 @@ Check your usage and limits:
     mfsgetquota -h "$HOME"
     du -sh "$HOME"/* | sort -h | tail
 
-Everything under your home counts, including virtual environments, Apptainer images and the Apptainer cache (`~/.apptainer/cache`). If you need more space, ask your group's admin.
+Everything under your home counts, including Apptainer images and the Apptainer cache (`~/.apptainer/cache`). If you need more space, ask your group's admin.
 
 ## `/scratch`
 
@@ -105,11 +105,21 @@ Check it and the free space:
 
 ## Software environments
 
-Create Python environments in your home, so every node sees them:
+Create Python environments on `/scratch`, in a job on the node that will use them. Python reads thousands of small files at start-up, and the local NVMe serves them much faster than your home on MooseFS. `/scratch` isn't shared, so build the environment on every node your jobs run on, or pin the jobs to one node with `--nodelist`:
 
-    python3 -m venv "$HOME/envs/my-project"
-    source "$HOME/envs/my-project/bin/activate"
+    #!/bin/bash
+    #SBATCH --nodelist=hpc02
+    #SBATCH --cpus-per-task=4
+    #SBATCH --mem=16G
+    #SBATCH --time=00:45:00
+    ENV="/scratch/$USER/envs/my-project"
+    mkdir -p "$(dirname "$ENV")"
+    python3 -m venv "$ENV"
+    source "$ENV/bin/activate"
+    export PIP_CACHE_DIR="/scratch/$USER/pip-cache"
     python -m pip install -r "$HOME/code/my-project/requirements.txt"
+
+Keep your `requirements.txt` in your home, so you can recreate the environment on any node. An environment nobody uses for 30 days is deleted with other old `/scratch` files. The [Slurm examples](../slurm/README.md#before-you-start) do this automatically: each job creates its environment on its node when it isn't there yet ([`env.sh`](../slurm/examples/env.sh)).
 
 For a full software stack, CUDA libraries included, use a container: see [Containers with Apptainer](09-apptainer.md). You can't install system packages on the nodes.
 

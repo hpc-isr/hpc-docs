@@ -1,0 +1,6 @@
+# Add what your notebooks need. The job rebuilds the environment when this file changes.
+jupyterlab
+numpy
+matplotlib
+tensorboard
+torch

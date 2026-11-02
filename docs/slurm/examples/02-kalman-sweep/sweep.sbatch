@@ -8,7 +8,8 @@
 #SBATCH --output=logs/%x-%A_%a.out
 
 set -euo pipefail
-source "${ENV_DIR:-$HOME/envs/slurm-examples}/bin/activate"
+source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
+ensure_env kalman-sweep "$SLURM_SUBMIT_DIR/requirements.txt"
 export OMP_NUM_THREADS=1   # numpy on small matrices: one thread is fastest
 
 # Results end up here. Your home by default; your group's NAS works too,

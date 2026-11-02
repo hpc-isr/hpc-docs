@@ -48,12 +48,11 @@ Get the examples into your home on `hpc01`:
 
 Submit each example **from its own folder** (`cd ~/slurm-examples/03-mnist-cpu`, then `sbatch job.sbatch`): the scripts find their Python files through `$SLURM_SUBMIT_DIR`, and their logs land there.
 
-Examples 2–6 and 10 share one Python environment with PyTorch, Ultralytics and JupyterLab. Create it once, in a job:
+Each example that uses Python has its own environment, with only the packages it needs: numpy and matplotlib for the Kalman sweep, CPU-only PyTorch for MNIST on CPUs, and so on. Each one's packages are listed in the `requirements.txt` in its folder. Environments go on the node's local disk, in `/scratch/$USER/envs/<example>`: Python reads thousands of small files when it starts, and the local NVMe serves them much faster than your home on MooseFS.
 
-    cd ~/slurm-examples
-    sbatch setup-env.sbatch          # 5–10 min; creates ~/envs/slurm-examples
+`/scratch` isn't shared, so an environment exists only on the node where it was built. **You don't need to set anything up:** the first job of an example on a node creates its environment there, then later jobs on that node reuse it. That first job takes longer: seconds for numpy, 2–5 minutes for PyTorch, 15–30 minutes for Isaac Lab. Jobs that start together on one node wait for a single build. Each environment is rebuilt when its `requirements.txt` changes, and one nobody uses for 30 days is deleted with the rest of that node's old `/scratch` files. The shared code is in [`env.sh`](examples/env.sh). Examples 8 and 9 use Apptainer images instead.
 
-Files: [`setup-env.sbatch`](examples/setup-env.sbatch), [`requirements.txt`](examples/requirements.txt). Examples 7, 8, 9 and 11 bring their own software (Isaac Lab in a uv environment, nerfstudio and vLLM as Apptainer images) and set it up on first use.
+To make sure your jobs land where the environment already exists, send them to one node with `--nodelist=hpc02`.
 
 You don't need `--partition` or `--account`: Slurm sends each job to your group's node, the `shared` nodes or an idle node. If you are in more than one group, add `--account=<group>`. Every script sets `--time` and `--mem`; keep them close to what the job needs.
 
@@ -63,7 +62,8 @@ Every example follows the same pattern, which you should copy for your own jobs:
 
 | What | Where | Why |
 |---|---|---|
-| Code, environments, job scripts | your home | The same on every node |
+| Code, job scripts | your home | The same on every node |
+| Python environments | `/scratch/$USER/envs/<name>`, created on each node | Python starts much faster from the local disk. Each node needs its own copy, created in a job there |
 | Datasets, model weights, download caches | `/scratch/$USER/datasets`, `/scratch/$USER/hf-cache`, ... | Downloaded once per node, reused by later jobs there. `/scratch` is the node's local NVMe disk, the fastest storage |
 | The job's working files | `/scratch/$USER/<jobid>` | Fast, and doesn't load the shared filesystem. Removed when the job ends |
 | Results to keep | `RESULTS_DIR`: `~/results/<example>` by default | Copied out when the job ends, even when it fails or runs out of time |
@@ -97,21 +97,21 @@ What each example downloads the first time, how long it takes to get ready, and 
 
 | # | Downloads the first time | Size | Download time | Setup time (unpack, install, build) | Home | `/scratch` per node |
 |---|---|---|---|---|---|---|
-| | Python environment (`setup-env.sbatch`): PyTorch, Ultralytics, JupyterLab | 3.2 GB | under 1 min | 5–10 min to install into your home | 7 GB | 3 GB pip cache (can be deleted) |
 | 1 | nothing | | | | | |
-| 2 | nothing beyond the environment | | | | under 1 MB of results | under 1 MB while it runs |
-| 3, 4 | MNIST | 60 MB | seconds | seconds | 5 MB of results | 0.1 GB dataset cache |
-| 5 | nothing beyond the environment | | | | your notebooks | what you stage |
-| 6 | Pascal VOC, YOLO11n weights | 2.8 GB | under 1 min | 5–10 min to unzip and convert the labels | 0.1–0.5 GB per run | 4 GB dataset cache (7 GB while unpacking), plus the run while it trains |
-| 7 | Isaac Lab, Isaac Sim 6.2, PyTorch (`setup.sbatch`); robot assets on the first run | 12 GB | about 1 min | 15–30 min to install (`uv sync`); then 5–15 min of shader compilation on each node's first run | 25–30 GB environment, a few GB of Isaac Sim caches, 0.1–1 GB per run | 12 GB uv cache (can be deleted after setup), under 1 GB per run |
+| 2 | numpy, matplotlib | 0.05 GB | seconds | under 1 min to create the environment | under 1 MB of results | 0.15 GB environment; under 1 MB while it runs |
+| 3 | CPU-only PyTorch; MNIST | 0.3 GB + 60 MB | seconds | 1–2 min to create the environment | 5 MB of results | 1 GB environment, 0.1 GB dataset cache |
+| 4 | PyTorch with CUDA; MNIST | 3 GB + 60 MB | under 1 min | 2–5 min to create the environment | 5 MB of results | 7 GB environment, 0.1 GB dataset cache |
+| 5 | JupyterLab, PyTorch with CUDA | 3 GB | under 1 min | 2–5 min to create the environment | your notebooks | 7 GB environment, plus what you stage |
+| 6 | Ultralytics with PyTorch; Pascal VOC, YOLO11n weights | 3 GB + 2.8 GB | under 1 min | 2–5 min to create the environment, 5–10 min to unzip and convert the labels | 0.1–0.5 GB per run | 7 GB environment, 4 GB dataset cache (7 GB while unpacking), plus the run while it trains |
+| 7 | Isaac Lab, Isaac Sim 6.2, PyTorch (`setup.sbatch`); robot assets on the first run | 12 GB | about 1 min | 15–30 min to create the environment (`uv sync`) and 5–15 min of shader compilation, on each node's first run | Isaac Lab code, a few GB of Isaac Sim caches, 0.1–1 GB per run | 25–30 GB environment and uv cache (hard-linked, so counted once), under 1 GB per run |
 | 8 | nerfstudio image, sample scene | 5.6 GB | under 1 min | 10–20 min to build the `.sif` | 5.5 GB image, 0.2–1 GB per scene | 20 GB while building the image; 1–2 GB per job |
 | 9 | vLLM image, Qwen3.8-27B-FP8 weights, COCO val2017 | 43 GB (11.2 + 30.9 + 0.8) | 1–3 min | 15–30 min to build the `.sif` (once); 2–5 min to load the model in every job | 11 GB image, under 1 MB of captions | 32 GB cache (weights + images); 35 GB while building the image |
-| 10 | CIFAR-10 on each node | 170 MB | seconds | under 1 min to unpack | 50 MB of results | 0.4 GB dataset cache |
-| 11 | nothing beyond example 7's setup | | | 5–15 min of shader compilation on each node's first run | 0.1–1 GB per run | under 1 GB per run |
+| 10 | PyTorch with CUDA; CIFAR-10, on each node | 3 GB + 170 MB | under 1 min | 2–5 min to create the environment, under 1 min to unpack | 50 MB of results | 7 GB environment, 0.4 GB dataset cache |
+| 11 | nothing beyond example 7's, on each node | | | as example 7, on each node that doesn't have it yet | 0.1–1 GB per run | example 7's environment, under 1 GB per run |
 
-The sizes were measured from the registries and download servers in October 2026. Download times assume the cluster's 10 Gbit/s internet link at 0.3–1 GB/s; a single download is often limited by the server it comes from. Setup times are estimates: they depend mostly on writing many small files to your home on MooseFS, and they grow when several people do it at once. Submit a setup job once and let it finish before submitting the jobs that need it.
+The dataset and image sizes were measured from the registries and download servers in October 2026; the Python environment sizes are estimates. Download times assume the cluster's 10 Gbit/s internet link at 0.3–1 GB/s; a single download is often limited by the server it comes from. Setup times are estimates, and they grow when several people do it at once.
 
-To free `/scratch` on a node, delete its caches in a job there, for example `srun --nodelist=hpc02 -t 5 rm -rf /scratch/$USER/hf-cache`.
+To free `/scratch` on a node, delete its caches in a job there, for example `srun --nodelist=hpc02 -t 5 rm -rf /scratch/$USER/hf-cache`. Deleting `/scratch/$USER/pip-cache` is always safe; an example's environment, `/scratch/$USER/envs/<example>`, is recreated by its next job there.
 
 ## Datasets used
 
