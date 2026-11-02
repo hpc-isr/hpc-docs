@@ -10,7 +10,7 @@ nav_order: 4
 
 | CPUs | Memory | GPU | Time |
 |---|---|---|---|
-| 8 | 32 GB | 1 × L40S | a few minutes |
+| 48 | 32 GB | 1 × L40S | a few minutes |
 
 **First run:** Creates this example's Python environment (PyTorch with CUDA, 7 GB, 2–5 min) in `/scratch` on each new node. Downloads MNIST (60 MB, seconds; no setup) to `/scratch/$USER/datasets` on each new node; about 0.1 GB of `/scratch` and 5 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
@@ -31,7 +31,7 @@ In `mnist-gpu-<jobid>.out`, something like:
 
     Node hpc03, CUDA_VISIBLE_DEVICES=0
     NVIDIA L40S, 46068 MiB, 595.xx
-    device=cuda torch_threads=... workers=8
+    device=cuda torch_threads=... workers=44
     GPU: NVIDIA L40S
     epoch 1: loss 0.0533  test acc 98.60%  epoch time 3.1s
 

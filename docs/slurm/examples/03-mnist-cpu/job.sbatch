@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=mnist-cpu
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=16G
+#SBATCH --cpus-per-task=56
+#SBATCH --mem=32G
 #SBATCH --time=01:00:00
 #SBATCH --output=%x-%j.out
 
@@ -26,11 +26,12 @@ finish() {
 trap finish EXIT
 trap 'exit 143' TERM
 
-# Use the cores Slurm gave the job, and no more: half for the model's
-# math threads, half for the data loader workers.
-THREADS=$(( SLURM_CPUS_PER_TASK / 2 ))
+# Use the cores Slurm gave the job, and no more: WORKERS data loader
+# workers (44 by default), the rest for the model's math threads.
+WORKERS="${WORKERS:-44}"
+THREADS=$(( SLURM_CPUS_PER_TASK - WORKERS ))
 export OMP_NUM_THREADS=$THREADS MKL_NUM_THREADS=$THREADS
 
 echo "Node $(hostname), $SLURM_CPUS_PER_TASK CPUs"
 python "$SLURM_SUBMIT_DIR/mnist.py" --device cpu --epochs 3 \
-    --workers "$THREADS" --data "$DATA" --out "$WORK/out"
+    --workers "$WORKERS" --data "$DATA" --out "$WORK/out"

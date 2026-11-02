@@ -10,7 +10,7 @@ nav_order: 3
 
 | CPUs | Memory | GPU | Time |
 |---|---|---|---|
-| 16 | 16 GB | none | a few minutes |
+| 56 | 32 GB | none | a few minutes |
 
 **First run:** Creates this example's Python environment (CPU-only PyTorch, 1 GB, 1–2 min) in `/scratch` on each new node. Downloads MNIST (60 MB, seconds; no setup) to `/scratch/$USER/datasets` on each new node; about 0.1 GB of `/scratch` and 5 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
@@ -29,7 +29,7 @@ Files: [`job.sbatch`](job.sbatch), [`mnist.py`](mnist.py)
 
 In `mnist-cpu-<jobid>.out`, three epochs reaching about 99% test accuracy (times depend on the node and its load):
 
-    device=cpu torch_threads=8 workers=8
+    device=cpu torch_threads=12 workers=44
     epoch 1: loss 0.0712  test acc 98.40%  epoch time 25.3s
     ...
 
@@ -37,7 +37,7 @@ and the trained weights in `~/results/mnist/<jobid>/`. Note the epoch time, to c
 
 ## How it works
 
-- **Threads.** PyTorch, numpy and most math libraries start one thread per core they can see. The script sets `OMP_NUM_THREADS` and `MKL_NUM_THREADS` from `SLURM_CPUS_PER_TASK`, so the job doesn't run more threads than it has cores, which slows it down. Here half the cores compute and half run the data loader.
+- **Threads.** PyTorch, numpy and most math libraries start one thread per core they can see. The script sets `OMP_NUM_THREADS` and `MKL_NUM_THREADS` from `SLURM_CPUS_PER_TASK`, so the job doesn't run more threads than it has cores, which slows it down. Here 44 cores run the data loader and the other 12 compute; set `WORKERS` to change the split, for example `sbatch --export=ALL,WORKERS=28 job.sbatch`.
 - **Dataset on `/scratch`.** [MNIST](https://yann.lecun.com/exdb/mnist/) (free, 50 MB) is downloaded to `/scratch/$USER/datasets` the first time the job runs on a node, then reused by later jobs on that node. `/scratch` is a local NVMe disk on each node, the fastest place to read a dataset from (see [Staging a dataset](../../../user-guide/03-storage.md#staging-a-dataset)).
 - **Results copied out.** The model is written to `/scratch/$USER/<jobid>/out` and copied to `RESULTS_DIR` (default `~/results/mnist`) when the job ends, even if it fails or hits its time limit. Then the working folder is removed.
 - **CPU-only limit.** A CPU-only job can use at most 48 cores per node (36 on `hpc01`); larger requests are rejected.

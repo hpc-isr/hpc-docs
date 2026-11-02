@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=mnist-gpu
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=48
 #SBATCH --mem=32G
 #SBATCH --time=00:45:00
 #SBATCH --output=%x-%j.out
@@ -30,4 +30,4 @@ nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader
 
 # Same script as example 3, on the GPU with mixed precision.
 python "$SLURM_SUBMIT_DIR/../03-mnist-cpu/mnist.py" --device cuda --amp --epochs 3 \
-    --batch-size 512 --workers "$SLURM_CPUS_PER_TASK" --data "$DATA" --out "$WORK/out"
+    --batch-size 512 --workers "${WORKERS:-44}" --data "$DATA" --out "$WORK/out"
