@@ -113,6 +113,7 @@ done
 
 container_env=(
     --env ACCEPT_EULA=Y
+    --env OMNI_KIT_ACCEPT_EULA=YES
     --env OMNICLIENT_HUB_MODE=disabled
 )
 

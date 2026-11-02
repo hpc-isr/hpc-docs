@@ -27,6 +27,7 @@ export PATH="$HOME/.local/bin:$PATH"
 # They are on the same disk, so uv hard-links the files: the cache costs no extra space.
 export UV_PROJECT_ENVIRONMENT="/scratch/$USER/envs/isaaclab"
 export UV_CACHE_DIR="/scratch/$USER/uv-cache"
+export OMNI_KIT_ACCEPT_EULA=YES   # the import check below starts Isaac Sim
 
 if [ ! -d "$ISAACLAB_DIR/.git" ]; then
     git clone --depth 1 --branch "$ISAACLAB_BRANCH" https://github.com/isaac-sim/IsaacLab.git "$ISAACLAB_DIR"
