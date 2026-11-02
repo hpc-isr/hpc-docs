@@ -54,7 +54,7 @@ Reading a dataset straight from your home or the NAS in every epoch is slower th
 |---|---|---|---|
 | Your home (MooseFS) | 4 (2026-11-01) | about 3.3 GiB/s | about 860 MiB/s |
 | `/storage/shared` (MooseFS) | 4 (2026-11-01) | about 2.4 GiB/s | about 620 MiB/s |
-| Group NAS (`/storage/anubis-nas/<group>`) | 3 (2026-10-31) | about 470 MiB/s | about 160 MiB/s |
+| Group NAS (`/storage/anubis-nas/<group>`) | 5 (2026-11-02) | about 570 MiB/s | about 115 MiB/s |
 
 The NAS link is shared by every node, so it gets slower the more jobs read from it at once. What helps:
 
