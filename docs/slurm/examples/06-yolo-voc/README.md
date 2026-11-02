@@ -58,4 +58,4 @@ The same restart works after a **time limit**: if the job is stopped by `--time`
 
 - A bigger model: `--export=ALL,MODEL=yolo11s.pt` (or `m`, `l`, `x`). Raise `--time` and memory to match.
 - Your own dataset: write a [dataset YAML](https://docs.ultralytics.com/datasets/detect/) pointing to images on `/scratch` and pass it as `DATA=/path/to/data.yaml`. Stage the images to `/scratch` first, as in [Staging a dataset](../../../user-guide/03-storage.md#staging-a-dataset).
-- Watch training live with TensorBoard: `tensorboard --logdir ~/results/yolo-voc` in a [Jupyter shard](../05-jupyter-shard/README.md) session.
+- Watch training live with TensorBoard: start a [Jupyter shard](../05-jupyter-shard/README.md#tensorboard), which has it installed, and run `tensorboard --logdir ~/results/yolo-voc` in a JupyterLab terminal. It isn't installed in your login shell or in this example's environment.

@@ -88,6 +88,6 @@ It prints your own ports, computed from your user ID.
 
 ## Try next
 
-- Watch the curves: `tensorboard --logdir ~/results/isaaclab/logs` in a [Jupyter shard](../05-jupyter-shard/README.md).
+- Watch the curves: start a [Jupyter shard](../05-jupyter-shard/README.md#tensorboard), which has TensorBoard installed, and run `tensorboard --logdir ~/results/isaaclab/logs` in a JupyterLab terminal.
 - Several seeds at once: a job array with `--export=ALL,...` and `--seed $SLURM_ARRAY_TASK_ID` added to the `isaaclab train` line, as in [example 2](../02-kalman-sweep/README.md).
 - Many GPUs: [example 11](../11-isaaclab-4gpu/README.md) trains on 4 GPUs across 4 nodes.

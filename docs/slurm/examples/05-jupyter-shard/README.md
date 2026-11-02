@@ -51,10 +51,25 @@ then open `http://127.0.0.1:8888/lab?token=<token>` with the token from the log.
 
 Notebooks and code live in your home. For data you read heavily, copy it to `/scratch/$USER/...` on `hpc01` from the notebook first and read it from there, as the batch examples do (see [Data and results](../../README.md#data-and-results)). Save anything you want to keep back to your home or your group's NAS: `/scratch` is cleaned after 30 days.
 
+## TensorBoard
+
+Your notebook environment has TensorBoard. To watch training curves from another example while it runs:
+
+1. In JupyterLab, open **File → New → Terminal** and run `tensorboard --logdir <results folder>`, for example `~/results/yolo-voc`. It prints the port it listens on, usually 6006 (or the next free one if another user has it).
+2. On your laptop, open a second tunnel with that port and leave it open:
+
+       ssh -N -L 6006:localhost:<port> <username>@hpc01.isr.tecnico.ulisboa.pt
+
+3. Open `http://127.0.0.1:6006`.
+
+TensorBoard is not installed in your login shell or in the other examples' environments, so `tensorboard` there gives "command not found".
+
 ## Without a notebook
 
 For a plain shell on a shard:
 
     srun --gres=shard:1 -c 4 --mem=32G -t 2:00:00 --pty bash
+
+The shell opens on `hpc01`, the machine you are already logged in to, so it looks exactly like your login shell: same hostname, same prompt, no message. To check that you are inside the job, run `echo $SLURM_JOB_ID` (empty outside a job) or `nvidia-smi -L` (fails outside a job). `exit` ends the job and brings you back to your login shell.
 
 The resources stay reserved until you `exit`, even while you are idle. Please exit or `scancel` when you're done.
