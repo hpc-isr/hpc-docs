@@ -2,7 +2,7 @@
 #SBATCH --job-name=mnist-cpu
 #SBATCH --cpus-per-task=56
 #SBATCH --mem=32G
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
@@ -34,5 +34,5 @@ THREADS=$(( SLURM_CPUS_PER_TASK - WORKERS ))
 export OMP_NUM_THREADS=$THREADS MKL_NUM_THREADS=$THREADS
 
 echo "Node $(hostname), $SLURM_CPUS_PER_TASK CPUs"
-python "$SLURM_SUBMIT_DIR/mnist.py" --device cpu --epochs "${EPOCHS:-100}" \
+python "$SLURM_SUBMIT_DIR/mnist.py" --device cpu --epochs 3 \
     --workers "$WORKERS" --data "$DATA" --out "$WORK/out"

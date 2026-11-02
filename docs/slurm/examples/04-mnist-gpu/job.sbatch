@@ -3,7 +3,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=48
 #SBATCH --mem=32G
-#SBATCH --time=01:00:00
+#SBATCH --time=00:45:00
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
@@ -29,5 +29,5 @@ echo "Node $(hostname), CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader
 
 # Same script as example 3, on the GPU with mixed precision.
-python "$SLURM_SUBMIT_DIR/../03-mnist-cpu/mnist.py" --device cuda --amp --epochs "${EPOCHS:-100}" \
+python "$SLURM_SUBMIT_DIR/../03-mnist-cpu/mnist.py" --device cuda --amp --epochs 3 \
     --batch-size 512 --workers "${WORKERS:-44}" --data "$DATA" --out "$WORK/out"

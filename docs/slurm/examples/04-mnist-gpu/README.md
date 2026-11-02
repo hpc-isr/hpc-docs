@@ -10,7 +10,7 @@ nav_order: 4
 
 | CPUs | Memory | GPU | Time |
 |---|---|---|---|
-| 48 | 32 GB | 1 × L40S | about 5 min for 100 epochs |
+| 48 | 32 GB | 1 × L40S | a few minutes |
 
 **First run:** Creates this example's Python environment (PyTorch with CUDA, 7 GB, 2–5 min) in `/scratch` on each new node. Downloads MNIST (60 MB, seconds; no setup) to `/scratch/$USER/datasets` on each new node; about 0.1 GB of `/scratch` and 5 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
