@@ -11,13 +11,7 @@ source "$SLURM_SUBMIT_DIR/common.sh"
 trap 'rm -rf "$WORK"' EXIT
 trap 'exit 143' TERM
 
-if [ ! -f "$SIF" ]; then
-    echo "Converting $NS_IMAGE to $SIF (once)"
-    # Cache and build files in this job's /scratch folder (about 20 GB at the peak), removed at the end.
-    export APPTAINER_CACHEDIR="$WORK/apptainer-cache" APPTAINER_TMPDIR="$WORK/apptainer-tmp"
-    mkdir -p "$(dirname "$SIF")" "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
-    apptainer pull "$SIF" "$NS_IMAGE"
-fi
+ensure_sif   # the nerfstudio image on this node's /scratch
 
 if [ -f "$SCENE_RESULTS/data/transforms.json" ]; then
     echo "Already prepared: $SCENE_RESULTS/data"

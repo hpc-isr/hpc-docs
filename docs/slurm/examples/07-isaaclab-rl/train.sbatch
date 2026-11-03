@@ -13,7 +13,6 @@
 
 set -euo pipefail
 
-ISAACLAB_DIR="${ISAACLAB_DIR:-$HOME/IsaacLab}"
 TASK="${TASK:-Isaac-Velocity-Flat-H1}"
 NUM_ENVS="${NUM_ENVS:-4096}"
 MAX_ITERATIONS="${MAX_ITERATIONS:-1500}"
@@ -26,13 +25,8 @@ STREAM="${STREAM:-0}"
 # e.g. RESULTS_DIR=/storage/anubis-nas/<group>/isaaclab
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/isaaclab}"
 
-export PATH="$HOME/.local/bin:$PATH"
-export UV_CACHE_DIR="/scratch/$USER/uv-cache"
-export UV_PROJECT_ENVIRONMENT="/scratch/$USER/envs/isaaclab"   # on this node's local disk
-[ -d "$ISAACLAB_DIR/.git" ] || { echo "No Isaac Lab checkout in $ISAACLAB_DIR: run setup.sbatch first." >&2; exit 1; }
-# Create or update the environment on this node: 15–30 min the first time here.
-uv sync --project "$ISAACLAB_DIR" --extra isaacsim
-export OMNI_KIT_ACCEPT_EULA=YES
+source "$SLURM_SUBMIT_DIR/isaaclab.sh"   # Isaac Lab on this node's /scratch
+ensure_isaaclab                           # clone and install it here if missing
 
 # Isaac Lab writes logs/rsl_rl/<experiment>/<date>/ under the current folder:
 # make that the node's local disk, and copy it out when the job ends.
