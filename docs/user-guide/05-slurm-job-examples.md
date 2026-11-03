@@ -27,7 +27,7 @@ Expected: Slurm returns a job ID. After the job completes, inspect the output an
 
 ## 2. CPU program with a user-owned environment
 
-This uses a Python environment on the node's `/scratch` (see [Storage](03-storage.md#software-environments)). Because `/scratch` is node-local, prepare the environment on a node where the job can use it, or let the job prepare it there. Do not pin a job to a node unless you have a reason and that node is eligible.
+This script assumes `/scratch/$USER/envs/my-project` already exists on the node Slurm selects; it does not create the environment or install packages. Because `/scratch` is node-local and placement can vary, prepare it on each node your jobs may use, or follow the per-node setup and reuse pattern in the [complete Slurm examples](../slurm/README.md#before-you-start).
 
     cd "$HOME/slurm-logs"
     cat > "$HOME/slurm-logs/cpu-program.sbatch" <<'SBATCH'
@@ -113,8 +113,8 @@ If an SSH terminal disconnects, you may reattach only while the original job ste
 ```bash
 read -r -p "Job ID: " JOB_ID
 scontrol show step "$JOB_ID"
-read -r -p "Running PTY step ID: " STEP_ID
-sattach --pty "$JOB_ID.$STEP_ID"
+read -r -p "Full step ID from the output (for example 12345.0): " STEP_ID
+sattach --pty "$STEP_ID"
 ```
 
 Use the step ID shown for your job. Do not run Slurm client commands in a polling loop. For important work, use a batch job and save results to shared storage rather than relying on reconnecting to an interactive shell.
