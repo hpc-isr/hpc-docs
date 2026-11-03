@@ -49,6 +49,10 @@ def main():
         model=a.model,
         max_model_len=a.max_model_len,  # the model supports 262k; less leaves more memory for batching
         gpu_memory_utilization=0.92,
+        # Requests in flight at once. vLLM's default, 256, needs more Mamba cache blocks than
+        # the L40S has left after the weights (184), and the engine refuses to start. The
+        # script never sends more than --batch at a time, so that is enough.
+        max_num_seqs=a.batch,
         limit_mm_per_prompt={"image": 1},
     )
     print(f"Model loaded in {time.time() - t0:.0f}s")

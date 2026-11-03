@@ -20,9 +20,10 @@ RESULTS_DIR="${RESULTS_DIR:-$HOME/results/vlm-captions}"
 # Caches on this node's /scratch, reused by later jobs: the model's weights (about 30 GB)
 # and the sample images.
 export HF_HOME="/scratch/$USER/hf-cache"
+export VLLM_CACHE_ROOT="/scratch/$USER/vllm-cache"   # torch.compile cache, reused by later jobs here
 DATASETS="/scratch/$USER/datasets"
 WORK="/scratch/$USER/$SLURM_JOB_ID"
-mkdir -p "$HF_HOME" "$DATASETS" "$WORK" "$RESULTS_DIR"
+mkdir -p "$HF_HOME" "$VLLM_CACHE_ROOT" "$DATASETS" "$WORK" "$RESULTS_DIR"
 finish() {
     local status=$?
     if [ -s "$WORK/captions.jsonl" ]; then
@@ -59,7 +60,7 @@ ensure_vllm_image
 
 echo "Node $(hostname), images from $IMAGE_DIR"
 srun apptainer exec --nv --cleanenv --bind /scratch \
-    --env HF_HOME="$HF_HOME" --env CUDA_VISIBLE_DEVICES="$CUDA_VISIBLE_DEVICES" \
+    --env HF_HOME="$HF_HOME" --env VLLM_CACHE_ROOT="$VLLM_CACHE_ROOT" --env CUDA_VISIBLE_DEVICES="$CUDA_VISIBLE_DEVICES" \
     "$SIF" \
     python3 "$SLURM_SUBMIT_DIR/caption.py" \
         --images "$IMAGE_DIR" --out "$WORK/captions.jsonl" --model "$MODEL" --limit "$LIMIT"
