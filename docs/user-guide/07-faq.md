@@ -37,7 +37,7 @@ Check that the job was submitted with a GPU request allowed for your association
 
 ## `Disk quota exceeded`
 
-Your home is above its quota: 500 GiB, or 200 GiB for more than 7 days. Check with `mfsgetquota -h "$HOME"` and `du -sh "$HOME"/* | sort -h`, then delete or move data until you are under 200 GiB. The usual culprits are old results, checkpoints, and caches such as `~/.cache/pip`, `~/.cache/huggingface` and `~/.apptainer/cache`, which you can delete. Then keep caches, environments and container images on `/scratch`: see [Download caches](03-storage.md#download-caches) and [Containers with Apptainer](09-apptainer.md#where-things-go). If you need more space, ask your group's admin.
+Your home is above its quota: 500 GiB, or 200 GiB for more than 7 days. Check with `mfsgetquota -h "$HOME"` and `cd ~ && du -sh .[!.]* * 2>/dev/null | sort -h` (the `.[!.]*` counts hidden directories such as `~/.cache`, which `du -sh *` and `ls` skip; `ls -a` shows them), then delete or move data until you are under 200 GiB. The usual culprits are old results, checkpoints, and caches such as `~/.cache/pip`, `~/.cache/huggingface` and `~/.apptainer/cache`, which you can delete. Then keep caches, environments and container images on `/scratch`: see [Download caches](03-storage.md#download-caches) and [Containers with Apptainer](09-apptainer.md#where-things-go). If you need more space, ask your group's admin.
 
 ## My session on `hpc01` was killed, or is slow
 

@@ -29,9 +29,11 @@ Each home has a quota of **200 GiB soft and 500 GiB hard**:
 Check your usage and limits:
 
     mfsgetquota -h "$HOME"
-    du -sh "$HOME"/* | sort -h | tail
+    cd ~ && du -sh .[!.]* * 2>/dev/null | sort -h | tail -20
 
-Everything under your home counts, including download caches that tools put there by default: `~/.cache` (pip, Hugging Face, PyTorch) and `~/.apptainer/cache`. Keep those, Python environments and container images on `/scratch` instead (see [Download caches](#download-caches) and [Containers with Apptainer](09-apptainer.md#where-things-go)). If you need more space, ask your group's admin.
+Everything under your home counts, hidden files and directories included: those whose name starts with a dot, such as `~/.cache`. `ls` and `du -sh *` skip them, so use `ls -a` to see them, and `du -sh .[!.]* *` as above to count them with the rest.
+
+The biggest hidden ones are usually the download caches that tools fill by default: `~/.cache` (pip, Hugging Face, PyTorch) and `~/.apptainer/cache`. Keep those caches, Python environments, container images and a job's working files on `/scratch` instead, mainly for speed: `/scratch` is the node's local NVMe disk, much faster than your home on MooseFS for the thousands of small files that environments and caches are made of, and a job that works there doesn't slow down everyone else's access to their home. It also keeps them off your home quota. See [Download caches](#download-caches) and [Containers with Apptainer](09-apptainer.md#where-things-go). If you need more space, ask your group's admin.
 
 ## `/scratch`
 
