@@ -106,6 +106,19 @@ Inside the allocated shell, run `hostname`, then type `exit` to return to your l
 
 `sattach` can reconnect only to a still-running job step started with `srun --pty`; it cannot restore an ended shell. Site behavior has not been verified. See the [Slurm `sattach` reference](https://slurm.schedmd.com/sattach.html).
 
+## Reattach to a running interactive step
+
+If an SSH terminal disconnects, you may reattach only while the original job step is still running and was started with `srun --pty`. This does not restore an ended shell. Reattachment has not been validated on this cluster.
+
+```bash
+read -r -p "Job ID: " JOB_ID
+scontrol show step "$JOB_ID"
+read -r -p "Running PTY step ID: " STEP_ID
+sattach --pty "$JOB_ID.$STEP_ID"
+```
+
+Use the step ID shown for your job. Do not run Slurm client commands in a polling loop. For important work, use a batch job and save results to shared storage rather than relying on reconnecting to an interactive shell.
+
 ## 7. Preemptible job that checkpoints
 
 Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: they get SIGTERM, 180 seconds, and are then requeued. This script saves its state on SIGTERM and skips finished work when it starts again. Replace the program with your own; it must be able to resume from its checkpoint.
