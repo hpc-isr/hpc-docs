@@ -60,8 +60,9 @@ export NCCL_SOCKET_IFNAME=ens3 GLOO_SOCKET_IFNAME=ens3   # the nodes' private ne
 
 echo "Task $TASK: $SLURM_NNODES GPUs x $NUM_ENVS envs on $SLURM_JOB_NODELIST (master $MASTER_ADDR)"
 
-# One launcher per node; each starts one training process on its GPU.
-srun bash -c 'cd "$WORK" && exec uv run --project "$ISAACLAB_DIR" --extra isaacsim \
+# One launcher per node; each creates its own /scratch folder (only this node has
+# one so far) and starts one training process on its GPU.
+srun bash -c 'mkdir -p "$WORK" && cd "$WORK" && exec uv run --project "$ISAACLAB_DIR" --extra isaacsim \
     isaaclab train_multigpu --rl_library rsl_rl \
     --nnodes "$SLURM_NNODES" --node_rank "$SLURM_NODEID" --num_gpus 1 \
     --master_addr "$MASTER_ADDR" --master_port "$MASTER_PORT" \
