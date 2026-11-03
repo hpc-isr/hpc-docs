@@ -26,15 +26,15 @@ Script: [`job.sbatch`](job.sbatch)
 
 ## What you should see
 
-`hello-<jobid>.out` in this folder, starting with:
+`hello-<jobid>.out` in the submission folder. The exact node and partition depend on the current scheduler placement; do not expect a particular host:
 
-    Hello from hpc02 at 2026-11-01T10:00:00+00:00
+    Hello from <allocated-node> at <timestamp>
     User:        <username>
     Account:     <group>
-    Partition:   shared
+    Partition:   <allocated-partition>
     CPUs:        1 (visible to this job: 1)
 
-`nproc` shows 1 even though the node has 56 cores: a job only sees the CPUs it asked for.
+`nproc` shows the CPUs allocated to this job. The allocated node and partition can differ between runs.
 
 ## Try next
 
