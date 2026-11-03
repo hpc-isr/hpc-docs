@@ -18,7 +18,7 @@ Runs **Qwen3.8-27B**, a recent open-weight vision-language model, on one GPU of 
 
 It uses [vLLM](https://docs.vllm.ai/), the standard engine for serving language models fast, from its official container run with Apptainer.
 
-**Why FP8.** Qwen3.8-27B in 16-bit precision needs about 54 GB, more than the L40S's 48 GB. The official FP8 version, [`Qwen/Qwen3.8-27B-FP8`](https://huggingface.co/Qwen/Qwen3.8-27B-FP8), takes about 30 GB and leaves the rest for processing many images at once. The L40S runs FP8 natively.
+**Why FP8.** Qwen3.8-27B in 16-bit precision needs about 54 GB, more than the L40S's 48 GB. The official FP8 version, [`Qwen/Qwen3.8-27B-FP8`](https://huggingface.co/Qwen/Qwen3.8-27B-FP8), takes about 30 GB and leaves the rest for processing many images at once. The L40S (Ada) has FP8 tensor cores, but vLLM's default kernels for this model's block-quantized FP8 weights need Hopper or newer: on the L40S it falls back to Marlin, which keeps the weights in FP8 and computes in 16-bit, and logs `Your GPU does not have native support for FP8 computation`. `caption.py` asks for Triton's FP8 block kernel instead (`--linear-backend triton`), which computes in FP8. The log then shows `Selected TritonFp8BlockScaledMMKernel`. Pass `--linear-backend auto` to compare the two.
 
 ## Run it
 

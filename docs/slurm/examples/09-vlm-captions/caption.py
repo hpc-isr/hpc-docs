@@ -35,6 +35,11 @@ def main():
     p.add_argument("--limit", type=int, default=0, help="only the first N images (0 = all)")
     p.add_argument("--batch", type=int, default=32)
     p.add_argument("--max-model-len", type=int, default=32768)
+    # Qwen's FP8 weights are block-quantized (128 x 128 blocks). vLLM's native FP8 block
+    # kernels (DeepGEMM, CUTLASS) need Hopper or newer, so on the L40S (Ada, sm89) "auto"
+    # falls back to Marlin, which keeps weights in FP8 but computes in 16-bit. Triton's
+    # block kernel runs FP8 x FP8 on Ada's FP8 tensor cores. "auto" restores vLLM's choice.
+    p.add_argument("--linear-backend", default="triton")
     a = p.parse_args()
 
     files = sorted(f for f in a.images.rglob("*") if f.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"})
@@ -53,6 +58,7 @@ def main():
         # the L40S has left after the weights (184), and the engine refuses to start. The
         # script never sends more than --batch at a time, so that is enough.
         max_num_seqs=a.batch,
+        linear_backend=a.linear_backend,
         limit_mm_per_prompt={"image": 1},
     )
     print(f"Model loaded in {time.time() - t0:.0f}s")
