@@ -28,8 +28,14 @@ ensure_vllm_image() {
             # "Creating SIF file..." compresses about 20 GB with mksquashfs: 10–20 min
             # with no output. Watch it with: ls -l $SIF.part  (the size grows)
             local start=$SECONDS
+            # Heartbeat: "Creating SIF file..." prints nothing for 10–20 min, so say how far it got.
+            ( while sleep 60; do
+                [ -f "$SIF.part" ] && echo "  ... $(du -h "$SIF.part" | cut -f1) of the .sif written"
+            done ) &
+            local beat=$!
             apptainer pull "$SIF.part" "$VLLM_IMAGE" && mv "$SIF.part" "$SIF"
             local status=$?
+            kill "$beat" 2>/dev/null || true
             rm -rf "$build" "$SIF.part"
             [ "$status" = 0 ] || exit "$status"
             echo "Built $SIF in $(( (SECONDS - start) / 60 )) min"
