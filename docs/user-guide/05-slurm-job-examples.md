@@ -13,7 +13,7 @@ Small starting examples. For complete workloads (training on CPUs and GPUs, Isaa
     export SLURM_ACCOUNT="<your group>"
     mkdir -p "$HOME/slurm-logs"
 
-Every user has the low tier, so `--qos=low` always works; drop it to use your own tier. There's no need for `--partition`: Slurm routes each job to your group's node, the shared nodes or an idle node (see [SLURM basics](04-slurm-basics.md#where-jobs-run)). Tiers are explained in [Access and priority](../slurm/access-priority.md).
+Use only an account and QoS shown in your association. Omit `--qos` to use the configured default; specify a tier only when it is allowed for that account. You normally do not need `--partition`: Slurm places the job according to your group, tier and available resources (see [SLURM basics](04-slurm-basics.md#where-jobs-run)).
 
 ## 1. Short CPU smoke job
 
@@ -27,7 +27,7 @@ Expected: Slurm returns a job ID. After the job completes, inspect the output an
 
 ## 2. CPU program with a user-owned environment
 
-This uses a Python environment on the node's `/scratch`, which you create first on the node the job runs on (see [Storage](03-storage.md#software-environments)). Replace the paths and the node with your own.
+This uses a Python environment on the node's `/scratch` (see [Storage](03-storage.md#software-environments)). Because `/scratch` is node-local, prepare the environment on a node where the job can use it, or let the job prepare it there. Do not pin a job to a node unless you have a reason and that node is eligible.
 
     cd "$HOME/slurm-logs"
     cat > "$HOME/slurm-logs/cpu-program.sbatch" <<'SBATCH'
@@ -40,8 +40,6 @@ This uses a Python environment on the node's `/scratch`, which you create first 
     #SBATCH --time=00:05:00
     #SBATCH --output=cpu-program-%j.out
     #SBATCH --error=cpu-program-%j.err
-    #SBATCH --nodelist=hpc02
-
     source "/scratch/$USER/envs/my-project/bin/activate"
     python "$HOME/code/my-project/run.py" \
       --input "$HOME/data/input" \
@@ -55,7 +53,7 @@ The example changes to the existing log directory before submission so the relat
 
 ## 3. One-GPU visibility smoke job
 
-This checks that the job sees one NVIDIA L40S. It doesn't validate PyTorch, CUDA compatibility for a particular application, or multi-node communication.
+This checks the GPU that Slurm allocated to the job. It doesn't validate PyTorch, CUDA compatibility for a particular application, or multi-node communication.
 
     sbatch --account="$SLURM_ACCOUNT" --qos=low \
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --gres=gpu:1 \
@@ -64,7 +62,9 @@ This checks that the job sees one NVIDIA L40S. It doesn't validate PyTorch, CUDA
       --error="$HOME/slurm-logs/gpu-%j.err" \
       --wrap='hostname; printf "CUDA_VISIBLE_DEVICES=%s\n" "$CUDA_VISIBLE_DEVICES"; nvidia-smi --query-gpu=index,name --format=csv,noheader'
 
-Do not use this smoke test to benchmark performance or load the GPU. For a small slice of a GPU instead of a whole one, use `--gres=shard:1` (see [SLURM basics](04-slurm-basics.md#interactive-work)).
+Do not use this smoke test to benchmark or load the GPU. Slurm assigns the device; do not select a physical GPU by index. Inside the job, use the devices exposed through `CUDA_VISIBLE_DEVICES`. The index shown inside the job may not be the node's physical index.
+
+For multi-GPU work, the program must support the required parallel method. See [two-node PyTorch DDP](../slurm/examples/10-ddp-multinode/README.md) and [four-GPU Isaac Lab](../slurm/examples/11-isaaclab-4gpu/README.md); both require administrator coordination and their cluster execution is not yet verified. Request only resources permitted by your current association. For a small GPU slice, see [interactive GPU work](04-slurm-basics.md#interactive-work).
 
 ## 4. Small job array
 
@@ -102,7 +102,9 @@ Use a short allocation and exit promptly. Interactive sessions can't be requeued
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
       --pty bash -l
 
-Inside the allocated shell, run hostname, then type exit. If the prompt does not accept input, stop and ask the administrator; do not leave the allocation running or repeatedly resubmit.
+Inside the allocated shell, run `hostname`, then type `exit` to return to your login shell and release the allocation. If you started `srun --pty bash -l` inside an `salloc` shell, the second prompt is the compute shell: type `exit` once to return to the allocation shell, then again to release it. If the prompt does not accept input, stop and ask the administrator; do not leave the allocation running or repeatedly resubmit.
+
+`sattach` can reconnect only to a still-running job step started with `srun --pty`; it cannot restore an ended shell. Site behavior has not been verified. See the [Slurm `sattach` reference](https://slurm.schedmd.com/sattach.html).
 
 ## 7. Preemptible job that checkpoints
 
@@ -133,13 +135,17 @@ Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: they ge
 
 Check with `sacct -j <job-id>`: a preempted job shows `PREEMPTED` or `REQUEUED`, then runs again under the same job ID.
 
+## Scratch, shared files and containers
+
+Use `/scratch/$USER/$SLURM_JOB_ID` for temporary work on the allocated node. `/scratch` is node-local and is not backed up; copy results you need to keep to your home or approved group storage before the job ends. See [Storage](03-storage.md) for shared paths, quotas and cleanup rules. Do not use Docker on the cluster. Follow the documented [Apptainer guidance](09-apptainer.md) or ask your group SysAdmin which software environment is supported for your workload.
+
 ## Monitor and get help
 
     squeue -u "$USER" -o '%i|%a|%q|%T|%M|%R'
     sacct -X -j "<job-id>" --noheader \
       --format=JobIDRaw,User,Account,Partition,QOS,State,ExitCode,Elapsed,AllocTRES
 
-For a problem report, include the job ID, the command or example used, approximate submit time, observed state or sanitized error, and what output you expected. Send this through the support route for your group from [Who's who](../overview/contacts.md). Do not include passwords, tokens, private keys, private research data, or unredacted logs in a public issue or message. See [FAQ and troubleshooting](07-faq.md).
+For a problem report, include the job ID, the command or example used, approximate submit time, observed state or sanitized error, and what output you expected. Send this through the support route for your group from [Who's who](../overview/contacts.md). Do not include passwords, tokens, private keys, private research data, or raw logs in a public issue or message. Share only a short sanitized error excerpt. See [FAQ and troubleshooting](07-faq.md).
 
 ## Not covered by these examples
 
