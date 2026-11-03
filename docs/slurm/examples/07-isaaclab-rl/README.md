@@ -12,11 +12,11 @@ nav_order: 7
 |---|---|---|---|
 | 16 | 64 GB | 1 × L40S | about 1 h for the H1 walking task |
 
-**First run:** Each node needs its own Isaac Lab environment in `/scratch`: about 12 GB to download (about 1 min), 15–30 min to install and 25–30 GB of `/scratch` there. `setup.sbatch` creates it on one node, and the jobs create it on any other node the first time they run there. The first run on each node also compiles shaders and fetches robot assets, 5–15 min. Each run keeps 0.1–1 GB of checkpoints and logs. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** Each node needs its own Isaac Lab in `/scratch`, checkout and environment: about 12 GB to download (about 1 min), 15–30 min to install and 25–30 GB of `/scratch` there. The first job on a node installs it; `setup.sbatch` does it ahead of time. The first run on each node also compiles shaders and fetches robot assets, 5–15 min. Each run keeps 0.1–1 GB of checkpoints and logs. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 Trains a reinforcement learning policy with [Isaac Lab](https://isaac-sim.github.io/IsaacLab/) 3.0, NVIDIA's robot learning framework on top of Isaac Sim. Thousands of copies of the robot are simulated in parallel on the GPU, and PPO (from [RSL-RL](https://github.com/leggedrobotics/rsl_rl)) learns from all of them at once. The default task teaches the Unitree **H1 humanoid** to walk and follow velocity commands.
 
-Isaac Lab's code is cloned into your home, so you can change it and add your own tasks, and Isaac Sim and Isaac Lab are installed from pip into a uv environment on each node's `/scratch`. You can **watch** the robots in three ways, all streamed over WebRTC to your laptop:
+Isaac Lab is cloned, and Isaac Sim and Isaac Lab installed from pip into a uv environment, on each node's `/scratch`, where they load much faster than from your home. You can **watch** the robots in three ways, all streamed over WebRTC to your laptop:
 
 | Script | What you see |
 |---|---|
@@ -24,18 +24,21 @@ Isaac Lab's code is cloned into your home, so you can change it and add your own
 | `play.sbatch` | The trained policy, after training |
 | `gui.sbatch` | The full Isaac Sim editor, from the shared Apptainer image |
 
-## Set up (once)
+## Set up
+
+Nothing to do: every job runs `ensure_isaaclab` from [`isaaclab.sh`](isaaclab.sh) first. On a node that doesn't have Isaac Lab yet, it installs [uv](https://docs.astral.sh/uv/) in `~/.local/bin` if you don't have it, clones Isaac Lab `release/3.0.0` to `/scratch/$USER/IsaacLab`, and installs Isaac Lab, Isaac Sim 6.2 and CUDA PyTorch in `/scratch/$USER/envs/isaaclab`. That downloads about 12 GB, takes 15–30 min and 25–30 GB of your `/scratch` quota on that node. The uv download cache (`/scratch/$USER/uv-cache`) is on the same disk and shares its files with the environment, so it takes no extra space. On a node that has it, the check takes seconds. Jobs that start together on one node wait for a single install.
+
+To install it ahead of time on the node you'll train on, and then send the jobs there:
 
     cd ~/slurm-examples/07-isaaclab-rl
-    sbatch --nodelist=hpc02 setup.sbatch      # pick the node you'll train on
+    sbatch --nodelist=hpc02 setup.sbatch
+    sbatch --nodelist=hpc02 train.sbatch
 
-This installs [uv](https://docs.astral.sh/uv/) in `~/.local/bin` if you don't have it and clones Isaac Lab `release/3.0.0` to `~/IsaacLab`. Then, on that node, it installs Isaac Lab, Isaac Sim 6.2 and CUDA PyTorch in `/scratch/$USER/envs/isaaclab`. It downloads about 12 GB, and the environment takes 25–30 GB of your `/scratch` quota on that node. The uv download cache (`/scratch/$USER/uv-cache`) is on the same disk and shares its files with the environment, so it takes no extra space.
-
-`/scratch` is local to each node. `train.sbatch`, `play.sbatch` and example 11 run `uv sync` first: on a node that has the environment it takes seconds, and on any other node it builds the environment, which takes 15–30 min. To skip that wait, send the jobs to the node you set up, with the same `--nodelist`.
+**Changing Isaac Lab's code.** Each node has its own checkout, so an edit in `/scratch/$USER/IsaacLab` on one node isn't seen on the others, and `/scratch` files unused for 30 days are deleted. Keep your changes in git (a fork, or a branch you push), and pull them on each node, or put your own tasks in a separate package in your home.
 
 By running Isaac Sim you accept the [NVIDIA Isaac Sim license](https://docs.isaacsim.omniverse.nvidia.com/latest/common/NVIDIA_Omniverse_License_Agreement.html); the scripts set `OMNI_KIT_ACCEPT_EULA=YES` for that.
 
-Files: [`setup.sbatch`](setup.sbatch), [`train.sbatch`](train.sbatch), [`play.sbatch`](play.sbatch), [`gui.sbatch`](gui.sbatch), [`stream-info.sh`](stream-info.sh)
+Files: [`isaaclab.sh`](isaaclab.sh), [`setup.sbatch`](setup.sbatch), [`train.sbatch`](train.sbatch), [`play.sbatch`](play.sbatch), [`gui.sbatch`](gui.sbatch), [`stream-info.sh`](stream-info.sh)
 
 ## Train
 
@@ -59,7 +62,7 @@ Change the task, size or length with `--export`:
 
 They are passed to Isaac Lab as the Hydra overrides `agent.num_steps_per_env` and `agent.algorithm.num_mini_batches`; any other agent or environment setting can be added the same way on the `isaaclab train` line.
 
-List every task with `uv run --project ~/IsaacLab --extra isaacsim isaaclab list_envs` inside a job. Isaac Lab 3.0 removed the old `Isaac-Quadcopter-Direct` task; the drone tasks are now the `IsaacContrib-*-ARL-Robot-1` ones.
+List every task with `uv run --project /scratch/$USER/IsaacLab --extra isaacsim isaaclab list_envs` inside a job. Isaac Lab 3.0 removed the old `Isaac-Quadcopter-Direct` task; the drone tasks are now the `IsaacContrib-*-ARL-Robot-1` ones.
 
 **TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `isaaclab-train-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. The job reads the logs live from the node's `/scratch`. The copy in `~/results/isaaclab/logs` is updated only every 30 minutes and when the job ends, so a TensorBoard pointed there runs up to half an hour behind.
 
@@ -94,7 +97,7 @@ It prints your own ports, computed from your user ID.
 
 - **One GPU, many robots.** The physics of every environment runs on the GPU, so a single L40S simulates thousands of robots. CPUs mostly prepare the run; 16 is plenty.
 - **Headless by default.** With no visualizer requested, Isaac Lab doesn't render anything, which is fastest. `--livestream 2` adds a viewport and streams it.
-- **`--project ~/IsaacLab`** runs Isaac Lab from any folder, with its environment from `UV_PROJECT_ENVIRONMENT` on the node's `/scratch`. The job runs in its `/scratch` folder, so logs are written to the local disk, not to your home or the Isaac Lab checkout.
+- **`--project /scratch/$USER/IsaacLab`** runs Isaac Lab from any folder, with its environment from `UV_PROJECT_ENVIRONMENT`, both on the node's `/scratch`. The job runs in its `/scratch` folder, so logs are written to the local disk, not to your home or the Isaac Lab checkout.
 - **`play.sbatch`** copies your runs from `RESULTS_DIR` to `/scratch` and plays from there.
 
 ## Try next
