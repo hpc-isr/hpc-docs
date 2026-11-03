@@ -17,6 +17,8 @@ finish() {
 trap finish EXIT
 trap 'exit 143' TERM
 
+ensure_sif   # the nerfstudio image on this node's /scratch (training may land on another node)
+
 # Stage the prepared scene to the node's local disk; training reads every image many times.
 rsync -a "$SCENE_RESULTS/data/" "$WORK/data/"
 cd "$WORK"
