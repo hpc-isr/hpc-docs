@@ -147,6 +147,15 @@ Use `/scratch/$USER/$SLURM_JOB_ID` for temporary work on the allocated node. `/s
 
 For a problem report, include the job ID, the command or example used, approximate submit time, observed state or sanitized error, and what output you expected. Send this through the support route for your group from [Who's who](../overview/contacts.md). Do not include passwords, tokens, private keys, private research data, or raw logs in a public issue or message. Share only a short sanitized error excerpt. See [FAQ and troubleshooting](07-faq.md).
 
+## Review recorded usage
+
+Slurm can show recorded job usage, but the accounting output is not a remaining-credit balance. To inspect your recent jobs:
+
+    sacct -X -u "$USER" -S "$(date -d '30 days ago' +%F)" \
+      --format=JobIDRaw,Account,QOS,State,Elapsed,AllocCPUS,AllocTRES
+
+If your group uses a separate credit budget, ask your group SysAdmin for its approved balance report and conversion rule.
+
 ## Not covered by these examples
 
 A multi-node GPU/NCCL job has not been tested on this cluster; a script for one is in [example 10](../slurm/examples/10-ddp-multinode/README.md). Do not submit the multi-node case without specific SysAdmin coordination and confirmation of software, network, account, QoS, and test-window readiness.
