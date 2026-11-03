@@ -4,20 +4,40 @@ Started by torchrun (see job.sbatch), which sets RANK, LOCAL_RANK and WORLD_SIZE
 """
 
 import argparse
+import datetime
+import faulthandler
 import json
 import os
+import signal
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
+from PIL import Image
 from torchvision import transforms
+
+
+class Cifar10(Dataset):
+    """One split of CIFAR-10 from the NumPy file that prepare_cifar10.py wrote."""
+
+    def __init__(self, path, transform):
+        with np.load(path) as f:
+            self.images, self.labels = f["images"], torch.from_numpy(f["labels"])
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, i):
+        return self.transform(Image.fromarray(self.images[i])), self.labels[i]
 
 
 def cifar_resnet18():
@@ -35,22 +55,28 @@ def main():
     p.add_argument("--out", type=Path, required=True)
     a = p.parse_args()
 
-    dist.init_process_group("nccl")
+    # `kill -USR1 <pid>` on a node prints where this process is stuck, to the job's log.
+    faulthandler.register(signal.SIGUSR1, all_threads=True)
+    host = os.uname().nodename
+    print(f"{host}: rank {os.environ['RANK']} of {os.environ['WORLD_SIZE']} (pid {os.getpid()}) joining "
+          f"{os.environ['MASTER_ADDR']}:{os.environ['MASTER_PORT']}", flush=True)
+    # A rank that can't reach the others fails after 10 minutes instead of waiting for the time limit.
+    dist.init_process_group("nccl", timeout=datetime.timedelta(minutes=10))
     rank, world = dist.get_rank(), dist.get_world_size()
     local_rank = int(os.environ["LOCAL_RANK"])
     torch.cuda.set_device(local_rank)
     dev = torch.device("cuda", local_rank)
     main_proc = rank == 0
-    print(f"rank {rank}/{world} on {os.uname().nodename}, GPU {torch.cuda.get_device_name(dev)}", flush=True)
+    print(f"rank {rank}/{world} on {host}, GPU {torch.cuda.get_device_name(dev)}", flush=True)
 
     norm = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))
     train_tf = transforms.Compose([transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(),
                                    transforms.ToTensor(), norm])
     test_tf = transforms.Compose([transforms.ToTensor(), norm])
 
-    # The data was downloaded to each node's /scratch by job.sbatch before training.
-    train = torchvision.datasets.CIFAR10(a.data, train=True, download=False, transform=train_tf)
-    test = torchvision.datasets.CIFAR10(a.data, train=False, download=False, transform=test_tf)
+    # job.sbatch put the data on each node's /scratch before training.
+    train = Cifar10(a.data / "train.npz", train_tf)
+    test = Cifar10(a.data / "test.npz", test_tf)
     sampler = DistributedSampler(train, shuffle=True)  # each rank sees a different 1/world of the data
     workers = int(os.environ.get("SLURM_CPUS_PER_TASK", 8)) - 1
     train_dl = DataLoader(train, batch_size=a.batch_size, sampler=sampler, num_workers=workers,
@@ -62,6 +88,9 @@ def main():
     lr = 0.1 * a.batch_size * world / 256
     opt = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lr, epochs=a.epochs, steps_per_epoch=len(train_dl))
+    if main_proc:
+        print(f"training: {a.epochs} epochs of {len(train_dl)} steps, global batch {a.batch_size * world}; "
+              "results are written when training ends", flush=True)
 
     epoch_times = []
     for epoch in range(a.epochs):

@@ -106,7 +106,7 @@ What each example downloads the first time, how long it takes to get ready, and 
 | 7 | Isaac Lab, Isaac Sim 6.2, PyTorch (`setup.sbatch`); robot assets on the first run | 12 GB | about 1 min | 15–30 min to create the environment (`uv sync`) and 5–15 min of shader compilation, on each node's first run | a few GB of Isaac Sim caches, 0.1–1 GB per run | 25–30 GB checkout, environment and uv cache (hard-linked, so counted once), under 1 GB per run |
 | 8 | nerfstudio image, sample scenes | 6.1 GB (5.4 + 0.7) | under 1 min | 10–20 min to build the `.sif` on each node's first run | 0.2–1 GB per scene | 5.5 GB image, 20 GB more while building it; 1–2 GB per job |
 | 9 | vLLM image, Qwen3.8-27B-FP8 weights, COCO val2017 | 41 GB (9.2 + 30.9 + 0.8) | 1–3 min | 15–30 min to build the `.sif` on each node's first run; 2–5 min to load the model in every job | under 1 MB of captions | 9 GB image, 32 GB cache (weights + images); 35 GB more while building the image |
-| 10 | PyTorch with CUDA; CIFAR-10, on each node | 3 GB + 170 MB | under 1 min | 2–5 min to create the environment, under 1 min to unpack | 50 MB of results | 7 GB environment, 0.4 GB dataset cache |
+| 10 | PyTorch with CUDA; CIFAR-10, once on the first node, copied to the others | 3 GB + 143 MB | under 1 min | 2–5 min to create the environment, under 1 min to convert the data | 50 MB of results | 7 GB environment, 0.4 GB dataset cache |
 | 11 | nothing beyond example 7's, on each node | | | as example 7, on each node that doesn't have it yet | 0.1–1 GB per run | example 7's environment, under 1 GB per run |
 
 The dataset and image sizes were measured from the registries and download servers in October 2026; the Python environment sizes are estimates. Download times assume the cluster's 10 Gbit/s internet link at 0.3–1 GB/s; a single download is often limited by the server it comes from. Setup times are estimates, and they grow when several people do it at once.
@@ -125,6 +125,6 @@ All are free and downloaded by the jobs themselves, on first use on each node.
 | Isaac Sim robot assets | | 7 | NVIDIA, downloaded by Isaac Sim |
 | Tanks and Temples "Truck" (from the 3D Gaussian Splatting authors' `tandt_db.zip`) | 683 MB for 4 scenes; Truck is 251 photos, 190 MB | 8 | [3D Gaussian Splatting datasets](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) |
 | COCO 2017 validation images | 0.8 GB | 9 | [cocodataset.org](https://cocodataset.org/#download) (CC BY 4.0) |
-| CIFAR-10 | 170 MB | 10 | [cs.toronto.edu/~kriz/cifar.html](https://www.cs.toronto.edu/~kriz/cifar.html), via torchvision |
+| CIFAR-10 | 143 MB | 10 | [cs.toronto.edu/~kriz/cifar.html](https://www.cs.toronto.edu/~kriz/cifar.html), downloaded from its [Hugging Face copy](https://huggingface.co/datasets/uoft-cs/cifar10) (much faster) |
 
 The model weights (YOLO11, Qwen3.8-27B-FP8) are downloaded the same way, from Ultralytics and Hugging Face.
