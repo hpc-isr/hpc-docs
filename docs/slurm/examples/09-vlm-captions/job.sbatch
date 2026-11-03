@@ -11,8 +11,6 @@
 
 set -euo pipefail
 
-SIF="${SIF:-$HOME/containers/vllm-0.32.0-cu130.sif}"
-[ -f "$SIF" ] || { echo "No vLLM image at $SIF: run sbatch pull.sbatch first." >&2; exit 1; }
 MODEL="${MODEL:-Qwen/Qwen3.8-27B-FP8}"
 LIMIT="${LIMIT:-200}"
 # Where the captions are kept: your home by default, or your group's NAS,
@@ -54,6 +52,10 @@ else
         touch "$IMAGE_DIR/.complete"
     fi
 fi
+
+# The vLLM image on this node's /scratch: built here the first time (15–30 min).
+source "$SLURM_SUBMIT_DIR/vllm-image.sh"
+ensure_vllm_image
 
 echo "Node $(hostname), images from $IMAGE_DIR"
 srun apptainer exec --nv --cleanenv --bind /scratch \

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Isaac Lab RL on 4 GPUs: 4 nodes x 1 L40S, 4096 robots per GPU (16384 in all).
-# Needs the Isaac Lab checkout from example 7 (../07-isaaclab-rl/setup.sbatch).
+# Installs Isaac Lab on each node like example 7 (../07-isaaclab-rl/isaaclab.sh).
 # Ask an admin first: 4 GPUs means 4 nodes, more than the shared partition has.
 #   sbatch job.sbatch                                    # in scavenge (preemptible)
 #   sbatch --partition=<p> --reservation=<r> job.sbatch  # in a slot an admin reserved
@@ -16,7 +16,6 @@
 
 set -euo pipefail
 
-ISAACLAB_DIR="${ISAACLAB_DIR:-$HOME/IsaacLab}"
 TASK="${TASK:-Isaac-Velocity-Rough-H1}"
 NUM_ENVS="${NUM_ENVS:-4096}"            # per GPU
 MAX_ITERATIONS="${MAX_ITERATIONS:-3000}"
@@ -24,11 +23,12 @@ MAX_ITERATIONS="${MAX_ITERATIONS:-3000}"
 # e.g. RESULTS_DIR=/storage/anubis-nas/<group>/isaaclab
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/isaaclab}"
 
-export PATH="$HOME/.local/bin:$PATH"
-export UV_CACHE_DIR="/scratch/$USER/uv-cache"
-export UV_PROJECT_ENVIRONMENT="/scratch/$USER/envs/isaaclab"   # on each node's local disk
-[ -d "$ISAACLAB_DIR/.git" ] || { echo "No Isaac Lab checkout in $ISAACLAB_DIR: run setup.sbatch first." >&2; exit 1; }
-export OMNI_KIT_ACCEPT_EULA=YES
+# Isaac Lab on each node's /scratch, from example 7: cloned and installed on every
+# node of the job that doesn't have it yet (15–30 min there, all nodes at once).
+ISAACLAB_SH="$SLURM_SUBMIT_DIR/../07-isaaclab-rl/isaaclab.sh"
+export ISAACLAB_SH
+source "$ISAACLAB_SH"
+srun --ntasks-per-node=1 bash -c 'source "$ISAACLAB_SH" && ensure_isaaclab'
 
 # Every node works in its own /scratch folder. Rank 0, on this (the first) node,
 # writes the logs and checkpoints; they are copied out when the job ends.
@@ -45,10 +45,6 @@ finish() {
 }
 trap finish EXIT
 trap 'exit 143' TERM
-
-# Create or update the environment on every node: 15–30 min on a node the first time.
-export ISAACLAB_DIR
-srun --ntasks-per-node=1 bash -c 'uv sync --project "$ISAACLAB_DIR" --extra isaacsim'
 
 # TensorBoard on this (the first) node, where rank 0 writes the logs.
 source "$SLURM_SUBMIT_DIR/../env.sh"   # for start_tensorboard
