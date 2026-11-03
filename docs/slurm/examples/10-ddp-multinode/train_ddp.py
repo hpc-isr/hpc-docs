@@ -4,8 +4,11 @@ Started by torchrun (see job.sbatch), which sets RANK, LOCAL_RANK and WORLD_SIZE
 """
 
 import argparse
+import datetime
+import faulthandler
 import json
 import os
+import signal
 import time
 from pathlib import Path
 
@@ -35,13 +38,19 @@ def main():
     p.add_argument("--out", type=Path, required=True)
     a = p.parse_args()
 
-    dist.init_process_group("nccl")
+    # `kill -USR1 <pid>` on a node prints where this process is stuck, to the job's log.
+    faulthandler.register(signal.SIGUSR1, all_threads=True)
+    host = os.uname().nodename
+    print(f"{host}: rank {os.environ['RANK']} of {os.environ['WORLD_SIZE']} (pid {os.getpid()}) joining "
+          f"{os.environ['MASTER_ADDR']}:{os.environ['MASTER_PORT']}", flush=True)
+    # A rank that can't reach the others fails after 10 minutes instead of waiting for the time limit.
+    dist.init_process_group("nccl", timeout=datetime.timedelta(minutes=10))
     rank, world = dist.get_rank(), dist.get_world_size()
     local_rank = int(os.environ["LOCAL_RANK"])
     torch.cuda.set_device(local_rank)
     dev = torch.device("cuda", local_rank)
     main_proc = rank == 0
-    print(f"rank {rank}/{world} on {os.uname().nodename}, GPU {torch.cuda.get_device_name(dev)}", flush=True)
+    print(f"rank {rank}/{world} on {host}, GPU {torch.cuda.get_device_name(dev)}", flush=True)
 
     norm = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))
     train_tf = transforms.Compose([transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(),
@@ -62,6 +71,9 @@ def main():
     lr = 0.1 * a.batch_size * world / 256
     opt = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=lr, epochs=a.epochs, steps_per_epoch=len(train_dl))
+    if main_proc:
+        print(f"training: {a.epochs} epochs of {len(train_dl)} steps, global batch {a.batch_size * world}; "
+              "results are written when training ends", flush=True)
 
     epoch_times = []
     for epoch in range(a.epochs):

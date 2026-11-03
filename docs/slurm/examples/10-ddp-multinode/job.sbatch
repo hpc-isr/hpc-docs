@@ -2,6 +2,7 @@
 # Data-parallel training on several nodes, one GPU each. Ask an admin before running it.
 #   sbatch job.sbatch               # 2 nodes (hpc02 + hpc03 on the shared partition)
 #   sbatch --nodes=1 job.sbatch     # the same on 1 GPU, for the scaling comparison
+#   NCCL_DEBUG=INFO sbatch job.sbatch   # if it hangs at start-up: NCCL logs its network set-up
 #SBATCH --job-name=ddp-cifar
 #SBATCH --partition=shared
 #SBATCH --nodes=2
@@ -13,11 +14,23 @@
 #SBATCH --output=%x-%j.out
 
 set -euo pipefail
-# This example's environment, on each node's /scratch: created on every node of
-# the job that doesn't have it yet (a few minutes), then activated here; srun
-# passes it to the tasks on every node.
-srun --ntasks-per-node=1 bash -c 'source "$SLURM_SUBMIT_DIR/../env.sh"
-    ensure_env ddp "$SLURM_SUBMIT_DIR/requirements.txt"'
+export PYTHONUNBUFFERED=1   # print progress as it happens, not when a buffer fills
+
+# Runs a bash snippet once on every node of the job. --kill-on-bad-exit: if it
+# fails on one node, the step stops at once instead of waiting for the others,
+# and the job ends with that node's error in the log.
+on_every_node() {
+    srun --ntasks-per-node=1 --kill-on-bad-exit=1 bash -c "set -euo pipefail; $1"
+}
+step() { echo "$(date +%T) $*"; }
+
+# 1. This example's environment, on each node's /scratch: created on every node
+#    of the job that doesn't have it yet (a few minutes), then activated here;
+#    srun passes it to the tasks on every node.
+step "1/3 Python environment on $SLURM_JOB_NODELIST"
+on_every_node 'source "$SLURM_SUBMIT_DIR/../env.sh"
+    ensure_env ddp "$SLURM_SUBMIT_DIR/requirements.txt"
+    echo "$(date +%T) $(hostname -s): environment ready"'
 source "$SLURM_SUBMIT_DIR/../env.sh"
 ensure_env ddp "$SLURM_SUBMIT_DIR/requirements.txt"
 
@@ -37,25 +50,29 @@ finish() {
 trap finish EXIT
 trap 'exit 143' TERM
 
-# 1. Stage the data on every node: one task per node downloads CIFAR-10 (170 MB,
-#    free) if that node doesn't have it yet.
-srun --ntasks-per-node=1 bash -c '
-    mkdir -p "$WORK/out" "$DATA"
+# 2. Stage the data on every node: one task per node downloads CIFAR-10 (170 MB,
+#    free) if that node doesn't have it yet. It takes seconds; one that is still
+#    going after 10 minutes has stalled, and fails the job instead of hanging it.
+step "2/3 CIFAR-10 on every node"
+on_every_node 'mkdir -p "$WORK/out" "$DATA"
     if [ ! -f "$DATA/.complete" ]; then
-        python -c "import os, torchvision; torchvision.datasets.CIFAR10(os.environ[\"DATA\"], download=True)"
+        echo "$(date +%T) $(hostname -s): downloading CIFAR-10 to $DATA"
+        timeout 10m python -c "import os, torchvision; torchvision.datasets.CIFAR10(os.environ[\"DATA\"], download=True)"
         touch "$DATA/.complete"
-    fi'
+    fi
+    echo "$(date +%T) $(hostname -s): data ready, $(df -h --output=avail /scratch | tail -1 | tr -d " ") free on /scratch"'
 
-# 2. Train. The first node of the job hosts the rendezvous; every node starts
+# 3. Train. The first node of the job hosts the rendezvous; every node starts
 #    torchrun with its own node rank, so rank 0 runs here, on the first node.
 MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n1)
 MASTER_PORT=$(( 20000 + SLURM_JOB_ID % 20000 ))
 export MASTER_ADDR MASTER_PORT
 export NCCL_SOCKET_IFNAME=ens3   # the nodes' private network interface
+export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"   # NCCL_DEBUG=INFO sbatch job.sbatch for its full set-up log
 export OMP_NUM_THREADS=4
 
-echo "Nodes: $SLURM_JOB_NODELIST  master: $MASTER_ADDR:$MASTER_PORT"
-srun bash -c 'exec torchrun \
+step "3/3 Training on $SLURM_NNODES node(s), rendezvous at $MASTER_ADDR:$MASTER_PORT"
+srun --kill-on-bad-exit=1 bash -c 'exec torchrun \
     --nnodes="$SLURM_NNODES" --nproc_per_node=1 --node_rank="$SLURM_NODEID" \
     --master_addr="$MASTER_ADDR" --master_port="$MASTER_PORT" \
     "$SLURM_SUBMIT_DIR/train_ddp.py" --epochs "$EPOCHS" --data "$DATA" --out "$WORK/out"'
