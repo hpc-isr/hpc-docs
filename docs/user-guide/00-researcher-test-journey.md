@@ -57,7 +57,7 @@ Run these only if the administrator approves them for your test window.
 
 ### 4. Optional large GPU examples
 
-These need large downloads and a lot of `/scratch` space (about 25 to 30 GB for Isaac Lab and about 41 GB for vLLM on each node, against a 100 GiB soft quota), so check your quota first and run them only with administrator approval.
+These need large downloads and a lot of `/scratch` space (about 25 to 30 GB for Isaac Lab and about 41 GB for vLLM on each node, against a 100 GiB soft quota), so check your quota first.
 
 - **Isaac Lab (single GPU).** [Example 7](../slurm/examples/07-isaaclab-rl/README.md) trains the Unitree H1 humanoid with one GPU (about one hour). The first job on a node installs Isaac Lab in `/scratch` (15 to 30 minutes); to do that ahead of time, pin the jobs to one node:
 
@@ -72,13 +72,13 @@ These need large downloads and a lot of `/scratch` space (about 25 to 30 GB for 
       sbatch --nodelist=hpc02 pull.sbatch
       sbatch --nodelist=hpc02 job.sbatch
 
-- **Multi-node PyTorch DDP.** [Example 10](../slurm/examples/10-ddp-multinode/README.md) trains ResNet-18 on CIFAR-10 across two nodes (one GPU each, about 10 minutes). Multi-node jobs have not been tested on this cluster, and a two-node job takes both GPUs of the `shared` partition. Ask an administrator first.
+- **Multi-node PyTorch DDP.** [Example 10](../slurm/examples/10-ddp-multinode/README.md) trains ResNet-18 on CIFAR-10 across two nodes (one GPU each, about 10 minutes).
 
       cd ~/slurm-examples/10-ddp-multinode
       sbatch job.sbatch               # 2 nodes
       sbatch --nodes=1 job.sbatch     # 1 node, to compare
 
-- **Isaac Lab on 4 GPUs.** [Example 11](../slurm/examples/11-isaaclab-4gpu/README.md) uses four nodes in the `scavenge` partition, where the job is killed as soon as any of its nodes is wanted by its owners. Ask an administrator first, and for a run that must finish, ask for a reservation (`--reservation=<name>`).
+- **Isaac Lab on 4 GPUs.** [Example 11](../slurm/examples/11-isaaclab-4gpu/README.md) needs four nodes, so it runs in the `scavenge` partition. A job there is preempted, and this one killed, as soon as any of its nodes is wanted by its owners, so a run of about an hour may not finish. Ask your administrator to make a node reservation for the run, and submit into it with `--reservation=<name>` (and the partition they give you).
 
       cd ~/slurm-examples/11-isaaclab-4gpu
       sbatch job.sbatch
