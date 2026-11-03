@@ -48,8 +48,6 @@ It runs `../03-mnist-cpu/mnist.py`, so keep both folders. **Expected result:** `
 
 ### 3. Optional workflow examples
 
-Run these only if the administrator approves them for your test window.
-
 | Example | What it tests | Command |
 |---|---|---|
 | [2, Parameter sweep](../slurm/examples/02-kalman-sweep/README.md) | A 20-task job array plus an `afterok` collector job, on CPUs | `cd ~/slurm-examples/02-kalman-sweep && ./submit.sh` |
