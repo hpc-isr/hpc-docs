@@ -13,12 +13,13 @@ Use this guide for a small, administrator-approved test of your own ISR HPC acce
 1. Read [Getting an account](01-getting-an-account.md) and [SSH login](02-ssh-login.md). Ask your group administrator to confirm your exact HPC login, authentication method, supported SSH hostname, and that your account is enabled for the target service. An identity-provider account alone does not prove cluster authorization.
 2. Ask the administrator to confirm the Slurm account, partition, allowed QoS, resource bounds, and whether a GPU allocation is permitted. Use only those values. Do not infer that a documented QoS or configured limit is available to your association.
 3. Read [Storage](03-storage.md). Before using research data, obtain an administrator-confirmed path and its persistence, quota, backup, retention, and cross-node visibility rules. Those details are not established universally in the public guidance. Use a small non-sensitive test input until they are confirmed.
-4. Copy the [Slurm examples](../slurm/README.md#example-jobs) into your home on `hpc01`, as described in [Before you start](../slurm/README.md#before-you-start). They are public in this repository; no private repository access is needed:
+4. Read the [Slurm section](../slurm/README.md) and its [example jobs](../slurm/README.md#example-jobs). They are public documentation in this repository, so you need no extra repository access. Copy them into your home on `hpc01` as described in [Before you start](../slurm/README.md#before-you-start):
 
        git clone https://github.com/hpc-isr/hpc-docs.git ~/hpc-docs
        cp -r ~/hpc-docs/docs/slurm/examples ~/slurm-examples
 
-5. Start with the smallest examples. Example 1 uses one CPU, 1 GB and five minutes; example 4 adds one GPU. These are example bounds, not a statement of cluster-wide limits or a guarantee that a job will start. The example pages say they have not all been run on the cluster yet, so timings and outputs are estimates.
+   Use the copy and the scripts as published; do not run scripts from an unreviewed source. If the `git clone` fails, ask your group administrator.
+5. Use the small examples first: [example 1](../slurm/examples/01-hello/README.md) needs one CPU, 1 GB of memory and five minutes, and [example 4](../slurm/examples/04-mnist-gpu/README.md) adds one GPU (8 CPUs, 32 GB, a few minutes). These are example bounds, not a statement of cluster-wide limits or a guarantee that a job will start. The example pages say they have not all been run on the cluster yet, so timings and outputs are estimates.
 
 ## Run the starter cases
 
