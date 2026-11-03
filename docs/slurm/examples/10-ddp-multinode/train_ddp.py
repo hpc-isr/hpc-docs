@@ -12,15 +12,32 @@ import signal
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
+from PIL import Image
 from torchvision import transforms
+
+
+class Cifar10(Dataset):
+    """One split of CIFAR-10 from the NumPy file that prepare_cifar10.py wrote."""
+
+    def __init__(self, path, transform):
+        with np.load(path) as f:
+            self.images, self.labels = f["images"], torch.from_numpy(f["labels"])
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, i):
+        return self.transform(Image.fromarray(self.images[i])), self.labels[i]
 
 
 def cifar_resnet18():
@@ -57,9 +74,9 @@ def main():
                                    transforms.ToTensor(), norm])
     test_tf = transforms.Compose([transforms.ToTensor(), norm])
 
-    # The data was downloaded to each node's /scratch by job.sbatch before training.
-    train = torchvision.datasets.CIFAR10(a.data, train=True, download=False, transform=train_tf)
-    test = torchvision.datasets.CIFAR10(a.data, train=False, download=False, transform=test_tf)
+    # job.sbatch put the data on each node's /scratch before training.
+    train = Cifar10(a.data / "train.npz", train_tf)
+    test = Cifar10(a.data / "test.npz", test_tf)
     sampler = DistributedSampler(train, shuffle=True)  # each rank sees a different 1/world of the data
     workers = int(os.environ.get("SLURM_CPUS_PER_TASK", 8)) - 1
     train_dl = DataLoader(train, batch_size=a.batch_size, sampler=sampler, num_workers=workers,

@@ -50,35 +50,43 @@ finish() {
 trap finish EXIT
 trap 'exit 143' TERM
 
-# 2. Stage the data on every node. The CIFAR-10 server is often slow (minutes
-#    for its 170 MB), so the archive is downloaded only once, on this node, and
-#    kept in its /scratch. sbcast then copies it over the cluster network to the
-#    nodes that don't have the dataset yet, and each node unpacks its copy.
+# 2. Stage the data on every node. CIFAR-10 comes from its Hugging Face copy
+#    (143 MB in two Parquet files, seconds to download; the original server at
+#    cs.toronto.edu often manages under 100 kB/s). It is downloaded once, on this
+#    node, and kept in its /scratch; sbcast copies it over the cluster network to
+#    the nodes that don't have the dataset yet, and each node converts its copy
+#    to NumPy arrays (under a minute).
 step "2/3 CIFAR-10 on every node"
-TARBALL=cifar-10-python.tar.gz
-CIFAR_URL="https://www.cs.toronto.edu/~kriz/$TARBALL"
-CIFAR_MD5=c58f30108f718f92721af3b95e74349a
-export TARBALL CIFAR_MD5
-missing=$(on_every_node 'mkdir -p "$WORK/out" "$DATA"; [ -f "$DATA/.complete" ] || hostname -s')
+HF_DATASET=https://huggingface.co/datasets/uoft-cs/cifar10/resolve/0b2714987fa478483af9968de7c934580d0bb9a2/plain_text
+declare -A SHA256=(
+    [train]=8428b53a88a11ac374111006708df51469e315a22ac6d66470afd9c78d2ae883
+    [test]=841389e6f2d64f28bf17310e430aebac20ec3ba611a3c5e231dc93c645ce84de
+)
+missing=$(on_every_node 'mkdir -p "$WORK/out" "$DATA"; [ -f "$DATA/.ready" ] || hostname -s')
 if [ -n "$missing" ]; then
     echo "Needs CIFAR-10:" $missing
-    if ! echo "$CIFAR_MD5  $DATA/$TARBALL" | md5sum -c --status 2>/dev/null; then
-        step "$(hostname -s): downloading $CIFAR_URL"
-        # Resumes after a dropped connection; gives up only if the transfer stays
-        # under 10 kB/s for 5 minutes, however long a slow download takes overall.
-        curl -fL --retry 5 --retry-all-errors -C - --speed-limit 10000 --speed-time 300 \
-            -sS -o "$DATA/$TARBALL.part" "$CIFAR_URL"
-        mv "$DATA/$TARBALL.part" "$DATA/$TARBALL"
-        echo "$CIFAR_MD5  $DATA/$TARBALL" | md5sum -c --quiet || {
-            rm -f "$DATA/$TARBALL"; echo "The download is corrupt; submit the job again." >&2; exit 1; }
-    fi
-    sbcast --force "$DATA/$TARBALL" "$WORK/$TARBALL"   # to $WORK on every node of the job
+    for split in train test; do
+        file="$DATA/$split.parquet"
+        if ! echo "${SHA256[$split]}  $file" | sha256sum -c --status 2>/dev/null; then
+            step "$(hostname -s): downloading $split.parquet"
+            # Retries and resumes after a dropped connection; gives up if the
+            # transfer stays under 10 kB/s for 5 minutes.
+            curl -fL --retry 5 --retry-all-errors -C - --speed-limit 10000 --speed-time 300 \
+                -sS -o "$file.part" "$HF_DATASET/$split-00000-of-00001.parquet"
+            mv "$file.part" "$file"
+            echo "${SHA256[$split]}  $file" | sha256sum -c --quiet || {
+                rm -f "$file"; echo "$split.parquet is corrupt; submit the job again." >&2; exit 1; }
+        fi
+        sbcast --force "$file" "$WORK/$split.parquet"   # to $WORK on every node of the job
+    done
 fi
-on_every_node 'if [ ! -f "$DATA/.complete" ]; then
-        cmp -s "$WORK/$TARBALL" "$DATA/$TARBALL" || mv "$WORK/$TARBALL" "$DATA/$TARBALL"
-        # torchvision checks the archive (MD5) and unpacks it; it downloads nothing.
-        python -c "import os, torchvision; torchvision.datasets.CIFAR10(os.environ[\"DATA\"], download=True)"
-        touch "$DATA/.complete"
+on_every_node 'if [ ! -f "$DATA/.ready" ]; then
+        for split in train test; do
+            cmp -s "$WORK/$split.parquet" "$DATA/$split.parquet" || mv "$WORK/$split.parquet" "$DATA/$split.parquet"
+        done
+        python "$SLURM_SUBMIT_DIR/prepare_cifar10.py" "$DATA"
+        rm -rf "$DATA/cifar-10-batches-py" "$DATA"/cifar-10-python.tar.gz*   # the old torchvision copy, if any
+        touch "$DATA/.ready"
     fi
     echo "$(date +%T) $(hostname -s): data ready, $(df -h --output=avail /scratch | tail -1 | tr -d " ") free on /scratch"'
 

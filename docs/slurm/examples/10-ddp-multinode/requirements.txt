@@ -1,3 +1,4 @@
 # The PyPI wheels bundle their own CUDA libraries; they only need the node's NVIDIA driver.
 torch
 torchvision
+pyarrow   # reads the CIFAR-10 Parquet files (prepare_cifar10.py)
