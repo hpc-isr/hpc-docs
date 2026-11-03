@@ -1,7 +1,8 @@
 #!/bin/bash
 # Isaac Lab RL on 4 GPUs: 4 nodes x 1 L40S, 4096 robots per GPU (16384 in all).
 # Needs the Isaac Lab checkout from example 7 (../07-isaaclab-rl/setup.sbatch).
-# Ask an admin first: 4 GPUs means 4 nodes, more than the shared partition has.
+# Ask an admin first: 4 GPUs means 4 nodes, more than the shared partition has;
+# scavenge has them all, but preempts the run as soon as any node is wanted.
 #   sbatch job.sbatch                                    # in scavenge (preemptible)
 #   sbatch --partition=<p> --reservation=<r> job.sbatch  # in a slot an admin reserved
 #SBATCH --job-name=isaaclab-4gpu
