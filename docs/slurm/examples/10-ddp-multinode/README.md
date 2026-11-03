@@ -12,7 +12,7 @@ nav_order: 10
 |---|---|---|---|---|
 | 2 | 16 per node | 64 GB per node | 1 × L40S per node | about 10 min |
 
-**First run:** Creates this example's Python environment (PyTorch with CUDA, 7 GB, 2–5 min) in `/scratch` on each new node. Downloads CIFAR-10 (170 MB, seconds, under a minute to unpack) on each node; 0.4 GB of `/scratch` per node and 50 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** Creates this example's Python environment (PyTorch with CUDA, 7 GB, 2–5 min) in `/scratch` on each new node. Downloads CIFAR-10 (170 MB) once, on the job's first node: its server is often slow, from under a minute to 10 minutes or more. Slurm copies it to the other nodes, and each one unpacks it (under a minute); 0.4 GB of `/scratch` per node and 50 MB of results. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 > **Ask an admin before running this.** Multi-node jobs haven't been tested on this cluster yet, and a two-node job takes both GPUs of the `shared` partition. Your group's admin can confirm that your tier allows it and pick a quiet time. See [Who's who](../../../overview/contacts.md).
 
@@ -62,9 +62,9 @@ Perfect scaling would be 2×. Over the nodes' Ethernet network, a small model li
 - **One task per node.** `--nodes=2 --ntasks-per-node=1 --gres=gpu:1` gives one GPU on each of two nodes, and `srun` starts one copy of the command on each.
 - **torchrun** starts the training process on each node. The first node of the job is the meeting point (`MASTER_ADDR`), and each node passes its own `--node_rank` (Slurm's `SLURM_NODEID`), so rank 0, which writes the results, always runs on the first node, where the batch script runs.
 - **NCCL** carries the gradients between GPUs. `NCCL_SOCKET_IFNAME=ens3` makes it use the nodes' private network.
-- **Data on each node.** `/scratch` is local to each node, so the first `srun` step makes sure every node has its own copy of CIFAR-10, downloading it once per node. Training then reads only from the local disk.
+- **Data on each node.** `/scratch` is local to each node, so every node needs its own copy of CIFAR-10. The batch script downloads the archive once, on the first node, and keeps it there; [`sbcast`](https://slurm.schedmd.com/sbcast.html) copies it over the cluster network to the nodes that don't have the dataset yet, and each node unpacks it. Training then reads only from the local disk.
 - **Results.** Rank 0 writes to `/scratch` on the first node only when training ends, so `/scratch/$USER/<jobid>/out` stays empty while the job runs; follow progress in the log instead. When the job ends, the batch script copies the results to `RESULTS_DIR` and removes the working folder on every node.
-- **Failing fast.** Each `srun` has `--kill-on-bad-exit=1`, so an error on one node ends the job instead of leaving the other node waiting. A data download still going after 10 minutes, or a process that can't reach the others for 10 minutes, fails with an error in the log rather than running until the time limit.
+- **Failing fast.** Each `srun` has `--kill-on-bad-exit=1`, so an error on one node ends the job instead of leaving the other node waiting. A download that stays under 10 kB/s for 5 minutes, or a process that can't reach the others for 10 minutes, fails with an error in the log rather than running until the time limit. A download that is merely slow keeps going, and resumes if the connection drops.
 - **Learning rate.** The global batch grows with the number of GPUs, so the script scales the learning rate with it.
 
 ## Try next
@@ -81,6 +81,6 @@ The last line of the log says which stage it is in. Check, from `hpc01`:
     sacct -j <jobid> -o JobID%-14,JobName%-10,State,Elapsed,NodeList
 
 - **Stuck in 1/3 on one node:** that node is creating the environment (installing PyTorch, 2–5 min; longer with a cold pip cache). The line `Creating the 'ddp' environment on <node>` says so.
-- **Stuck in 2/3:** a slow download, or `/scratch` on that node is full or over your quota. While the job runs you can SSH to its nodes; on the node, `quota -s` and `df -h /scratch` show your usage.
+- **Stuck in 2/3 after `downloading`:** the CIFAR-10 server is slow; `ls -l /scratch/$USER/datasets/cifar10/` on the first node shows the `.part` file growing. Later jobs on that node skip the download. Stuck or failing on another node: `/scratch` there may be full or over your quota. While the job runs you can SSH to its nodes; on the node, `quota -s` and `df -h /scratch` show your usage.
 - **Stuck in 3/3 before the `training:` line:** the processes can't reach each other: `joining` lines but no `rank … GPU` lines means the first contact with the first node, and `rank` lines but no `training:` line means NCCL's own connection. After 10 minutes the job fails with a timeout. Run it again as `NCCL_DEBUG=INFO sbatch job.sbatch` and send the log to your admin.
 - **Stuck after `training:`, with no epoch line:** the first epoch takes about 30 s. To see where a process is, SSH to its node and run `kill -USR1 <pid>`, with the pid from that node's `joining` line; the process prints its Python stack to the log and keeps going. `sstat -j <jobid>.2 -o JobID,AveCPU,MaxRSS` shows whether it is using CPU.

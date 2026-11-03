@@ -50,14 +50,34 @@ finish() {
 trap finish EXIT
 trap 'exit 143' TERM
 
-# 2. Stage the data on every node: one task per node downloads CIFAR-10 (170 MB,
-#    free) if that node doesn't have it yet. It takes seconds; one that is still
-#    going after 10 minutes has stalled, and fails the job instead of hanging it.
+# 2. Stage the data on every node. The CIFAR-10 server is often slow (minutes
+#    for its 170 MB), so the archive is downloaded only once, on this node, and
+#    kept in its /scratch. sbcast then copies it over the cluster network to the
+#    nodes that don't have the dataset yet, and each node unpacks its copy.
 step "2/3 CIFAR-10 on every node"
-on_every_node 'mkdir -p "$WORK/out" "$DATA"
-    if [ ! -f "$DATA/.complete" ]; then
-        echo "$(date +%T) $(hostname -s): downloading CIFAR-10 to $DATA"
-        timeout 10m python -c "import os, torchvision; torchvision.datasets.CIFAR10(os.environ[\"DATA\"], download=True)"
+TARBALL=cifar-10-python.tar.gz
+CIFAR_URL="https://www.cs.toronto.edu/~kriz/$TARBALL"
+CIFAR_MD5=c58f30108f718f92721af3b95e74349a
+export TARBALL CIFAR_MD5
+missing=$(on_every_node 'mkdir -p "$WORK/out" "$DATA"; [ -f "$DATA/.complete" ] || hostname -s')
+if [ -n "$missing" ]; then
+    echo "Needs CIFAR-10:" $missing
+    if ! echo "$CIFAR_MD5  $DATA/$TARBALL" | md5sum -c --status 2>/dev/null; then
+        step "$(hostname -s): downloading $CIFAR_URL"
+        # Resumes after a dropped connection; gives up only if the transfer stays
+        # under 10 kB/s for 5 minutes, however long a slow download takes overall.
+        curl -fL --retry 5 --retry-all-errors -C - --speed-limit 10000 --speed-time 300 \
+            -sS -o "$DATA/$TARBALL.part" "$CIFAR_URL"
+        mv "$DATA/$TARBALL.part" "$DATA/$TARBALL"
+        echo "$CIFAR_MD5  $DATA/$TARBALL" | md5sum -c --quiet || {
+            rm -f "$DATA/$TARBALL"; echo "The download is corrupt; submit the job again." >&2; exit 1; }
+    fi
+    sbcast --force "$DATA/$TARBALL" "$WORK/$TARBALL"   # to $WORK on every node of the job
+fi
+on_every_node 'if [ ! -f "$DATA/.complete" ]; then
+        cmp -s "$WORK/$TARBALL" "$DATA/$TARBALL" || mv "$WORK/$TARBALL" "$DATA/$TARBALL"
+        # torchvision checks the archive (MD5) and unpacks it; it downloads nothing.
+        python -c "import os, torchvision; torchvision.datasets.CIFAR10(os.environ[\"DATA\"], download=True)"
         touch "$DATA/.complete"
     fi
     echo "$(date +%T) $(hostname -s): data ready, $(df -h --output=avail /scratch | tail -1 | tr -d " ") free on /scratch"'
