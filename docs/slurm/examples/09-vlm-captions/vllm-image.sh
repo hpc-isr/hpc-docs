@@ -26,11 +26,12 @@ ensure_vllm_image() {
             export APPTAINER_CACHEDIR="$build/cache" APPTAINER_TMPDIR="$build/tmp"
             mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
             # "Creating SIF file..." compresses about 20 GB with mksquashfs: 10–20 min
-            # with no output. Watch it with: ls -l $SIF.part  (the size grows)
+            # with no output; the heartbeat below shows the build folder growing.
             local start=$SECONDS
             # Heartbeat: "Creating SIF file..." prints nothing for 10–20 min, so say how far it got.
             ( while sleep 60; do
-                [ -f "$SIF.part" ] && echo "  ... $(du -h "$SIF.part" | cut -f1) of the .sif written"
+                # mksquashfs writes into the build folder first; the .sif appears at the end.
+                echo "  ... build folder $(du -sh "$build" 2>/dev/null | cut -f1), .sif $(du -h "$SIF.part" 2>/dev/null | cut -f1)"
             done ) &
             local beat=$!
             apptainer pull "$SIF.part" "$VLLM_IMAGE" && mv "$SIF.part" "$SIF"

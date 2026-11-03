@@ -24,13 +24,14 @@ ensure_sif() {
         if [ ! -f "$SIF" ]; then
             echo "Converting $NS_IMAGE to $SIF on $(hostname) (once per node, 10–20 min)"
             # Cache and build files on /scratch (about 20 GB at the peak), removed afterwards.
-            # "Creating SIF file..." runs for minutes with no output; ls -l $SIF.part grows.
+            # "Creating SIF file..." runs for minutes with no output; the heartbeat shows progress.
             local build="$WORK/apptainer"
             export APPTAINER_CACHEDIR="$build/cache" APPTAINER_TMPDIR="$build/tmp"
             mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
             # Heartbeat: "Creating SIF file..." prints nothing for 10–20 min, so say how far it got.
             ( while sleep 60; do
-                [ -f "$SIF.part" ] && echo "  ... $(du -h "$SIF.part" | cut -f1) of the .sif written"
+                # mksquashfs writes into the build folder first; the .sif appears at the end.
+                echo "  ... build folder $(du -sh "$build" 2>/dev/null | cut -f1), .sif $(du -h "$SIF.part" 2>/dev/null | cut -f1)"
             done ) &
             local beat=$!
             apptainer pull "$SIF.part" "$NS_IMAGE" && mv "$SIF.part" "$SIF"
