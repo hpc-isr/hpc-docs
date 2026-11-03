@@ -13,7 +13,7 @@ nav_order: 8
 | 1. Prepare: camera poses with COLMAP | 16 | 32 GB | none | 10–60 min for a video |
 | 2. Train and render | 8 | 64 GB | 1 × L40S | about 30 min |
 
-**First run:** The first run downloads the nerfstudio image (5.4 GB, under a minute) and takes 10–20 min to build `~/containers/nerfstudio-1.1.3.sif` (5.5 GB of your home, using about 20 GB of `/scratch` while it builds). The sample scenes are a 683 MB download, kept in `/scratch/$USER/datasets` on that node. Each scene keeps 0.2–1 GB in `RESULTS_DIR`; jobs use 1–2 GB of `/scratch`. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
+**First run:** On each new node, the first step that runs there downloads the nerfstudio image (5.4 GB, under a minute) and takes 10–20 min to build `/scratch/$USER/containers/nerfstudio-1.1.3.sif` (5.5 GB of `/scratch`, and about 20 GB more while it builds). Preparation and training can land on different nodes, so the first run may build it twice. The sample scenes are a 683 MB download, kept in `/scratch/$USER/datasets` on that node. Each scene keeps 0.2–1 GB in `RESULTS_DIR`; jobs use 1–2 GB of `/scratch`. See [Downloads and disk space](../../README.md#downloads-and-disk-space).
 
 Turns a short phone video of a room, an object or a robot's workspace into a **3D Gaussian Splatting** model you can fly through, using [nerfstudio](https://docs.nerf.studio/) from its official container. It is a two-step **pipeline**: a CPU job finds the camera positions, and a GPU job, which Slurm starts only if the first succeeds, trains the model and renders a video. Splitting it this way means the GPU isn't held while COLMAP runs on CPUs.
 
@@ -42,7 +42,7 @@ The sample comes from the [3D Gaussian Splatting](https://repo-sam.inria.fr/fung
 
 Files: [`submit.sh`](submit.sh), [`prepare.sbatch`](prepare.sbatch), [`train.sbatch`](train.sbatch), [`common.sh`](common.sh)
 
-The first run converts the nerfstudio image to `~/containers/nerfstudio-1.1.3.sif` (5.5 GB of your home quota). Each scene is kept in `~/results/splats/<scene>/` (set `RESULTS_DIR` for another place, such as your group's NAS). Preparation is skipped when the scene is already there, so you can rerun `submit.sh` safely.
+Each step makes sure the nerfstudio image is in `/scratch/$USER/containers/nerfstudio-1.1.3.sif` on its node, and builds it there if not. To build it only once, send both steps to one node: `./submit.sh --nodelist=hpc02` (any options after `submit.sh` go to both `sbatch` calls). Each scene is kept in `~/results/splats/<scene>/` (set `RESULTS_DIR` for another place, such as your group's NAS). Preparation is skipped when the scene is already there, so you can rerun `submit.sh` safely.
 
 ## What you should see
 
@@ -57,7 +57,7 @@ In `logs/`, one log per step. When both are done:
 
 **TensorBoard:** the job starts TensorBoard on its node and prints the SSH tunnel to reach it near the top of `logs/splat-train-<jobid>.out`. Open the tunnel on your laptop, then go to `http://127.0.0.1:6006`. It shows the training loss and the rendered views as they improve. The copy in `~/results/splats/<scene>/runs` is written only when the job ends.
 
-To run TensorBoard yourself on the live logs, run it on the job's node, since `/scratch` is local to each node: `srun --jobid=<jobid> --overlap apptainer exec --bind /scratch ~/containers/nerfstudio-1.1.3.sif tensorboard --logdir /scratch/$USER/<jobid>/runs --port <port>`, then tunnel to that node and port as the job log shows.
+To run TensorBoard yourself on the live logs, run it on the job's node, since `/scratch` is local to each node: `srun --jobid=<jobid> --overlap apptainer exec --bind /scratch /scratch/$USER/containers/nerfstudio-1.1.3.sif tensorboard --logdir /scratch/$USER/<jobid>/runs --port <port>`, then tunnel to that node and port as the job log shows.
 
 ## How it works
 

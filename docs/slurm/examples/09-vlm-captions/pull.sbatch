@@ -1,25 +1,14 @@
 #!/bin/bash
-# Convert the vLLM Docker image to an Apptainer image, once:  sbatch pull.sbatch
+# Build the vLLM Apptainer image on one node's /scratch. Optional: job.sbatch does
+# the same on any node that doesn't have it yet. Running this first, on the node
+# you'll caption on, saves that wait:  sbatch --nodelist=hpc02 pull.sbatch
 #SBATCH --job-name=vllm-pull
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=01:00:00
-#SBATCH --output=%x-%j.out
+#SBATCH --output=%x-%N-%j.out
 
 set -euo pipefail
-
-# The default CUDA 13.0 build: runs on the nodes' NVIDIA driver (CUDA 13.2). Not the
-# cu129 build: its torchcodec needs CUDA 13's libnvrtc.so.13, which that image lacks,
-# so importing vLLM fails there.
-VLLM_IMAGE="${VLLM_IMAGE:-docker://vllm/vllm-openai:v0.32.0}"
-SIF="${SIF:-$HOME/containers/vllm-0.32.0-cu130.sif}"
-
-# Layer cache and build files on /scratch (about 35 GB at the peak), out of your
-# home quota, and removed at the end: only the .sif (about 9 GB) is kept.
-WORK="/scratch/$USER/$SLURM_JOB_ID"
-export APPTAINER_CACHEDIR="$WORK/cache" APPTAINER_TMPDIR="$WORK/tmp"
-mkdir -p "$(dirname "$SIF")" "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
-trap 'rm -rf "$WORK"' EXIT
-
-apptainer pull "$SIF" "$VLLM_IMAGE"
+source "$SLURM_SUBMIT_DIR/vllm-image.sh"
+ensure_vllm_image
 ls -lh "$SIF"
