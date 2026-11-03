@@ -119,6 +119,8 @@ Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: they ge
     #SBATCH --open-mode=append
     #SBATCH --output=resumable-%j.out
 
+    # Checkpoints in your home, not /scratch: a requeued job can restart on another
+    # node, which wouldn't see this node's /scratch.
     work="$HOME/runs/my-run"
     mkdir -p "$work"
     [ -e "$work/done" ] && { echo "already finished"; exit 0; }
