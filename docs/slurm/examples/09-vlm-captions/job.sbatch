@@ -11,7 +11,8 @@
 
 set -euo pipefail
 
-SIF="${SIF:-$HOME/containers/vllm-0.32.0.sif}"
+SIF="${SIF:-$HOME/containers/vllm-0.32.0-cu130.sif}"
+[ -f "$SIF" ] || { echo "No vLLM image at $SIF: run sbatch pull.sbatch first." >&2; exit 1; }
 MODEL="${MODEL:-Qwen/Qwen3.8-27B-FP8}"
 LIMIT="${LIMIT:-200}"
 # Where the captions are kept: your home by default, or your group's NAS,
@@ -25,9 +26,15 @@ DATASETS="/scratch/$USER/datasets"
 WORK="/scratch/$USER/$SLURM_JOB_ID"
 mkdir -p "$HF_HOME" "$DATASETS" "$WORK" "$RESULTS_DIR"
 finish() {
-    [ -f "$WORK/captions.jsonl" ] && cp "$WORK/captions.jsonl" "$RESULTS_DIR/captions-$SLURM_JOB_ID.jsonl"
+    local status=$?
+    if [ -s "$WORK/captions.jsonl" ]; then
+        cp "$WORK/captions.jsonl" "$RESULTS_DIR/captions-$SLURM_JOB_ID.jsonl"
+        echo "Captions in $RESULTS_DIR/captions-$SLURM_JOB_ID.jsonl"
+    else
+        echo "No captions were written (exit code $status): see the errors above." >&2
+    fi
     rm -rf "$WORK"
-    echo "Captions in $RESULTS_DIR/captions-$SLURM_JOB_ID.jsonl"
+    exit "$status"
 }
 trap finish EXIT
 trap 'exit 143' TERM

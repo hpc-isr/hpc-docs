@@ -2,7 +2,7 @@
 # Shared settings for prepare.sbatch and train.sbatch.
 NS_IMAGE="${NS_IMAGE:-docker://ghcr.io/nerfstudio-project/nerfstudio:1.1.3}"
 SIF="${SIF:-$HOME/containers/nerfstudio-1.1.3.sif}"
-SCENE_NAME="${SCENE_NAME:-poster}"
+SCENE_NAME="${SCENE_NAME:-truck}"
 # Where each scene is kept: your home by default, or your group's NAS,
 # e.g. RESULTS_DIR=/storage/anubis-nas/<group>/splats
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/splats}"

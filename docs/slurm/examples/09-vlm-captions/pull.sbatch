@@ -8,12 +8,14 @@
 
 set -euo pipefail
 
-# cu129 build: runs on the nodes' NVIDIA driver (CUDA 13.2).
-VLLM_IMAGE="${VLLM_IMAGE:-docker://vllm/vllm-openai:v0.32.0-cu129}"
-SIF="${SIF:-$HOME/containers/vllm-0.32.0.sif}"
+# The default CUDA 13.0 build: runs on the nodes' NVIDIA driver (CUDA 13.2). Not the
+# cu129 build: its torchcodec needs CUDA 13's libnvrtc.so.13, which that image lacks,
+# so importing vLLM fails there.
+VLLM_IMAGE="${VLLM_IMAGE:-docker://vllm/vllm-openai:v0.32.0}"
+SIF="${SIF:-$HOME/containers/vllm-0.32.0-cu130.sif}"
 
 # Layer cache and build files on /scratch (about 35 GB at the peak), out of your
-# home quota, and removed at the end: only the .sif (about 11 GB) is kept.
+# home quota, and removed at the end: only the .sif (about 9 GB) is kept.
 WORK="/scratch/$USER/$SLURM_JOB_ID"
 export APPTAINER_CACHEDIR="$WORK/cache" APPTAINER_TMPDIR="$WORK/tmp"
 mkdir -p "$(dirname "$SIF")" "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
