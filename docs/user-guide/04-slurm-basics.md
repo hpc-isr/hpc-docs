@@ -19,7 +19,7 @@ You submit from `hpc01` (or from your group's node, once it has joined the clust
 | `<group>-high`, `<group>-med`, `<group>-low` | your group's own node | members of that group, by tier | Tried first. High and medium jobs can preempt low-tier jobs and scavengers there |
 | `shared` | `hpc02`, `hpc03` | everyone | Whole GPUs, never preempted. Jobs here preempt scavengers on these nodes |
 | `interactive` | `hpc01` | everyone | GPU shards (a sixth of the GPU each), up to 8 h |
-| `scavenge` | every node: idle group nodes, `hpc01`, `hpc02` and `hpc03` | everyone | Lowest priority: jobs here can be preempted. The only partition where one job can span more than two nodes |
+| `scavenge` | every node: idle group nodes, `hpc01`, `hpc02` and `hpc03` | everyone | Lowest priority: jobs here can be preempted. Fills idle group nodes first, then `hpc02`/`hpc03`, then `hpc01`. The only partition where one job can span more than two nodes |
 
 A job that names no partition goes to `<your group>-<your tier>,shared,scavenge`, and Slurm starts it wherever it fits first. A job asking for `--gres=shard:1` goes to `interactive`.
 
