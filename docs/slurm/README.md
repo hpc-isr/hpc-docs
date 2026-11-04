@@ -36,7 +36,7 @@ Each example is a folder with its job scripts and a page explaining what it does
 | 10 | [Training across several nodes](examples/10-ddp-multinode/README.md) | PyTorch DDP over two nodes with NCCL (ask an admin first) | 2 nodes × 1 GPU |
 | 11 | [Robot learning on 4 GPUs](examples/11-isaaclab-4gpu/README.md) | Isaac Lab across 4 nodes: 16 384 humanoids on rough terrain (ask an admin first) | 4 nodes × 1 GPU |
 
-> These examples are written for this cluster but **haven't all been run on it yet**. Timings and outputs on the example pages are estimates. If one fails, tell your group's admin (see [Who's who](../overview/contacts.md)) with the job ID and the log.
+> The SysAdmin coordinator reported running these public examples on the cluster before merge. Placement and runtime vary; follow each example's prerequisites and ask your group administrator before running examples marked for coordination.
 
 ## Before you start
 
