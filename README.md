@@ -26,3 +26,4 @@ Ask your research group's admin first. The list of admins is in [Who's who](docs
 ## Related repositories
 
 - [hpc-automation](https://github.com/hpc-isr/hpc-automation): playbooks that configure the cluster.
+- [slurm-testing-cases](https://github.com/hpc-isr/slurm-testing-cases): private SysAdmin validation cases and evidence (requires repository access).
