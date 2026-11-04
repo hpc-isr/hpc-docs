@@ -64,7 +64,7 @@ This checks the GPU that Slurm allocated to the job. It doesn't validate PyTorch
 
 Do not use this smoke test to benchmark or load the GPU. Slurm assigns the device; do not select a physical GPU by index. Inside the job, use the devices exposed through `CUDA_VISIBLE_DEVICES`. The index shown inside the job may not be the node's physical index.
 
-For multi-GPU work, the program must support the required parallel method. See [two-node PyTorch DDP](../slurm/examples/10-ddp-multinode/README.md) and [four-GPU Isaac Lab](../slurm/examples/11-isaaclab-4gpu/README.md); both require administrator coordination and their cluster execution is not yet verified. Request only resources permitted by your current association. For a small GPU slice, see [interactive GPU work](04-slurm-basics.md#interactive-work).
+For multi-GPU work, the program must support the required parallel method. See [two-node PyTorch DDP](../slurm/examples/10-ddp-multinode/README.md) and [four-GPU Isaac Lab](../slurm/examples/11-isaaclab-4gpu/README.md). Follow each example's prerequisites and request only resources allowed by your association. For a small GPU slice, see [interactive GPU work](04-slurm-basics.md#interactive-work).
 
 ## 4. Small job array
 
@@ -104,20 +104,8 @@ Use a short allocation and exit promptly. Interactive sessions can't be requeued
 
 Inside the allocated shell, run `hostname`, then type `exit` to return to your login shell and release the allocation. If you started `srun --pty bash -l` inside an `salloc` shell, the second prompt is the compute shell: type `exit` once to return to the allocation shell, then again to release it. If the prompt does not accept input, stop and ask the administrator; do not leave the allocation running or repeatedly resubmit.
 
-`sattach` can reconnect only to a still-running job step started with `srun --pty`; it cannot restore an ended shell. Site behavior has not been verified. See the [Slurm `sattach` reference](https://slurm.schedmd.com/sattach.html).
 
-## Reattach to a running interactive step
-
-If an SSH terminal disconnects, you may reattach only while the original job step is still running and was started with `srun --pty`. This does not restore an ended shell. Reattachment has not been validated on this cluster.
-
-```bash
-read -r -p "Job ID: " JOB_ID
-scontrol show step "$JOB_ID"
-read -r -p "Full step ID from the output (for example 12345.0): " STEP_ID
-sattach --pty "$STEP_ID"
-```
-
-Use the step ID shown for your job. Do not run Slurm client commands in a polling loop. For important work, use a batch job and save results to shared storage rather than relying on reconnecting to an interactive shell.
+If your SSH connection drops, this guide does not provide a session-recovery command. Use a batch job for work that must continue without an interactive terminal. Contact your group SysAdmin if an allocation may still be active.
 
 ## 7. Preemptible job that checkpoints
 
@@ -171,6 +159,6 @@ Slurm can show recorded job usage, but the accounting output is not a remaining-
 
 If your group uses a separate credit budget, ask your group SysAdmin for its approved balance report and conversion rule.
 
-## Not covered by these examples
+## Further examples
 
-A multi-node GPU/NCCL job has not been tested on this cluster; a script for one is in [example 10](../slurm/examples/10-ddp-multinode/README.md). Do not submit the multi-node case without specific SysAdmin coordination and confirmation of software, network, account, QoS, and test-window readiness.
+The [complete Slurm example catalog](../slurm/README.md) includes multi-node workloads. Follow each example's prerequisites and use only resources allowed by your association.
