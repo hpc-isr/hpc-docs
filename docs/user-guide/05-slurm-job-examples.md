@@ -8,16 +8,27 @@ nav_order: 5
 
 [← User Guide](README.md) · [Home](../README.md)
 
-Small starting examples. For complete workloads (training on CPUs and GPUs, Isaac Lab, YOLO, vision-language models, multi-node), see the [Slurm example jobs](../slurm/README.md). Your Slurm account is your research group (`dsor`, `irsg`, `laseeb`, `sipg` or `vislab`). Check it with `sacctmgr show assoc user=$USER format=account,qos%25,defaultqos`. Create the log directory before submitting:
+Small starting examples. For complete workloads (training on CPUs and GPUs, Isaac Lab, YOLO, vision-language models, multi-node), see the [Slurm example jobs](../slurm/README.md). Your Slurm account is your research group (`dsor`, `irsg`, `laseeb`, `sipg` or `vislab`). Check the account, allowed QoS values, and default with:
 
-    export SLURM_ACCOUNT="<your group>"
+    sacctmgr -nP show assoc where cluster=hpc-isr user="$USER" format=Account,QOS,DefaultQOS
+
+Use the account and QoS from the same association row. In the shell where you submit these examples, enter those values (choose the row's `DefaultQOS` if you want the default):
+
+    read -r -p 'Slurm account from your association: ' SLURM_ACCOUNT
+    read -r -p 'Allowed QoS from that account: ' SLURM_QOS
+    export SLURM_ACCOUNT SLURM_QOS
+    : "${SLURM_ACCOUNT:?Set the account from your association}"
+    : "${SLURM_QOS:?Set an allowed QoS from the same row}"
+
+Create the log directory before submitting:
+
     mkdir -p "$HOME/slurm-logs"
 
-Every user has the low tier, so `--qos=low` always works; drop it to use your own tier. There's no need for `--partition`: Slurm routes each job to your group's node, the shared nodes or an idle node (see [SLURM basics](04-slurm-basics.md#where-jobs-run)). Tiers are explained in [Access and priority](../slurm/access-priority.md).
+The examples use the selected `SLURM_QOS`; replace it only with another QoS shown for that account. You normally do not need `--partition`: Slurm places the job according to your group, tier and available resources (see [SLURM basics](04-slurm-basics.md#where-jobs-run)).
 
 ## 1. Short CPU smoke job
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
       --output="$HOME/slurm-logs/cpu-%j.out" \
       --error="$HOME/slurm-logs/cpu-%j.err" \
@@ -27,7 +38,7 @@ Expected: Slurm returns a job ID. After the job completes, inspect the output an
 
 ## 2. CPU program with a user-owned environment
 
-This uses a Python environment on the node's `/scratch`, which you create first on the node the job runs on (see [Storage](03-storage.md#software-environments)). Replace the paths and the node with your own.
+This script assumes `/scratch/$USER/envs/my-project` already exists on the node Slurm selects; it does not create the environment or install packages. Because `/scratch` is node-local and placement can vary, prepare it on each node your jobs may use, or follow the per-node setup and reuse pattern in the [complete Slurm examples](../slurm/README.md#before-you-start).
 
     cd "$HOME/slurm-logs"
     cat > "$HOME/slurm-logs/cpu-program.sbatch" <<'SBATCH'
@@ -40,37 +51,37 @@ This uses a Python environment on the node's `/scratch`, which you create first 
     #SBATCH --time=00:05:00
     #SBATCH --output=cpu-program-%j.out
     #SBATCH --error=cpu-program-%j.err
-    #SBATCH --nodelist=hpc02
-
     source "/scratch/$USER/envs/my-project/bin/activate"
     python "$HOME/code/my-project/run.py" \
       --input "$HOME/data/input" \
       --output "$HOME/results/$SLURM_JOB_ID"
     SBATCH
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       "$HOME/slurm-logs/cpu-program.sbatch"
 
 The example changes to the existing log directory before submission so the relative `#SBATCH` output paths resolve there. Ensure the output directory exists and the job can write to it.
 
 ## 3. One-GPU visibility smoke job
 
-This checks that the job sees one NVIDIA L40S. It doesn't validate PyTorch, CUDA compatibility for a particular application, or multi-node communication.
+This checks the GPU that Slurm allocated to the job. It doesn't validate PyTorch, CUDA compatibility for a particular application, or multi-node communication.
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --gres=gpu:1 \
       --time=00:05:00 \
       --output="$HOME/slurm-logs/gpu-%j.out" \
       --error="$HOME/slurm-logs/gpu-%j.err" \
       --wrap='hostname; printf "CUDA_VISIBLE_DEVICES=%s\n" "$CUDA_VISIBLE_DEVICES"; nvidia-smi --query-gpu=index,name --format=csv,noheader'
 
-Do not use this smoke test to benchmark performance or load the GPU. For a small slice of a GPU instead of a whole one, use `--gres=shard:1` (see [SLURM basics](04-slurm-basics.md#interactive-work)).
+Do not use this smoke test to benchmark or load the GPU. Slurm assigns the device; do not select a physical GPU by index. Inside the job, use the devices exposed through `CUDA_VISIBLE_DEVICES`. The index shown inside the job may not be the node's physical index.
+
+For multi-GPU work, the program must support the required parallel method. See [two-node PyTorch DDP](../slurm/examples/10-ddp-multinode/README.md) and [four-GPU Isaac Lab](../slurm/examples/11-isaaclab-4gpu/README.md). Follow each example's prerequisites and request only resources allowed by your association. For a small GPU slice, see [interactive GPU work](04-slurm-basics.md#interactive-work).
 
 ## 4. Small job array
 
 This example creates two short tasks and asks Slurm to run at most one array element at a time. That array throttle does not prove that other per-user limits are enforced.
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --array=0-1%1 --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=1G \
       --time=00:02:00 \
       --output="$HOME/slurm-logs/array-%A_%a.out" \
@@ -82,12 +93,12 @@ Expected: two task records and distinct output files. Do not scale the array wit
 
 The second job becomes eligible after the first succeeds. This does not guarantee when either job starts.
 
-    producer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos=low \
+    producer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --time=00:02:00 --output="$HOME/slurm-logs/producer-%j.out" \
       --wrap='echo producer; sleep 2')
     printf 'producer job: %s\n' "$producer"
 
-    consumer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos=low \
+    consumer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --dependency="afterok:$producer" --time=00:02:00 \
       --output="$HOME/slurm-logs/consumer-%j.out" --wrap='echo consumer')
     printf 'consumer job: %s\n' "$consumer"
@@ -98,11 +109,14 @@ Inspect both jobs with squeue and sacct. Cancel only an exact job ID that you ha
 
 Use a short allocation and exit promptly. Interactive sessions can't be requeued, so if one is preempted it is killed:
 
-    srun --account="$SLURM_ACCOUNT" --qos=low \
+    srun --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
       --pty bash -l
 
-Inside the allocated shell, run hostname, then type exit. If the prompt does not accept input, stop and ask the administrator; do not leave the allocation running or repeatedly resubmit.
+Inside the allocated shell, run `hostname`, then type `exit` to return to your login shell and release the allocation. If you started `srun --pty bash -l` inside an `salloc` shell, the second prompt is the compute shell: type `exit` once to return to the allocation shell, then again to release it. If the prompt does not accept input, stop and ask the administrator; do not leave the allocation running or repeatedly resubmit.
+
+
+If your SSH connection drops, this guide does not provide a session-recovery command. Use a batch job for work that must continue without an interactive terminal. Contact your group SysAdmin if an allocation may still be active.
 
 ## 7. Preemptible job that checkpoints
 
@@ -135,14 +149,27 @@ Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: they ge
 
 Check with `sacct -j <job-id>`: a preempted job shows `PREEMPTED` or `REQUEUED`, then runs again under the same job ID.
 
+## Scratch, shared files and containers
+
+Use `/scratch/$USER/$SLURM_JOB_ID` for temporary work on the allocated node. `/scratch` is node-local and is not backed up; copy results you need to keep to your home or approved group storage before the job ends. See [Storage](03-storage.md) for shared paths, quotas and cleanup rules. Do not use Docker on the cluster. Follow the documented [Apptainer guidance](09-apptainer.md) or ask your group SysAdmin which software environment is supported for your workload.
+
 ## Monitor and get help
 
     squeue -u "$USER" -o '%i|%a|%q|%T|%M|%R'
     sacct -X -j "<job-id>" --noheader \
       --format=JobIDRaw,User,Account,Partition,QOS,State,ExitCode,Elapsed,AllocTRES
 
-For a problem report, include the job ID, the command or example used, approximate submit time, observed state or sanitized error, and what output you expected. Send this through the support route for your group from [Who's who](../overview/contacts.md). Do not include passwords, tokens, private keys, private research data, or unredacted logs in a public issue or message. See [FAQ and troubleshooting](07-faq.md).
+For a problem report, include the job ID, the command or example used, approximate submit time, observed state or sanitized error, and what output you expected. Send this through the support route for your group from [Who's who](../overview/contacts.md). Do not include passwords, tokens, private keys, private research data, or raw logs in a public issue or message. Share only a short sanitized error excerpt. See [FAQ and troubleshooting](07-faq.md).
 
-## Not covered by these examples
+## Review recorded usage
 
-A multi-node GPU/NCCL job has not been tested on this cluster; a script for one is in [example 10](../slurm/examples/10-ddp-multinode/README.md). Do not submit the multi-node case without specific SysAdmin coordination and confirmation of software, network, account, QoS, and test-window readiness.
+Slurm can show recorded job usage, but the accounting output is not a remaining-credit balance. To inspect your recent jobs:
+
+    sacct -X -u "$USER" -S "$(date -d '30 days ago' +%F)" \
+      --format=JobIDRaw,Account,QOS,State,Elapsed,AllocCPUS,AllocTRES
+
+If your group uses a separate credit budget, ask your group SysAdmin for its approved balance report and conversion rule.
+
+## Further examples
+
+The [complete Slurm example catalog](../slurm/README.md) includes multi-node workloads. Follow each example's prerequisites and use only resources allowed by your association.
