@@ -8,16 +8,27 @@ nav_order: 5
 
 [← User Guide](README.md) · [Home](../README.md)
 
-Small starting examples. For complete workloads (training on CPUs and GPUs, Isaac Lab, YOLO, vision-language models, multi-node), see the [Slurm example jobs](../slurm/README.md). Your Slurm account is your research group (`dsor`, `irsg`, `laseeb`, `sipg` or `vislab`). Check it with `sacctmgr show assoc user=$USER format=account,qos%25,defaultqos`. Create the log directory before submitting:
+Small starting examples. For complete workloads (training on CPUs and GPUs, Isaac Lab, YOLO, vision-language models, multi-node), see the [Slurm example jobs](../slurm/README.md). Your Slurm account is your research group (`dsor`, `irsg`, `laseeb`, `sipg` or `vislab`). Check the account, allowed QoS values, and default with:
 
-    export SLURM_ACCOUNT="<your group>"
+    sacctmgr -nP show assoc where cluster=hpc-isr user="$USER" format=Account,QOS,DefaultQOS
+
+Use the account and QoS from the same association row. In the shell where you submit these examples, enter those values (choose the row's `DefaultQOS` if you want the default):
+
+    read -r -p 'Slurm account from your association: ' SLURM_ACCOUNT
+    read -r -p 'Allowed QoS from that account: ' SLURM_QOS
+    export SLURM_ACCOUNT SLURM_QOS
+    : "${SLURM_ACCOUNT:?Set the account from your association}"
+    : "${SLURM_QOS:?Set an allowed QoS from the same row}"
+
+Create the log directory before submitting:
+
     mkdir -p "$HOME/slurm-logs"
 
-Use only an account and QoS shown in your association. Omit `--qos` to use the configured default; specify a tier only when it is allowed for that account. You normally do not need `--partition`: Slurm places the job according to your group, tier and available resources (see [SLURM basics](04-slurm-basics.md#where-jobs-run)).
+The examples use the selected `SLURM_QOS`; replace it only with another QoS shown for that account. You normally do not need `--partition`: Slurm places the job according to your group, tier and available resources (see [SLURM basics](04-slurm-basics.md#where-jobs-run)).
 
 ## 1. Short CPU smoke job
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
       --output="$HOME/slurm-logs/cpu-%j.out" \
       --error="$HOME/slurm-logs/cpu-%j.err" \
@@ -46,7 +57,7 @@ This script assumes `/scratch/$USER/envs/my-project` already exists on the node 
       --output "$HOME/results/$SLURM_JOB_ID"
     SBATCH
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       "$HOME/slurm-logs/cpu-program.sbatch"
 
 The example changes to the existing log directory before submission so the relative `#SBATCH` output paths resolve there. Ensure the output directory exists and the job can write to it.
@@ -55,7 +66,7 @@ The example changes to the existing log directory before submission so the relat
 
 This checks the GPU that Slurm allocated to the job. It doesn't validate PyTorch, CUDA compatibility for a particular application, or multi-node communication.
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --gres=gpu:1 \
       --time=00:05:00 \
       --output="$HOME/slurm-logs/gpu-%j.out" \
@@ -70,7 +81,7 @@ For multi-GPU work, the program must support the required parallel method. See [
 
 This example creates two short tasks and asks Slurm to run at most one array element at a time. That array throttle does not prove that other per-user limits are enforced.
 
-    sbatch --account="$SLURM_ACCOUNT" --qos=low \
+    sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --array=0-1%1 --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=1G \
       --time=00:02:00 \
       --output="$HOME/slurm-logs/array-%A_%a.out" \
@@ -82,12 +93,12 @@ Expected: two task records and distinct output files. Do not scale the array wit
 
 The second job becomes eligible after the first succeeds. This does not guarantee when either job starts.
 
-    producer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos=low \
+    producer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --time=00:02:00 --output="$HOME/slurm-logs/producer-%j.out" \
       --wrap='echo producer; sleep 2')
     printf 'producer job: %s\n' "$producer"
 
-    consumer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos=low \
+    consumer=$(sbatch --parsable --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --dependency="afterok:$producer" --time=00:02:00 \
       --output="$HOME/slurm-logs/consumer-%j.out" --wrap='echo consumer')
     printf 'consumer job: %s\n' "$consumer"
@@ -98,7 +109,7 @@ Inspect both jobs with squeue and sacct. Cancel only an exact job ID that you ha
 
 Use a short allocation and exit promptly. Interactive sessions can't be requeued, so if one is preempted it is killed:
 
-    srun --account="$SLURM_ACCOUNT" --qos=low \
+    srun --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" \
       --nodes=1 --ntasks=1 --cpus-per-task=1 --mem=2G --time=00:05:00 \
       --pty bash -l
 
