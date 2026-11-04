@@ -25,5 +25,4 @@ Ask your research group's admin first. The list of admins is in [Who's who](docs
 
 ## Related repositories
 
-- [slurm-testing-cases](https://github.com/hpc-isr/slurm-testing-cases): example workloads.
 - [hpc-automation](https://github.com/hpc-isr/hpc-automation): playbooks that configure the cluster.
