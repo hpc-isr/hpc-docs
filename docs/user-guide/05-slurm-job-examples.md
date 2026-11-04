@@ -15,7 +15,7 @@ Small starting examples. For complete workloads (training on CPUs and GPUs, Isaa
 Use the account and QoS from the same association row. In the shell where you submit these examples, enter those values (choose the row's `DefaultQOS` if you want the default):
 
     read -r -p 'Slurm account from your association: ' SLURM_ACCOUNT
-    read -r -p 'Allowed QoS from that account: ' SLURM_QOS
+    read -r -p 'Enter one QoS from that row (or its DefaultQOS): ' SLURM_QOS
     export SLURM_ACCOUNT SLURM_QOS
     : "${SLURM_ACCOUNT:?Set the account from your association}"
     : "${SLURM_QOS:?Set an allowed QoS from the same row}"
@@ -145,7 +145,7 @@ Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: they ge
     touch "$work/done"
     SBATCH
 
-    cd "$HOME/slurm-logs" && sbatch --account="$SLURM_ACCOUNT" resumable.sbatch
+    cd "$HOME/slurm-logs" && sbatch --account="$SLURM_ACCOUNT" --qos="$SLURM_QOS" resumable.sbatch
 
 Check with `sacct -j <job-id>`: a preempted job shows `PREEMPTED` or `REQUEUED`, then runs again under the same job ID.
 
