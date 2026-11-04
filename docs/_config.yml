@@ -82,4 +82,10 @@ back_to_top_text: "Back to top"
 color_scheme: light
 nav_sort: case_sensitive
 footer_content: "ISR HPC Knowledge Base"
-gh_edit_link: false            # no "Edit this page" / "Improve this page" link
+# "Edit this page on GitHub" link at the bottom of every page.
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub"
+gh_edit_repository: "https://github.com/hpc-isr/hpc-docs"
+gh_edit_branch: "main"
+gh_edit_source: docs           # the site is built from the docs/ folder
+gh_edit_view_mode: "edit"      # open GitHub's editor ("tree" would show the file)

@@ -29,9 +29,11 @@ Each home has a quota of **200 GiB soft and 500 GiB hard**:
 Check your usage and limits:
 
     mfsgetquota -h "$HOME"
-    du -sh "$HOME"/* | sort -h | tail
+    cd ~ && du -sh .[!.]* * 2>/dev/null | sort -h | tail -20
 
-Everything under your home counts, including Apptainer images and the Apptainer cache (`~/.apptainer/cache`). If you need more space, ask your group's admin.
+Everything under your home counts, hidden files and directories included: those whose name starts with a dot, such as `~/.cache`. `ls` and `du -sh *` skip them, so use `ls -a` to see them, and `du -sh .[!.]* *` as above to count them with the rest.
+
+The biggest hidden ones are usually the download caches that tools fill by default: `~/.cache` (pip, Hugging Face, PyTorch) and `~/.apptainer/cache`. Keep those caches, Python environments, container images and a job's working files on `/scratch` instead, mainly for speed: `/scratch` is the node's local NVMe disk, much faster than your home on MooseFS for the thousands of small files that environments and caches are made of, and a job that works there doesn't slow down everyone else's access to their home. It also keeps them off your home quota. See [Download caches](#download-caches) and [Containers with Apptainer](09-apptainer.md#where-things-go). If you need more space, ask your group's admin.
 
 ## `/scratch`
 
@@ -120,6 +122,18 @@ Create Python environments on `/scratch`, in a job on the node that will use the
     python -m pip install -r "$HOME/code/my-project/requirements.txt"
 
 Keep your `requirements.txt` in your home, so you can recreate the environment on any node. An environment nobody uses for 30 days is deleted with other old `/scratch` files. The [Slurm examples](../slurm/README.md#before-you-start) do this automatically: each job creates its environment on its node when it isn't there yet ([`env.sh`](../slurm/examples/env.sh)).
+
+### Download caches
+
+Many tools download into `~/.cache` in your home unless told otherwise, and never clean it up. In a job, point their caches at the node's `/scratch`, where they are fast and reused by your later jobs on that node:
+
+    export PIP_CACHE_DIR="/scratch/$USER/pip-cache"
+    export HF_HOME="/scratch/$USER/hf-cache"            # Hugging Face models and datasets
+    export TORCH_HOME="/scratch/$USER/torch-cache"      # torchvision and torch.hub weights
+    export UV_CACHE_DIR="/scratch/$USER/uv-cache"
+    export APPTAINER_CACHEDIR="/scratch/$USER/$SLURM_JOB_ID/apptainer-cache"   # removed with the job folder
+
+Check what is already in your home with `du -sh ~/.cache/* ~/.apptainer/cache 2>/dev/null | sort -h`, and delete it: everything there is downloaded again when needed.
 
 For a full software stack, CUDA libraries included, use a container: see [Containers with Apptainer](09-apptainer.md). You can't install system packages on the nodes.
 
