@@ -16,11 +16,13 @@ Each user has one tier, set by an administrator. It is shown as your QOS:
 
 | Tier | Longest job (own node and `shared`) | On your group's own node | Fair-share weight within the group |
 |---|---|---|---|
-| high | 1 day | Scheduled first; preempts low-tier jobs and scavengers; never preempted | 4 |
-| medium | 3 days | Preempts low-tier jobs and scavengers; never preempted | 2 |
+| high | 7 days | Scheduled first; preempts low-tier jobs and scavengers; never preempted | 4 |
+| medium | 7 days | Preempts low-tier jobs and scavengers; never preempted | 2 |
 | low | 7 days | Preempts scavengers; can be preempted by medium and high groupmates | 1 |
 
-Members of a group who aren't in any tier get low. A user with a higher tier can also submit with a lower one (`--qos=low`), for example for a job longer than the higher tier allows.
+Members of a group who aren't in any tier get low. A user with a higher tier can also submit with a lower one (`--qos=low`), for example for long restartable work that should not preempt groupmates. Every tier may run up to 7 days.
+
+Scavenging on other groups' idle nodes is open to groups that have their own node in the cluster. Everyone can use `lent` (`hpc01`'s GPU when no shard is in use) and `interactive`. Members of a group with a node also get `<group>-shard`, for GPU slices on their own node.
 
 The tier matters mostly on your group's own node. On the `shared` nodes every tier has the same priority and nobody is preempted. Between groups, Slurm's fair-share balances usage: a group that has used less recently goes first.
 

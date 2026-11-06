@@ -17,11 +17,13 @@ You submit from `hpc01` (or from your group's node, once it has joined the clust
 | Partition | Nodes | Who | Notes |
 |---|---|---|---|
 | `<group>-high`, `<group>-med`, `<group>-low` | your group's own node | members of that group, by tier | Tried first. High and medium jobs can preempt low-tier jobs and scavengers there |
+| `<group>-shard` | your group's own node | members of that group, any tier | GPU shards (a sixth of the GPU each), up to 8 h. Never preempted, and it doesn't preempt your groupmates |
 | `shared` | `hpc02`, `hpc03` | everyone | Whole GPUs, never preempted. Jobs here preempt scavengers on these nodes |
 | `interactive` | `hpc01` | everyone | GPU shards (a sixth of the GPU each), up to 8 h |
-| `scavenge` | every node: idle group nodes, `hpc01`, `hpc02` and `hpc03` | everyone | Lowest priority: jobs here can be preempted. Fills idle group nodes first, then `hpc02`/`hpc03`, then `hpc01`. The only partition where one job can span more than two nodes |
+| `scavenge` | idle group nodes, `hpc02` and `hpc03` | groups that have their own node in the cluster | Lowest priority: jobs here can be preempted. Fills idle group nodes first, then `hpc02`/`hpc03`. The only partition where one job can span more than two nodes |
+| `lent` | `hpc01` | everyone | Lowest priority: `hpc01`'s GPU while nobody is using shards. A shard job preempts it. Up to 1 day |
 
-A job that names no partition goes to `<your group>-<your tier>,shared,scavenge`, and Slurm starts it wherever it fits first. A job asking for `--gres=shard:1` goes to `interactive`.
+A job that names no partition goes to `<your group>-<your tier>,shared,scavenge,lent` if your group has its own node in the cluster, and to `shared,lent` otherwise. Slurm starts it wherever it fits first. A job asking for `--gres=shard:1` goes to `<your group>-shard,interactive` (just `interactive` if your group has no node yet).
 
 ## Your tier and limits
 
@@ -31,33 +33,33 @@ Your tier (low, medium or high) is set by an administrator and shown as your QOS
 
 | Tier | Longest job | On your group's node |
 |---|---|---|
-| high | 1 day | Scheduled first, never preempted |
-| medium | 3 days | Never preempted |
+| high | 7 days | Scheduled first, never preempted |
+| medium | 7 days | Never preempted |
 | low | 7 days | Can be preempted by medium and high groupmates |
 
-The same time limits apply on `shared`. A job asking for more than its tier allows is rejected at submit, with a message giving the cap. A high or medium user can submit a longer job with `--qos=low` (7 days, preemptible on the group node).
+All tiers have the same 7-day limit, on your group's node and on `shared`. The tier decides who is scheduled first and who can be preempted, not how long a job may run. A job asking for more than 7 days is rejected at submit, with a message giving the cap. `--qos=low` on your own node never preempts groupmates, but your job can be preempted.
 
 Other limits:
 
 - **Default wall time is 4 hours.** A job without `-t` is stopped after 4 h.
 - **Default memory is 7800 MB per CPU core** when you don't give `--mem`.
 - **CPU-only jobs** can use at most 48 cores per node (36 on `hpc01`): 8 cores per node are kept for GPU jobs. Larger requests are rejected at submit.
-- **Shards:** one per user at a time, with at most 6 cores and 64 GB.
+- **Shards:** on `hpc01`, one per user at a time, with at most 6 cores and 64 GB. On your group's node you can hold up to 3 shards in total (one job with 3, or three jobs with 1), with at most 27 cores and 220 GB in all.
 - CPUs, memory and GPUs are enforced. Ask for what you use: over-asking makes others wait or get preempted.
 
 ## Submit
 
     sbatch --gres=gpu:1 -t 12:00:00 job.sh               # one GPU, 12 h
     sbatch -c 16 --mem=64G -t 12:00:00 job.sh            # CPU-only
-    sbatch --qos=low --gres=gpu:1 -t 5-00:00:00 job.sh   # 5 days: low tier only
+    sbatch --qos=low --gres=gpu:1 -t 5-00:00:00 job.sh   # 5 days, preemptible on your group's node
 
 If you belong to more than one group, add `--account=<group>` to choose which one the job is charged to.
 
 ## Interactive work
 
 - **A whole GPU:** `salloc --gres=gpu:1 -t 2:00:00`, on your group's node or on `shared`.
-- **A small GPU slice:** `salloc --gres=shard:1 -c 4 --mem=32G` gets a sixth of `hpc01`'s GPU for up to 8 h (2 h by default). It is time-shared with up to five other users and has no memory isolation, so keep GPU memory under about 8 GB.
-- Interactive sessions can't be requeued. If one is preempted it is killed, so don't run them in `scavenge`.
+- **A small GPU slice:** `salloc --gres=shard:1 -c 4 --mem=32G` gets a sixth of a GPU for up to 8 h (2 h by default): on your group's node if it has a free shard, otherwise on `hpc01`. It is time-shared with up to five other users and has no memory isolation, so keep GPU memory under about 8 GB. While shards are in use on a node, a whole-GPU job can't start there, and the other way round: keep shard sessions short and exit when you are done.
+- Interactive sessions can't be requeued. If one is preempted it is killed, so don't run them in `scavenge` or `lent`.
 - A shard session opens on `hpc01`, where you are already logged in, so the new shell looks exactly like your login shell. `echo $SLURM_JOB_ID` shows the job number inside a job and nothing outside one.
 - Exit when you're done, so the allocation is released.
 
@@ -67,7 +69,7 @@ In an SSH session on a cluster node, the GPU isn't visible (`nvidia-smi` fails w
 
 ## Preemption
 
-Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted when the node's owners, a `shared` job (on `hpc02`/`hpc03`) or a shard user (on `hpc01`) need it. A preempted job gets SIGTERM, then 180 seconds, then it is requeued and starts again later. Allow a few minutes between a higher-priority job arriving and the preemption.
+Jobs in `scavenge` and `lent`, and low-tier jobs on a group node, can be preempted when the node's owners, a `shared` job (on `hpc02`/`hpc03`) or a shard user (on `hpc01`) need it. A job is not preempted during its first 15 minutes. A preempted job gets SIGTERM, then 180 seconds, then it is requeued and starts again later. Allow a few minutes between a higher-priority job arriving and the preemption.
 
 To survive it:
 
