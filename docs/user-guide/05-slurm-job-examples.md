@@ -120,7 +120,7 @@ If your SSH connection drops, this guide does not provide a session-recovery com
 
 ## 7. Preemptible job that checkpoints
 
-Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: they get SIGTERM, 180 seconds, and are then requeued. This script saves its state on SIGTERM and skips finished work when it starts again. Replace the program with your own; it must be able to resume from its checkpoint.
+Jobs in `scavenge` and `lent`, and low-tier jobs on a group node, can be preempted (not during their first 15 minutes): they get SIGTERM, 180 seconds, and are then requeued. This script saves its state on SIGTERM and skips finished work when it starts again. Replace the program with your own; it must be able to resume from its checkpoint.
 
     cat > "$HOME/slurm-logs/resumable.sbatch" <<'SBATCH'
     #!/bin/bash

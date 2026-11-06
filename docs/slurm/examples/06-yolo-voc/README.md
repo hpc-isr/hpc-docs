@@ -48,7 +48,7 @@ To run TensorBoard yourself on the live logs, run it on the job's node, since `/
 
 ## How it survives preemption
 
-Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted: Slurm sends SIGTERM, waits 180 seconds, and puts the job back in the queue. This script handles that:
+Jobs in `scavenge` and `lent`, and low-tier jobs on a group node, can be preempted (not during their first 15 minutes): Slurm sends SIGTERM, waits 180 seconds, and puts the job back in the queue. This script handles that:
 
 - `#SBATCH --requeue` lets Slurm put it back in the queue, and `--open-mode=append` keeps the log of every attempt in the same file.
 - Training runs on `/scratch/$USER/runs/yolo-voc`, on the node's local disk. Ultralytics saves `last.pt` there after every epoch, and the script copies the run to `RESULTS_DIR` (default `~/results/yolo-voc`) every 30 minutes and when the job ends, including after SIGTERM.
