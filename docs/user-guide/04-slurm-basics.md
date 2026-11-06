@@ -20,10 +20,9 @@ You submit from `hpc01` (or from your group's node, once it has joined the clust
 | `<group>-shard` | your group's own node | members of that group, any tier | GPU shards (a sixth of the GPU each), up to 8 h. Never preempted, and it doesn't preempt your groupmates |
 | `shared` | `hpc02`, `hpc03` | everyone | Whole GPUs, never preempted. Jobs here preempt scavengers on these nodes |
 | `interactive` | `hpc01` | everyone | GPU shards (a sixth of the GPU each), up to 8 h |
-| `scavenge` | idle group nodes, `hpc02` and `hpc03` | groups that have their own node in the cluster | Lowest priority: jobs here can be preempted. Fills idle group nodes first, then `hpc02`/`hpc03`. The only partition where one job can span more than two nodes |
-| `lent` | `hpc01` | everyone | Lowest priority: `hpc01`'s GPU while nobody is using shards. A shard job preempts it. Up to 1 day |
+| `scavenge` | every node: idle group nodes, `hpc01`, `hpc02` and `hpc03` | everyone | Lowest priority: jobs here can be preempted. Fills idle group nodes first, then `hpc02`/`hpc03`, then `hpc01`. The only partition where one job can span more than two nodes |
 
-A job that names no partition goes to `<your group>-<your tier>,shared,scavenge,lent` if your group has its own node in the cluster, and to `shared,lent` otherwise. Slurm starts it wherever it fits first. A job asking for `--gres=shard:1` goes to `<your group>-shard,interactive` (just `interactive` if your group has no node yet).
+A job that names no partition goes to `<your group>-<your tier>,shared,scavenge`, and Slurm starts it wherever it fits first. A job asking for `--gres=shard:1` goes to `<your group>-shard,interactive` (just `interactive` if your group has no node yet).
 
 ## Your tier and limits
 
@@ -59,7 +58,7 @@ If you belong to more than one group, add `--account=<group>` to choose which on
 
 - **A whole GPU:** `salloc --gres=gpu:1 -t 2:00:00`, on your group's node or on `shared`.
 - **A small GPU slice:** `salloc --gres=shard:1 -c 4 --mem=32G` gets a sixth of a GPU for up to 8 h (2 h by default): on your group's node if it has a free shard, otherwise on `hpc01`. It is time-shared with up to five other users and has no memory isolation, so keep GPU memory under about 8 GB. While shards are in use on a node, a whole-GPU job can't start there, and the other way round: keep shard sessions short and exit when you are done.
-- Interactive sessions can't be requeued. If one is preempted it is killed, so don't run them in `scavenge` or `lent`.
+- Interactive sessions can't be requeued. If one is preempted it is killed, so don't run them in `scavenge`.
 - A shard session opens on `hpc01`, where you are already logged in, so the new shell looks exactly like your login shell. `echo $SLURM_JOB_ID` shows the job number inside a job and nothing outside one.
 - Exit when you're done, so the allocation is released.
 
@@ -69,7 +68,7 @@ In an SSH session on a cluster node, the GPU isn't visible (`nvidia-smi` fails w
 
 ## Preemption
 
-Jobs in `scavenge` and `lent`, and low-tier jobs on a group node, can be preempted when the node's owners, a `shared` job (on `hpc02`/`hpc03`) or a shard user (on `hpc01`) need it. A job is not preempted during its first 15 minutes. A preempted job gets SIGTERM, then 180 seconds, then it is requeued and starts again later. Allow a few minutes between a higher-priority job arriving and the preemption.
+Jobs in `scavenge`, and low-tier jobs on a group node, can be preempted when the node's owners, a `shared` job (on `hpc02`/`hpc03`) or a shard user (on `hpc01`) need it. A job is not preempted during its first 15 minutes. A preempted job gets SIGTERM, then 180 seconds, then it is requeued and starts again later. Allow a few minutes between a higher-priority job arriving and the preemption.
 
 To survive it:
 

@@ -22,7 +22,7 @@ Each user has one tier, set by an administrator. It is shown as your QOS:
 
 Members of a group who aren't in any tier get low. A user with a higher tier can also submit with a lower one (`--qos=low`), for example for long restartable work that should not preempt groupmates. Every tier may run up to 7 days.
 
-Scavenging on other groups' idle nodes is open to groups that have their own node in the cluster. Everyone can use `lent` (`hpc01`'s GPU when no shard is in use) and `interactive`. Members of a group with a node also get `<group>-shard`, for GPU slices on their own node.
+Members of a group with a node also get `<group>-shard`, for GPU slices on their own node.
 
 The tier matters mostly on your group's own node. On the `shared` nodes every tier has the same priority and nobody is preempted. Between groups, Slurm's fair-share balances usage: a group that has used less recently goes first.
 

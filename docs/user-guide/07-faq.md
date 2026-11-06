@@ -8,10 +8,6 @@ nav_order: 8
 
 [← User Guide](README.md) · [Home](../README.md)
 
-## Why can't I use the `scavenge` partition?
-
-It is for groups that have their own node in the cluster. Use `shared`, and `lent` (`hpc01`'s GPU while nobody is using shards): jobs without `--partition` already go there. For a run that needs several nodes at once, ask an admin for a reservation.
-
 ## I cannot log in
 
 Use the exact HPC POSIX login supplied by your group administrator; do not assume it is identical to your display name or email. If a first-time or changed SSH host-key prompt appears, verify the fingerprint through the approved administrator channel before accepting it. If you cannot verify it, stop and contact your group administrator. See [Getting an account](01-getting-an-account.md) and [SSH login](02-ssh-login.md).

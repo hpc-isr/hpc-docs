@@ -39,7 +39,7 @@ The first epoch is slower than the next ones while CUDA warms up. The model goes
 
 ## How it works
 
-- `--gres=gpu:1` asks for one whole GPU. Each node has one L40S, so the job runs on a node whose GPU is free: your group's node, `hpc02` or `hpc03`, or, if your group has its own node in the cluster, an idle node of another group through `scavenge`; otherwise `hpc01` through `lent` while nobody is using shards.
+- `--gres=gpu:1` asks for one whole GPU. Each node has one L40S, so the job runs on a node whose GPU is free: your group's node, `hpc02` or `hpc03`, or an idle node through `scavenge`.
 - Slurm sets `CUDA_VISIBLE_DEVICES` and only lets the job see its GPU. Outside a job, `nvidia-smi` fails (see [No GPU outside a job](../../../user-guide/04-slurm-basics.md#no-gpu-outside-a-job)).
 - `--amp` uses bfloat16/float16 where it is safe, which the L40S runs much faster than float32.
 - A GPU job still needs CPUs to feed it: MNIST is tiny, but for images or video the data loader is often the bottleneck. If `nvidia-smi` in the job shows low GPU use, add CPUs before anything else.
