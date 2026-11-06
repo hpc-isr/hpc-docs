@@ -28,7 +28,7 @@ Each example is a folder with its job scripts and a page explaining what it does
 | 2 | [Parameter sweep on CPUs](examples/02-kalman-sweep/README.md) | Job arrays, a collector job with `afterok` (Kalman filter Monte Carlo) | 20 × 1 CPU |
 | 3 | [Train a network on CPUs](examples/03-mnist-cpu/README.md) | Multi-threading with the cores you asked for (MNIST) | 16 CPUs |
 | 4 | [Train a network on a GPU](examples/04-mnist-gpu/README.md) | A whole GPU, mixed precision, CPU vs GPU timing | 1 GPU |
-| 5 | [Jupyter on a GPU slice](examples/05-jupyter-shard/README.md) | Interactive work on a shard of `hpc01`'s GPU, SSH tunnel | 1 shard |
+| 5 | [Jupyter on a GPU slice](examples/05-jupyter-shard/README.md) | Interactive work on a shard of `hpc01`'s GPU, SSH tunnel | 1 shard (up to 3 on your group's node) |
 | 6 | [Train a YOLO object detector](examples/06-yolo-voc/README.md) | A long job that survives preemption and time limits (Pascal VOC) | 1 GPU, hours |
 | 7 | [Robot learning with Isaac Lab](examples/07-isaaclab-rl/README.md) | RL for a humanoid on Isaac Sim (pip install), streamed to your laptop | 1 GPU |
 | 8 | [3D scene from a video](examples/08-gaussian-splatting/README.md) | A CPU → GPU pipeline in Apptainer: COLMAP, then Gaussian Splatting | 16 CPUs, then 1 GPU |
