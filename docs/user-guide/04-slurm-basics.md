@@ -43,7 +43,7 @@ Other limits:
 - **Default wall time is 4 hours.** A job without `-t` is stopped after 4 h.
 - **Default memory is 7800 MB per CPU core** when you don't give `--mem`.
 - **CPU-only jobs** can use at most 48 cores per node (36 on `hpc01`): 8 cores per node are kept for GPU jobs. Larger requests are rejected at submit.
-- **Shards:** on `hpc01`, one per user at a time, with at most 6 cores and 64 GB. On your group's node you can hold up to 3 shards in total (one job with 3, or three jobs with 1), with at most 27 cores and 220 GB in all.
+- **Shards:** on `hpc01`, one per user at a time, with at most 6 cores and 64 GB. On your group's node you can hold up to 3 shards in total (one job with 3, or three jobs with 1), with at most 22 cores and 220 GB in all.
 - CPUs, memory and GPUs are enforced. Ask for what you use: over-asking makes others wait or get preempted.
 
 ## Submit

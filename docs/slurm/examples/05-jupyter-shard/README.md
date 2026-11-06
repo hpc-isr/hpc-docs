@@ -38,7 +38,7 @@ then open `http://127.0.0.1:8888/lab?token=<token>` with the token from the log.
 
 ## Limits of a shard
 
-- **One shard per user** at a time on `hpc01`, with at most 6 CPUs and 64 GB of memory. A second one stays pending with `QOSMaxGRESPerUser`. If your group has its own node in the cluster, `--gres=shard:1` also tries `<group>-shard` there first, where you can hold up to 3 shards (27 CPUs and 220 GB in all).
+- **One shard per user** at a time on `hpc01`, with at most 6 CPUs and 64 GB of memory. A second one stays pending with `QOSMaxGRESPerUser`. If your group has its own node in the cluster, `--gres=shard:1` also tries `<group>-shard` there first, where you can hold up to 3 shards (22 CPUs and 220 GB in all).
 - **No GPU memory isolation.** All six users share the 48 GB, so keep your use under about 8 GB. In PyTorch you can enforce that in the first cell:
 
       import torch
