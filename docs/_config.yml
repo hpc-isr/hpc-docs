@@ -75,6 +75,9 @@ exclude:
   - "*.bak"
 
 # ---- Just the Docs settings ----
+# Render ```mermaid code blocks as diagrams.
+mermaid:
+  version: "11.4.1"
 search_enabled: true
 heading_anchors: true
 back_to_top: true
