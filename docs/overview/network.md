@@ -27,7 +27,6 @@ You only ever log in to `hpc01` or your group's node. You do **not** log in to `
 %%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 40, "rankSpacing": 50, "padding": 12}, "themeVariables": {"fontFamily": "Inter, Segoe UI, Helvetica Neue, Arial, sans-serif", "fontSize": "15px", "primaryColor": "#ffffff", "primaryBorderColor": "#94a3b8", "primaryTextColor": "#1e293b", "lineColor": "#64748b", "clusterBkg": "#f8fafc", "clusterBorder": "#cbd5e1", "edgeLabelBackground": "#ffffff"}}}%%
 flowchart LR
     ME(["<b>You</b><br/>any computer"])
-    NET{"campus network<br/>or IST VPN"}
     subgraph CLUSTER["ISR HPC cluster"]
         direction LR
         H1["<b>hpc01</b><br/>login + SLURM"]
@@ -40,9 +39,8 @@ flowchart LR
         STORE[("<b>/home</b> · <b>/storage</b><br/>seen identically by<br/>all these nodes")]
         SSO["<b>Single sign-on</b><br/>checks your username<br/>and password"]
     end
-    ME --> NET
-    NET -- "ssh" --> H1
-    NET -- "ssh" --> GN
+    ME -- "ssh" --> H1
+    ME -- "ssh" --> GN
     H1 -- "sbatch / salloc" --> H2
     H1 -- "sbatch / salloc" --> H3
     H1 -- "sbatch / salloc" --> GN
@@ -55,7 +53,7 @@ flowchart LR
     classDef group fill:#e3f4e8,stroke:#2e8b57,stroke-width:1.5px,color:#123d25
     classDef store fill:#fff1d6,stroke:#c47f12,stroke-width:1.5px,color:#4a2f05
     classDef fast fill:#efe6fa,stroke:#7b4fb3,stroke-width:1.5px,color:#2e1650
-    class ME,NET you
+    class ME you
     class H1,H2,H3 shared
     class GN group
     class STORE store
