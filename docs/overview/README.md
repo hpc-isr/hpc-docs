@@ -9,8 +9,6 @@ has_toc: false
 
 [← Home](../README.md)
 
-Read these pages first if you are new to the cluster. No Linux expertise is needed: each page says what to type and why.
-
 ## The cluster in one minute
 
 - **Where do I log in?** Shared cluster: `hpc01.isr.tecnico.ulisboa.pt`. Your group's own machine: `hpc-<group>.isr.tecnico.ulisboa.pt` (for example `hpc-dsor`).
