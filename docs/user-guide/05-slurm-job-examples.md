@@ -8,7 +8,13 @@ nav_order: 5
 
 [← User Guide](README.md) · [Home](../README.md)
 
-Small starting examples. For complete workloads (training on CPUs and GPUs, Isaac Lab, YOLO, vision-language models, multi-node), see the [Slurm example jobs](../slurm/README.md). Your Slurm account is your research group (`dsor`, `irsg`, `laseeb`, `sipg` or `vislab`). Check the account, allowed QoS values, and default with:
+## Turnkey SLURM examples
+
+For complete workloads (training on CPUs and GPUs, Isaac Lab, YOLO, vision-language models, multi-node), see the [Slurm example jobs](../slurm/README.md). Each one comes with its scripts and an explanation, and is a good first experiment on the cluster.
+
+## Small starting examples
+
+The short examples below are copy-paste starting points. Your Slurm account is your research group (`dsor`, `irsg`, `laseeb`, `sipg` or `vislab`). Check the account, allowed QoS values, and default with:
 
     sacctmgr -nP show assoc where cluster=hpc-isr user="$USER" format=Account,QOS,DefaultQOS
 
