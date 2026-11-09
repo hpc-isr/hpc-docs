@@ -14,8 +14,8 @@ This page shows how to reach the machines and how a request travels from your la
 
 | You want to… | Connect to | From where |
 |---|---|---|
-| Use the shared cluster | `ssh <username>@hpc01.isr.tecnico.ulisboa.pt` | Campus network, or [IST's VPN](https://si.tecnico.ulisboa.pt/en/servicos/redes-e-conetividade/vpn/) from elsewhere |
-| Use your group's node | `ssh <username>@hpc-<group>.isr.tecnico.ulisboa.pt` | Ask your group's admin for the exact name and network |
+| Use the shared cluster | `ssh <username>@hpc01.isr.tecnico.ulisboa.pt` | Anywhere on the internet |
+| Use your group's node | `ssh <username>@hpc-<group>.isr.tecnico.ulisboa.pt` | Ask your group's admin for the exact name |
 
 `<username>` is the one you chose when you accepted your invitation. Details, SSH keys and a shortcut for `~/.ssh/config` are in [SSH login](../user-guide/02-ssh-login.md).
 
@@ -26,7 +26,7 @@ You only ever log in to `hpc01` or your group's node. You do **not** log in to `
 ```mermaid
 %%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 40, "rankSpacing": 50, "padding": 12}, "themeVariables": {"fontFamily": "Inter, Segoe UI, Helvetica Neue, Arial, sans-serif", "fontSize": "15px", "primaryColor": "#ffffff", "primaryBorderColor": "#94a3b8", "primaryTextColor": "#1e293b", "lineColor": "#64748b", "clusterBkg": "#f8fafc", "clusterBorder": "#cbd5e1", "edgeLabelBackground": "#ffffff"}}}%%
 flowchart LR
-    ME(["<b>You</b><br/>laptop"])
+    ME(["<b>You</b><br/>any computer"])
     NET{"campus network<br/>or IST VPN"}
     subgraph CLUSTER["ISR HPC cluster"]
         direction LR
@@ -72,9 +72,8 @@ Reading the diagram:
 
 ## When something does not connect
 
-1. Check you are on the campus network or the VPN.
-2. Check the hostname and your username (see [Getting an account](../user-guide/01-getting-an-account.md)).
-3. After several failed attempts you may be blocked for a while. Wait, then try again, instead of retrying repeatedly.
-4. Still stuck? Ask your group's admin: see [Who's who](contacts.md).
+1. Check the hostname and your username (see [Getting an account](../user-guide/01-getting-an-account.md)).
+2. After several failed attempts you may be blocked for a while. Wait, then try again, instead of retrying repeatedly.
+3. Still stuck? Ask your group's admin: see [Who's who](contacts.md).
 
 Next: [Inside a node](node-anatomy.md)

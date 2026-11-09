@@ -69,7 +69,7 @@ Quotas, `/scratch` clean-up rules and examples are in [Storage](../user-guide/03
 
 ## Firewall and network access
 
-A firewall protects the nodes from the wider internet. Computers on the ISR network, or connected through [IST's VPN](https://si.tecnico.ulisboa.pt/en/servicos/redes-e-conetividade/vpn/), are additionally allowed to reach the nodes on ports 10000-50000, for example to open a web service that runs in your job.
+A firewall protects the nodes from the wider internet: SSH is reachable from anywhere, but other connections are blocked. Computers on the ISR network, or connected through [IST's VPN](https://si.tecnico.ulisboa.pt/en/servicos/redes-e-conetividade/vpn/), are additionally allowed to reach the nodes on ports 10000-50000, for example to open a web service that runs in your job.
 
 ## Shared nodes and group nodes
 
