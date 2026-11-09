@@ -7,6 +7,10 @@ nav_order: 1
 
 Documentation for users of the HPC cluster of the **Institute for Systems and Robotics (ISR)**.
 
+## Quick HPC introduction → [Overview](overview/README.md)
+
+New to the cluster? Start with the [Overview](overview/README.md): which machine to log in to, how to run GPU jobs with SLURM, and where to keep your files, in one page with diagrams.
+
 ## Using the cluster → [User Guide](user-guide/README.md)
 
 | Task | Page |
