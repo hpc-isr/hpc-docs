@@ -45,7 +45,7 @@ Once the key exists, copy its public part to the cluster with `ssh-copy-id`. It 
 ssh-copy-id -i ~/.ssh/id_ed25519.pub <username>@hpc01.isr.tecnico.ulisboa.pt
 ```
 
-You only need to do this once: your home is shared, so the key works on every node. You are only authorized to log in to `hpc01`, `hpc-<group>` and any node running one of your SLURM jobs.
+You only need to do this once: your home is shared, so the key works on every node. Remember that you are only authorized to log in to `hpc01`, `hpc-<group>` and any node running one of your SLURM jobs.
 
 Then check that `ssh <username>@hpc01.isr.tecnico.ulisboa.pt` no longer asks for your password (it asks for the key's passphrase, if you set one).
 
