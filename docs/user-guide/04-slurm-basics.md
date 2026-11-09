@@ -8,7 +8,13 @@ nav_order: 4
 
 [← User Guide](README.md) · [Home](../README.md)
 
-This page explains how jobs are placed, what limits apply and how to submit. The tiers and how to get a higher one are in [Access and priority](../slurm/access-priority.md). Copy-paste scripts are in [SLURM job examples](05-slurm-job-examples.md).
+This page explains how jobs are placed, what limits apply and how to submit. The tiers and how to get a higher one are in [Access and priority](../slurm/access-priority.md).
+
+## Example scripts
+
+Ready-to-run job scripts are in [SLURM job examples](05-slurm-job-examples.md): short copy-paste starting points for CPU and GPU jobs. Copy one, change the resources and the command to match your work, and submit it with `sbatch`.
+
+For complete workloads, such as training on one or several GPUs, see the [Slurm example jobs](../slurm/README.md).
 
 ## Where jobs run
 
