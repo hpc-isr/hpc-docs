@@ -31,11 +31,29 @@ Repeated failed attempts may trigger temporary protection. If login is blocked, 
 
 ## Set up an SSH key (recommended)
 
-Keys reduce password entry. Create them on your own device and protect the private key with a passphrase. Share only the public key with the cluster administrators using the approved enrollment process. Never copy a private key to a cluster host or repository.
+Keys reduce password entry. Create them on your own device and protect the private key with a passphrase. Only the public key (the `.pub` file) ever leaves your device: copy it to the cluster as shown below. Never copy a private key to a cluster host or repository.
 
 ```bash
 ssh-keygen -t ed25519 -C "<username>@isr-hpc"
 ```
+
+## Copy SSH key to server
+
+Once the key exists, copy its public part to the cluster with `ssh-copy-id`. It asks for your password once:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub <username>@hpc01.isr.tecnico.ulisboa.pt
+```
+
+For your group's node, do the same with its hostname:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub <username>@hpc-<group>.isr.tecnico.ulisboa.pt
+```
+
+Then check that `ssh <username>@hpc01.isr.tecnico.ulisboa.pt` no longer asks for your password (it asks for the key's passphrase, if you set one).
+
+> **Note:** once your key is copied, you can log in without a password to all the HPC servers. You are still only authorized on `hpc01`, `hpc-<group>`, and any node where one of your SLURM jobs is running.
 
 ## Short names with `~/.ssh/config`
 
