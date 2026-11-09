@@ -37,7 +37,7 @@ flowchart LR
             GN["<b>hpc-#lt;group#gt;</b><br/>your group's node"]
         end
         STORE[("<b>/home</b> · <b>/storage</b><br/>seen identically by<br/>all these nodes")]
-        SSO["<b>Single sign-on</b><br/>checks your username<br/>and password"]
+        SSO["<a href="https://sso.isr.tecnico.ulisboa.pt"><b>Single sign-on</b></a><br/>checks your username<br/>and password"]
     end
     ME -- "ssh" --> H1
     ME -- "ssh" --> GN
@@ -64,7 +64,7 @@ flowchart LR
 
 Reading the diagram:
 
-- **Logins.** Your username and password are checked by the central single sign-on (the same account you created with your invitation). It is also what you use for web tools such as [Slurm-web](https://slurm.hpc.isr.tecnico.ulisboa.pt).
+- **Logins.** Your username and password are checked by the central [single sign-on](https://sso.isr.tecnico.ulisboa.pt) (the same account you created with your invitation). It is also what you use for web tools such as [Slurm-web](https://slurm.hpc.isr.tecnico.ulisboa.pt).
 - **Jobs.** From `hpc01` you hand a job to SLURM, and SLURM starts it on a compute node with free resources. Your files in `/home` are already there, because the storage is shared between the nodes.
 - **Group nodes.** They have their own login, administered by your group. Once a group node has joined the cluster, it uses the same `/home` and SLURM as the shared nodes. See [Group nodes](../user-guide/06-group-nodes.md).
 
