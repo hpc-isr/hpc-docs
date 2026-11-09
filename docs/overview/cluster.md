@@ -31,6 +31,8 @@ flowchart TB
         H3["<b>hpc03</b><br/>GPU compute"]
         H1 -. "SLURM starts jobs" .-> H2
         H1 -. "SLURM starts jobs" .-> H3
+        GS["<b>hpc-#lt;group#gt;</b><br/>idle group nodes:<br/><i>scavenge</i> jobs for everyone"]
+        H1 -. "scavenge jobs,<br/>can be preempted" .-> GS
     end
     subgraph GROUPS["Group nodes · one per research group, for its members"]
         G["<b>hpc-dsor</b><br/><b>hpc-irsg</b><br/><b>hpc-laseeb</b><br/><b>hpc-sipg</b><br/><b>hpc-vislab</b>"]
@@ -49,7 +51,7 @@ flowchart TB
     classDef fast fill:#efe6fa,stroke:#7b4fb3,stroke-width:1.5px,color:#2e1650
     class ME you
     class H1,H2,H3 shared
-    class G group
+    class G,GS group
     class FS store
     style SHARED fill:#f2f7fe,stroke:#9dbde6
     style GROUPS fill:#f2faf4,stroke:#9fd0b1
