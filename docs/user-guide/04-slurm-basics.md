@@ -12,7 +12,7 @@ This page explains how jobs are placed, what limits apply and how to submit. The
 
 ## Example scripts
 
-To try the cluster quickly, start with the [Slurm example jobs](../slurm/README.md). They begin with a one-minute "Hello cluster" job and go up to training on a GPU, each with its scripts and an explanation of what to expect.
+To try the cluster quickly, start with the [Slurm example jobs](../slurm/README.md). They begin with a short "Hello cluster" job and go up to training on a GPU, each with its scripts and an explanation of what to expect.
 
 For more options, [SLURM job examples](05-slurm-job-examples.md) has short copy-paste scripts for CPU and GPU jobs. Copy one, change the resources and the command to match your work, and submit it with `sbatch`.
 
