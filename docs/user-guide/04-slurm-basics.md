@@ -8,7 +8,7 @@ nav_order: 4
 
 [← User Guide](README.md) · [Home](../README.md)
 
-The shared cluster runs Slurm 26.05 since 2026-10-26. This page explains how jobs are placed, what limits apply and how to submit. The tiers and how to get a higher one are in [Access and priority](../slurm/access-priority.md). Copy-paste scripts are in [SLURM job examples](05-slurm-job-examples.md).
+This page explains how jobs are placed, what limits apply and how to submit. The tiers and how to get a higher one are in [Access and priority](../slurm/access-priority.md). Copy-paste scripts are in [SLURM job examples](05-slurm-job-examples.md).
 
 ## Where jobs run
 
