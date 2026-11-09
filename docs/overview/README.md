@@ -20,7 +20,7 @@ has_toc: false
 %%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 40, "rankSpacing": 50, "padding": 12}, "themeVariables": {"fontFamily": "Inter, Segoe UI, Helvetica Neue, Arial, sans-serif", "fontSize": "15px", "primaryColor": "#ffffff", "primaryBorderColor": "#94a3b8", "primaryTextColor": "#1e293b", "lineColor": "#64748b", "clusterBkg": "#f8fafc", "clusterBorder": "#cbd5e1", "edgeLabelBackground": "#ffffff"}}}%%
 flowchart LR
     ME(["<b>You</b><br/>any computer on the internet"])
-    LOGIN["<b>1. Log in</b><br/>ssh to hpc01 or hpc-&lt;group&gt;<br/>edit, copy files, submit jobs"]
+    LOGIN["<b>1. Log in</b><br/>ssh to <code>hpc01</code> or <code>hpc-#lt;group#gt;</code><br/>edit, copy files, submit jobs"]
     SLURM["<b>2. Ask SLURM</b><br/>sbatch / salloc<br/>say what you need: GPU, cores, time"]
     RUN["<b>3. Your job runs</b><br/>on a node with a free GPU,<br/>using /scratch for fast files"]
     RES[("<b>4. Keep results</b><br/>in /home or your<br/>group's storage")]

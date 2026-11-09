@@ -25,9 +25,9 @@ flowchart TB
         end
         subgraph SHAREDFS["Shared: the same on every shared node"]
             direction LR
-            HOME[("<b>/home/&lt;username&gt;</b><br/>your code and results")]
+            HOME[("<b>/home/#lt;username#gt;</b><br/>your code and results")]
             SHAREDSW[("<b>/storage/shared</b><br/>shared software<br/>and container images")]
-            NAS[("<b>/storage/anubis-nas/&lt;group&gt;</b><br/>your group's data")]
+            NAS[("<b>/storage/anubis-nas/#lt;group#gt;</b><br/>your group's data")]
         end
     end
     JOB(["<b>Your job</b>"])

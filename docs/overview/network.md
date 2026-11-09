@@ -35,7 +35,7 @@ flowchart LR
             direction TB
             H2["<b>hpc02</b>"]
             H3["<b>hpc03</b>"]
-            GN["<b>hpc-&lt;group&gt;</b><br/>your group's node"]
+            GN["<b>hpc-#lt;group#gt;</b><br/>your group's node"]
         end
         STORE[("<b>/home</b> · <b>/storage</b><br/>seen identically by<br/>all these nodes")]
         SSO["<b>Single sign-on</b><br/>checks your username<br/>and password"]
