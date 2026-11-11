@@ -22,7 +22,7 @@ NUM_STEPS_PER_ENV="${NUM_STEPS_PER_ENV:-}"
 NUM_MINI_BATCHES="${NUM_MINI_BATCHES:-}"
 STREAM="${STREAM:-0}"
 # Where checkpoints and logs are kept: your home by default, or your group's NAS,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/isaaclab
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/isaaclab
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/isaaclab}"
 
 source "$SLURM_SUBMIT_DIR/isaaclab.sh"   # Isaac Lab on this node's /scratch

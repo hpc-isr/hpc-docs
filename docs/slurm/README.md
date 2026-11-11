@@ -70,7 +70,7 @@ Every example follows the same pattern, which you should copy for your own jobs:
 
 To keep results somewhere else, such as your group's NAS, set `RESULTS_DIR` when you submit:
 
-    sbatch --export=ALL,RESULTS_DIR=/storage/anubis-nas/<group>/results/mnist job.sbatch
+    sbatch --export=ALL,RESULTS_DIR=/storage/<group>/anubis-nas/results/mnist job.sbatch
 
 In a script, the pattern is:
 

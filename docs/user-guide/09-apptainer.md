@@ -135,7 +135,7 @@ Your home is mounted inside the container at the same path, and so is the direct
 
     apptainer exec --bind /scratch image.sif ...                      # /scratch at /scratch
     apptainer exec --bind /scratch/$USER/data:/data image.sif ...     # like docker -v host:container
-    apptainer exec --bind /scratch,/storage/anubis-nas image.sif ...  # several paths
+    apptainer exec --bind /scratch,/storage/<group> image.sif ...  # several paths
 
 The paths must exist on the node the job runs on. `/scratch` exists on `hpc01`–`hpc03` and on group nodes that have joined the cluster, and is a local NVMe disk on each node (see [Storage](03-storage.md#scratch)).
 
@@ -159,7 +159,7 @@ This job builds the image on its node if that node doesn't have it yet, stages t
     SIF="/scratch/$USER/containers/pytorch-2.5.1.sif"
     DATA="/scratch/$USER/datasets/mydata"                          # kept for later jobs on this node
     WORK="/scratch/$USER/$SLURM_JOB_ID"                             # removed at the end
-    RESULTS_DIR="${RESULTS_DIR:-$HOME/results/train}"              # or /storage/anubis-nas/<group>/...
+    RESULTS_DIR="${RESULTS_DIR:-$HOME/results/train}"              # or /storage/<group>/anubis-nas/...
     export HF_HOME="/scratch/$USER/hf-cache"
     mkdir -p "$(dirname "$SIF")" "$WORK/out" "$HF_HOME"
 

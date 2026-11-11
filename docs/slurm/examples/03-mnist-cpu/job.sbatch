@@ -10,7 +10,7 @@ source "$SLURM_SUBMIT_DIR/../env.sh"   # this example's environment on this node
 ensure_env mnist-cpu "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # Where results are kept: your home by default, or your group's NAS,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/mnist
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/mnist
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/mnist}"
 DATA="/scratch/$USER/datasets"        # dataset cache on this node, reused by later jobs
 WORK="/scratch/$USER/$SLURM_JOB_ID"   # this job's working space on the node's local disk

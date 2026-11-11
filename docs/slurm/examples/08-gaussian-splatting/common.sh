@@ -7,7 +7,7 @@ NS_IMAGE="${NS_IMAGE:-docker://ghcr.io/nerfstudio-project/nerfstudio:1.1.3}"
 SIF="${SIF:-/scratch/$USER/containers/nerfstudio-1.1.3.sif}"
 SCENE_NAME="${SCENE_NAME:-truck}"
 # Where each scene is kept: your home by default, or your group's NAS,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/splats
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/splats
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/splats}"
 SCENE_RESULTS="$RESULTS_DIR/$SCENE_NAME"     # data/ (frames + poses) and runs/ (models, renders)
 

@@ -35,7 +35,7 @@ source "$SLURM_SUBMIT_DIR/../env.sh"
 ensure_env ddp "$SLURM_SUBMIT_DIR/requirements.txt"
 
 # Where the result is kept: your home by default, or your group's NAS,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/ddp-cifar
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/ddp-cifar
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/ddp-cifar}"
 DATA="/scratch/$USER/datasets/cifar10"   # a copy on each node's local disk
 WORK="/scratch/$USER/$SLURM_JOB_ID"      # on each node; rank 0 (this node) writes the results
