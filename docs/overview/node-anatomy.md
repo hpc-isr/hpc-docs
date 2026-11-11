@@ -27,7 +27,7 @@ flowchart TB
             direction LR
             HOME[("<b>/home/#lt;username#gt;</b><br/>your code and results")]
             SHAREDSW[("<b>/storage/shared</b><br/>shared software<br/>and container images")]
-            NAS[("<b>/storage/anubis-nas/#lt;group#gt;</b><br/>your group's data")]
+            NAS[("<b>/storage/#lt;group#gt;/anubis-nas</b><br/>your group's data")]
         end
     end
     JOB(["<b>Your job</b>"])
@@ -57,7 +57,7 @@ flowchart TB
 | Source code, scripts, notes, final results | `/home/<username>` | The same on every shared node, so a job sees what you saved from `hpc01`. 200 GiB soft limit |
 | Python environments, `pip` and model caches | `/scratch/<username>` | Much faster for many small files, and keeps your home small. Build them in a job, on the node that will use them |
 | Data a job reads over and over | Copy it to `/scratch` at the start of the job | Reading from a local disk is faster, and does not slow other users down |
-| Data your whole group shares | `/storage/anubis-nas/<group>` | Only your group can open it. Slower, so copy what a job reads heavily to `/scratch` |
+| Data your whole group shares | `/storage/<group>/anubis-nas` | Only your group can open it. Slower, so copy what a job reads heavily to `/scratch` |
 | Shared software and container images | `/storage/shared` | Ask the admins if you need something added there |
 
 Two rules of thumb:

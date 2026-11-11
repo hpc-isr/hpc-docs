@@ -13,7 +13,7 @@ ensure_env kalman-sweep "$SLURM_SUBMIT_DIR/requirements.txt"
 export OMP_NUM_THREADS=1   # numpy on small matrices: one thread is fastest
 
 # Results end up here. Your home by default; your group's NAS works too,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/kalman-sweep
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/kalman-sweep
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/kalman-sweep}"
 
 # Work on the node's local disk; remove it when the task ends, however it ends.

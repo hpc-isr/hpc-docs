@@ -14,7 +14,7 @@ ensure_env yolo-voc "$SLURM_SUBMIT_DIR/requirements.txt"
 
 RUN_NAME="${RUN_NAME:-yolo-voc}"
 # Where the run is kept: your home by default, or your group's NAS,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/yolo-voc
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/yolo-voc
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/$RUN_NAME}"
 # Training writes to the node's local disk. The path is the same on every node,
 # so a run resumed on another node finds its files where its checkpoint expects them.

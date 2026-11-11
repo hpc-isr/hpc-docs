@@ -44,7 +44,7 @@ Files: [`job.sbatch`](job.sbatch), [`vllm-image.sh`](vllm-image.sh), [`pull.sbat
 | Model weights (30.9 GB) | `/scratch/$USER/hf-cache` | Downloaded once per node from Hugging Face, reused by later jobs there |
 | Sample images: [COCO val2017](https://cocodataset.org/#download) (5000 photos, 0.8 GB, CC BY 4.0) | `/scratch/$USER/datasets/coco-val2017` | Downloaded once per node |
 | Your images (`IMAGES=...`) | copied to `/scratch/$USER/<jobid>/images` | Read from the local disk, not over the network |
-| Captions | written to `/scratch/$USER/<jobid>/`, then copied to `~/results/vlm-captions/captions-<jobid>.jsonl` | Set `RESULTS_DIR` to keep them elsewhere, such as `/storage/anubis-nas/<group>/...` |
+| Captions | written to `/scratch/$USER/<jobid>/`, then copied to `~/results/vlm-captions/captions-<jobid>.jsonl` | Set `RESULTS_DIR` to keep them elsewhere, such as `/storage/<group>/anubis-nas/...` |
 
 The first run on a node takes longer for the downloads. The weights count toward your [`/scratch` quota](../../../user-guide/03-storage.md#quota-1) on that node.
 

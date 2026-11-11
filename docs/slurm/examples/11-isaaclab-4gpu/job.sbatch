@@ -21,7 +21,7 @@ TASK="${TASK:-Isaac-Velocity-Rough-H1}"
 NUM_ENVS="${NUM_ENVS:-4096}"            # per GPU
 MAX_ITERATIONS="${MAX_ITERATIONS:-3000}"
 # Where checkpoints and logs are kept: your home by default, or your group's NAS,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/isaaclab
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/isaaclab
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/isaaclab}"
 
 # Isaac Lab on each node's /scratch, from example 7: cloned and installed on every

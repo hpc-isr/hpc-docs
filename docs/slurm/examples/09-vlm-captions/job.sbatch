@@ -14,7 +14,7 @@ set -euo pipefail
 MODEL="${MODEL:-Qwen/Qwen3.8-27B-FP8}"
 LIMIT="${LIMIT:-200}"
 # Where the captions are kept: your home by default, or your group's NAS,
-# e.g. RESULTS_DIR=/storage/anubis-nas/<group>/captions
+# e.g. RESULTS_DIR=/storage/<group>/anubis-nas/captions
 RESULTS_DIR="${RESULTS_DIR:-$HOME/results/vlm-captions}"
 
 # Caches on this node's /scratch, reused by later jobs: the model's weights (about 30 GB)

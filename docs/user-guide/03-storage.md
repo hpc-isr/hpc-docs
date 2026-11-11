@@ -13,7 +13,7 @@ nav_order: 3
 | `/home/<username>` | Your home, on the cluster's MooseFS filesystem | Yes: the same on `hpc01`–`hpc03` and on group nodes that have joined the cluster | 200 GiB soft, 500 GiB hard | No |
 | `/storage/shared` | Shared software and container images, on MooseFS | Yes | | No |
 | `/scratch` | Fast local NVMe disk on each node, 3.5 TB (shared nodes, and group nodes that have joined the cluster) | No: each node has its own | 100 GiB soft, 200 GiB hard on each node; files untouched for 30 days are deleted | No |
-| `/storage/anubis-nas/<group>` | Your group's storage on the ISR NAS (DSOR so far) | Yes: mounted on every node | The group's NAS volume | No |
+| `/storage/<group>/anubis-nas` | Your group's storage on the ISR NAS (DSOR so far) | Yes: mounted on every node | The group's NAS volume | No |
 
 ## Your home
 
@@ -56,7 +56,7 @@ Reading a dataset straight from your home or the NAS in every epoch is slower th
 |---|---|---|---|
 | Your home (MooseFS) | 4 (2026-11-01) | about 3.3 GiB/s | about 860 MiB/s |
 | `/storage/shared` (MooseFS) | 4 (2026-11-01) | about 2.4 GiB/s | about 620 MiB/s |
-| Group NAS (`/storage/anubis-nas/<group>`) | 5 (2026-11-02) | about 570 MiB/s | about 115 MiB/s |
+| Group NAS (`/storage/<group>/anubis-nas`) | 5 (2026-11-02) | about 570 MiB/s | about 115 MiB/s |
 
 The NAS link is shared by every node, so it gets slower the more jobs read from it at once. What helps:
 
@@ -69,7 +69,7 @@ For example, at the start of a job script:
     DATA="/scratch/$USER/datasets/my-dataset"
     if [ ! -f "$DATA/.complete" ]; then
         mkdir -p "$DATA"
-        rsync -a /storage/anubis-nas/dsor/datasets/my-dataset/ "$DATA/"
+        rsync -a /storage/dsor/anubis-nas/datasets/my-dataset/ "$DATA/"
         touch "$DATA/.complete"
     fi
 
@@ -93,7 +93,7 @@ If a job needs more, ask the admins.
 
 ## Group NAS storage
 
-Some research groups have their own volume on the ISR NAS, mounted on every node at `/storage/anubis-nas/<group>`. So far that is DSOR (`/storage/anubis-nas/dsor`); other groups follow as their NAS is set up.
+Some research groups have their own volume on the ISR NAS, mounted on every node at `/storage/<group>/anubis-nas`. So far that is DSOR (`/storage/dsor/anubis-nas`); other groups follow as their NAS is set up.
 
 - Only members of the group can open the directory. New files are group-writable, so everyone in the group can read and change them.
 - It is meant for datasets and results you share within the group. The link to the NAS is slower than the cluster's own storage, so copy what a job reads heavily to `/scratch` first ([Staging a dataset](#staging-a-dataset)).
@@ -102,8 +102,8 @@ Some research groups have their own volume on the ISR NAS, mounted on every node
 
 Check it and the free space:
 
-    ls /storage/anubis-nas/dsor
-    df -h /storage/anubis-nas/dsor
+    ls /storage/dsor/anubis-nas
+    df -h /storage/dsor/anubis-nas
 
 ## Software environments
 
